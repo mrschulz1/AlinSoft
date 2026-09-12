@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Alineaciones Bustamante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #1e293b; font-family: system-ui, -apple-system, sans-serif; }
+        .card-login { background-color: #0f172a; border: 1px solid #334155; border-radius: 12px; }
+        .btn-orange { background-color: #ff5722; color: #fff; font-weight: 600; }
+        .btn-orange:hover { background-color: #e64a19; color: #fff; }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center vh-100">
+
+<div class="card card-login p-4 shadow-lg" style="max-width: 400px; width: 100%;">
+    <div class="card-body text-center">
+        <div class="mb-4">
+            <i class="bi bi-gear-wide-connected text-danger fs-1"></i>
+            <h3 class="fw-bold mt-2">Alin<span class="text-danger">Soft</span></h3>
+            <p class="text-secondary small">Gestión Integral de Órdenes y Presupuestos</p>
+        </div>
+        <form id="loginForm">
+            <div class="mb-3 text-start">
+                <label class="form-label small text-secondary">Correo Electrónico</label>
+                <input type="email" id="email" class="form-control" required value="admin@taller.com">
+            </div>
+            <div class="mb-3 text-start">
+                <label class="form-label small text-secondary">Contraseña</label>
+                <input type="password" id="password" class="form-control" required value="123">
+            </div>
+            <button type="submit" class="btn btn-orange w-100 py-2 mt-2">Ingresar al Sistema</button>
+        </form>
+    </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        localStorage.setItem('sesion_activa', JSON.stringify({ nombre: 'Administrador' }));
+        window.location.href = 'dashboard.html';
+    });
+</script>
+</body>
+</html>

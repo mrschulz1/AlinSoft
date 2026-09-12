@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AlinSoft</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Chart.js para Gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --sidebar-bg: #0b1120;
+            --main-bg: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --accent-orange: #ff5722;
+        }
+
+        body {
+            background-color: var(--main-bg);
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        /* Sidebar Sidebar */
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar .nav-link {
+            color: #94a3b8;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            margin: 2px 8px;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: #ffffff;
+            background-color: #1e293b;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        /* Dashboard Cards Estilo Bujia */
+        .card-bujia {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .card-bujia .metric-title {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .card-bujia .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-top: 4px;
+        }
+
+        .card-bujia .badge-variation {
+            font-size: 0.72rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .badge-down {
+            background-color: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+        }
+
+        .badge-up {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+
+        .icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background-color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            font-size: 0.9rem;
+        }
+
+        .chart-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            height: 100%;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Lateral -->
+    <div class="sidebar d-flex flex-column justify-content-between p-2">
+        <div>
+            <div class="d-flex align-items-center px-3 py-3 mb-2">
+                <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
+                <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
+            </div>
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
+                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
+                <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
+                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> mantenedor de datos</a></li>
+            </ul>
+        </div>
+        <div class="px-3 py-2 border-top border-secondary">
+            <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
+        </div>
+    </div>
+    
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <div class="mb-4">
+            <h3 class="fw-bold mb-1">Bienvenido</h3>
+            <p class="text-secondary small mb-0">Vista rápida del mes en curso. Para más detalle, usa Reportes.</p>
+        </div>
+
+        <!-- Grilla de 6 Tarjetas Métricas -->
+        <div class="row g-3 mb-4">
+            <!-- 1. Órdenes de trabajo -->
+            <div class="col-md-4">
+                <div class="card-bujia">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="metric-title">Órdenes de trabajo <i class="bi bi-question-circle text-secondary"></i></span>
+                            <span class="badge bg-secondary ms-1 px-1 py-0" style="font-size: 0.65rem;">Ventas</span>
+                        </div>
+                        <div class="icon-box"><i class="bi bi-card-checklist text-info"></i></div>
+                    </div>
+                    <div class="metric-value">4</div>
+                    <span class="badge-variation badge-down">-20.0%</span>
+                </div>
+            </div>
+
+            <!-- 2. Finalizadas -->
+            <div class="col-md-4">
+                <div class="card-bujia">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="metric-title">Finalizadas <i class="bi bi-question-circle text-secondary"></i></span>
+                        <div class="icon-box"><i class="bi bi-check-circle text-success"></i></div>
+                    </div>
+                    <div class="metric-value">0</div>
+                    <span class="badge-variation badge-down">-100.0%</span>
+                </div>
+            </div>
+
+            <!-- 3. Pendientes -->
+            <div class="col-md-4">
+                <div class="card-bujia">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="metric-title">Pendientes <i class="bi bi-question-circle text-secondary"></i></span>
+                        <div class="icon-box"><i class="bi bi-clock-history text-danger"></i></div>
+                    </div>
+                    <div class="metric-value">4</div>
+                    <span class="badge-variation badge-up">+300.0%</span>
+                </div>
+            </div>
+
+            <!-- 4. Presupuestos -->
+            <div class="col-md-4">
+                <div class="card-bujia">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="metric-title">Presupuestos <i class="bi bi-question-circle text-secondary"></i></span>
+                        <div class="icon-box"><i class="bi bi-file-earmark-spreadsheet text-info"></i></div>
+                    </div>
+                    <div class="metric-value">4</div>
+                    <span class="badge-variation badge-down">-50.0%</span>
+                </div>
+            </div>
+
+            <!-- 5. Ingresos -->
+            <div class="col-md-4">
+                <div class="card-bujia">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <span class="metric-title">Ingresos <i class="bi bi-question-circle text-secondary"></i></span>
+                            <a href="#" class="text-secondary small text-decoration-none ms-2" style="font-size: 0.75rem;">Ver costos</a>
+                        </div>
+                        <div class="icon-box"><i class="bi bi-wallet2 text-success"></i></div>
+                    </div>
+                    <div class="metric-value">$0</div>
+                    <span class="badge-variation badge-down">-100.0%</span>
+                </div>
+            </div>
+
+            <!-- 6. Rating -->
+            <div class="col-md-4">
+                <div class="card-bujia">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <span class="metric-title">Rating <i class="bi bi-question-circle text-secondary"></i></span>
+                        <div class="icon-box"><i class="bi bi-star text-warning"></i></div>
+                    </div>
+                    <div class="metric-value">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila 1 de Gráficos -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <div class="chart-title">Ingresos en el tiempo <i class="bi bi-question-circle text-secondary"></i></div>
+                    <div style="height: 220px;"><canvas id="chartIngresos"></canvas></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <div class="chart-title">Actividad diaria <i class="bi bi-question-circle text-secondary"></i></div>
+                    <div style="height: 220px;"><canvas id="chartActividad"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fila 2 de Gráficos -->
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <div class="chart-title">Órdenes por técnico <i class="bi bi-question-circle text-secondary"></i></div>
+                    <div style="height: 180px;"><canvas id="chartTecnicos"></canvas></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-card">
+                    <div class="chart-title">Por tipo de servicio <i class="bi bi-question-circle text-secondary"></i></div>
+                    <div style="height: 180px;" class="d-flex justify-content-center"><canvas id="chartServicios"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        checkAuth();
+
+        // Configuración Global para Chart.js en Modo Oscuro
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+
+        // 1. Chart Ingresos en el tiempo
+        new Chart(document.getElementById('chartIngresos'), {
+            type: 'line',
+            data: {
+                labels: ['01/09', '02/09', '03/09', '04/09', '05/09', '06/09', '07/09', '08/09'],
+                datasets: [
+                    { label: 'Costos', data: [0, 0, 0, 0, 0, 0, 0, 0], borderColor: '#ef4444', borderDash: [5, 5], pointRadius: 2 },
+                    { label: 'Ingresos', data: [0, 0, 0, 0, 0, 0, 0, 0], borderColor: '#22c55e', pointRadius: 2 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // 2. Chart Actividad Diaria
+        new Chart(document.getElementById('chartActividad'), {
+            type: 'bar',
+            data: {
+                labels: ['01/09', '02/09', '03/09', '04/09', '05/09', '06/09', '07/09', '08/09'],
+                datasets: [
+                    { label: 'Órdenes', data: [0, 0, 1, 0, 0, 0, 3, 0], backgroundColor: '#2563eb' },
+                    { label: 'Presupuestos', data: [0, 0, 1, 0, 0, 0, 3, 0], backgroundColor: '#38bdf8' }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: false }, y: { beginAtZero: true } } }
+        });
+
+        // 3. Chart Órdenes por técnico
+        new Chart(document.getElementById('chartTecnicos'), {
+            type: 'bar',
+            data: {
+                labels: ['Victor M.'],
+                datasets: [{ label: 'Órdenes', data: [3], backgroundColor: '#6366f1', barThickness: 20 }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+        });
+
+        // 4. Chart Por tipo de servicio
+        new Chart(document.getElementById('chartServicios'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Mantención', 'Alineación', 'Cuadratura', 'Otros'],
+                datasets: [{ data: [2, 1, 1, 0], backgroundColor: ['#22c55e', '#2563eb', '#a855f7', '#64748b'] }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+    </script>
+</body>
+</html>

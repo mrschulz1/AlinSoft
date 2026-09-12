@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Recepción - TallerPRO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; padding-bottom: 40px; }
+        .card-custom { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+        .badge-estado { font-size: 0.85rem; padding: 6px 14px; border-radius: 20px; }
+        .img-grid { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #334155; }
+        
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: #fff !important; color: #000 !important; }
+            .card-custom { background-color: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
+            .text-secondary, .text-danger { color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4" style="max-width: 680px;">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h3 class="fw-bold mb-1"><i class="bi bi-gear-wide-connected text-danger me-2"></i>TALLER<span class="text-danger">PRO</span></h3>
+            <p class="text-secondary small">Comprobante Digital de Recepción e Ingreso</p>
+        </div>
+
+        <!-- Spinner de Carga -->
+        <div id="loading" class="text-center my-5">
+            <div class="spinner-border text-danger" role="status"></div>
+            <p class="text-secondary mt-2 small">Cargando información de la recepción...</p>
+        </div>
+
+        <!-- Contenido Ficha -->
+        <div id="contenidoOT" class="d-none">
+            <!-- Estado -->
+            <div class="card card-custom p-3 mb-3 text-center">
+                <span class="text-secondary small">ESTADO DEL VEHÍCULO</span>
+                <div class="mt-1">
+                    <span id="otEstado" class="badge bg-danger badge-estado">INGRESADO PARA REPARACIÓN</span>
+                </div>
+                <small id="otFolioFecha" class="text-secondary mt-2 d-block"></small>
+            </div>
+
+            <!-- Datos Recepción -->
+            <div class="card card-custom p-3 mb-3">
+                <h6 class="fw-bold text-danger mb-3"><i class="bi bi-car-front me-2"></i>Datos del Ingreso</h6>
+                <div class="row g-3 small">
+                    <div class="col-6"><span class="text-secondary d-block">Cliente</span><strong id="otCliente">-</strong></div>
+                    <div class="col-6"><span class="text-secondary d-block">RUT</span><strong id="otRut">-</strong></div>
+                    <div class="col-6"><span class="text-secondary d-block">Vehículo</span><strong id="otVehiculo">-</strong></div>
+                    <div class="col-6"><span class="text-secondary d-block">Patente</span><strong id="otPatente" class="text-uppercase">-</strong></div>
+                    <div class="col-6"><span class="text-secondary d-block">Kilometraje</span><strong id="otKm">-</strong></div>
+                    <div class="col-6"><span class="text-secondary d-block">Combustible</span><strong id="otCombustible">-</strong></div>
+                </div>
+            </div>
+
+            <!-- Detalle Inspección -->
+            <div class="card card-custom p-3 mb-3">
+                <h6 class="fw-bold text-danger mb-2"><i class="bi bi-clipboard-check me-2"></i>Motivo de Ingreso / Fallas Reportadas</h6>
+                <p id="otObservaciones" class="small text-light mb-0" style="white-space: pre-line;"></p>
+            </div>
+
+            <!-- Fotos -->
+            <div class="card card-custom p-3 mb-4">
+                <h6 class="fw-bold text-danger mb-3"><i class="bi bi-images me-2"></i>Registro Fotográfico de Entrada</h6>
+                <div class="row g-2" id="galeriaFotos">
+                    <p class="text-secondary small mb-0">Sin fotos adjuntas en la recepción.</p>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="d-grid gap-2 no-print">
+                <button onclick="window.print()" class="btn btn-outline-light py-2"><i class="bi bi-printer me-2"></i>Imprimir / Guardar como PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+
+            if (!id) {
+                document.getElementById('loading').innerHTML = `<p class="text-danger">Enlace no válido o incompleto.</p>`;
+                return;
+            }
+
+            let db = null;
+            if (typeof initSupabase === 'function') db = initSupabase();
+
+            if (!db) {
+                document.getElementById('loading').innerHTML = `<p class="text-warning">Modo vista previa sin conexión a base de datos.</p>`;
+                return;
+            }
+
+            const { data: ot, error } = await db.from('ordenes_trabajo').select('*').eq('id', id).single();
+
+            if (error || !ot) {
+                document.getElementById('loading').innerHTML = `<p class="text-danger">No se encontró la orden de recepción solicitada.</p>`;
+                return;
+            }
+
+            document.getElementById('loading').classList.add('d-none');
+            document.getElementById('contenidoOT').classList.remove('d-none');
+
+            document.getElementById('otEstado').innerText = ot.estado || 'INGRESADO PARA REPARACIÓN';
+            document.getElementById('otFolioFecha').innerText = `Folio: ${ot.numero || 'OT-REC'} | Fecha: ${ot.fecha || ''}`;
+            document.getElementById('otCliente').innerText = ot.cliente || 'No especificado';
+            document.getElementById('otRut').innerText = ot.rut || 'N/A';
+            document.getElementById('otVehiculo').innerText = ot.vehiculo || 'No especificado';
+            document.getElementById('otPatente').innerText = ot.patente || 'N/A';
+            document.getElementById('otKm').innerText = (ot.kilometraje || '0') + ' KM';
+            document.getElementById('otCombustible').innerText = ot.combustible || 'N/A';
+            document.getElementById('otObservaciones').innerText = ot.observaciones || 'Sin detalles adicionales.';
+
+            if (ot.fotos && ot.fotos.length > 0) {
+                const galeria = document.getElementById('galeriaFotos');
+                galeria.innerHTML = '';
+                ot.fotos.forEach(url => {
+                    galeria.innerHTML += `
+                        <div class="col-4 col-sm-3">
+                            <a href="${url}" target="_blank">
+                                <img src="${url}" class="img-grid" alt="Foto recepción">
+                            </a>
+                        </div>`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
