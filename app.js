@@ -1,40 +1,51 @@
-// Verificación de Sesión Global con Supabase
+// Verification de Sesion Global con Supabase Auth
 async function checkAuth() {
+    if (typeof initSupabase !== 'function') return null;
     const db = initSupabase();
-    if (!db) return;
+    if (!db) return null;
 
-    // Verificar si hay una sesión activa en Supabase
     const { data: { session } } = await db.auth.getSession();
-
     const esPaginaLogin = window.location.href.includes('index.html');
 
     if (!session && !esPaginaLogin) {
-        // Si no está autenticado y no está en index.html, redirigir al login
         window.location.href = 'index.html';
     } else if (session && esPaginaLogin) {
-        // Si ya está autenticado y está en index.html, mandar al dashboard
         window.location.href = 'dashboard.html';
     }
 
     return session;
 }
 
-// Función para Cerrar Sesión
+// Cerrar Sesion
 async function logout() {
-    const db = initSupabase();
-    if (db) {
-        await db.auth.signOut();
+    if (typeof initSupabase === 'function') {
+        const db = initSupabase();
+        if (db) await db.auth.signOut();
     }
     localStorage.removeItem('sesion_activa');
     window.location.href = 'index.html';
 }
 
-// Convertir foto a Base64
-function convertImageToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    });
+// Subir una foto individual a Supabase Storage
+async function subirFotoSupabase(file) {
+    const db = initSupabase();
+    if (!db) throw new Error("No se pudo conectar con Supabase");
+
+    const extension = file.name.split('.').pop();
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${extension}`;
+
+    const { data, error } = await db.storage
+        .from('fotos-ordenes')
+        .upload(fileName, file, { cacheControl: '3600', upsert: false });
+
+    if (error) {
+        console.error('Error al subir imagen a Storage:', error);
+        throw error;
+    }
+
+    const { data: publicUrlData } = db.storage
+        .from('fotos-ordenes')
+        .getPublicUrl(fileName);
+
+    return publicUrlData.publicUrl;
 }
