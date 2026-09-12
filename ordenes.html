@@ -3,40 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Órdenes - TallerPRO</title>
+    <title>Órdenes y Servicios - TallerPRO</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <!-- Librerías de PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
+    <link rel="shortcut icon" href="#">
     <style>
         :root {
-            --sidebar-bg: #0b1120;
-            --main-bg: #0f172a;
-            --card-bg: #1e293b;
-            --border-color: #334155;
+            --bg-body: #090d16;
+            --bg-card: #131c2e;
+            --border-color: #24344d;
             --accent-orange: #ff5722;
         }
 
-        body { background-color: var(--main-bg); color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
-
-        .sidebar { width: 220px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; top: 0; left: 0; z-index: 1000; transition: all 0.3s; }
-        .main-content { margin-left: 220px; padding: 20px; transition: all 0.3s; }
+        body { background-color: var(--bg-body); color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
+        .sidebar { width: 240px; height: 100vh; background-color: #0b111e; border-right: 1px solid var(--border-color); position: fixed; top: 0; left: 0; z-index: 1000; }
+        .main-content { margin-left: 240px; padding: 30px; }
 
         @media (max-width: 768px) {
-            .sidebar { margin-left: -220px; }
+            .sidebar { margin-left: -240px; transition: 0.3s; }
             .sidebar.show { margin-left: 0; }
             .main-content { margin-left: 0; padding: 15px; }
         }
 
-        .sidebar .nav-link { color: #94a3b8; padding: 10px 16px; font-size: 0.85rem; border-radius: 6px; margin: 2px 8px; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #ffffff; background-color: #1e293b; }
+        .nav-link { color: #94a3b8; padding: 12px 18px; font-size: 0.9rem; font-weight: 500; border-radius: 8px; margin: 4px 12px; }
+        .nav-link:hover, .nav-link.active { color: #fff; background-color: #1a263d; }
+        .nav-link.active { border-left: 4px solid var(--accent-orange); }
+
+        .card-panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .table-dark { --bs-table-bg: var(--bg-card); --bs-table-border-color: var(--border-color); }
         
-        .card-custom { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; }
-        .btn-orange { background-color: var(--accent-orange); color: #fff; font-weight: 600; }
-        .btn-orange:hover { background-color: #e64a19; color: #fff; }
+        .dropdown-toggle.no-arrow::after { display: none !important; }
+        .btn-plus-action { background: rgba(255, 87, 34, 0.1); color: var(--accent-orange); border: 1px solid rgba(255, 87, 34, 0.3); border-radius: 50%; width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-plus-action:hover { background: var(--accent-orange); color: #fff; }
     </style>
 </head>
 <body>
@@ -48,143 +46,85 @@
     </div>
 
     <!-- Sidebar -->
-    <div class="sidebar d-flex flex-column justify-content-between p-2">
+    <div class="sidebar d-flex flex-column justify-content-between py-3" id="sidebar">
         <div>
-            <div class="d-flex align-items-center px-3 py-3 mb-2">
-                <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
-                <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
-            </div>
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
-                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
-                <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
-                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-people me-2"></i> Clientes</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="bi bi-car-front me-2"></i> Vehículos</a></li>
+            <div class="px-4 mb-4"><span class="fs-4 fw-bold text-white">TALLER<span class="text-danger">PRO</span></span></div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-grid-1x2 me-2"></i> Dashboard</a></li>
+                <li class="nav-item"><a href="ordenes.html" class="nav-link active"><i class="bi bi-card-checklist me-2"></i> Órdenes de Trabajo</a></li>
+                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-plus-circle me-2"></i> Nueva Recepción</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-database me-2"></i> Clientes y Vehículos</a></li>
             </ul>
         </div>
-        <div class="px-3 py-2 border-top border-secondary">
-            <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
+        <div class="px-3">
+            <button class="btn btn-outline-danger btn-sm w-100 py-2" onclick="logout()"><i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión</button>
         </div>
     </div>
+
     <!-- Contenido Principal -->
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-            <h4 class="fw-bold mb-0"><i class="bi bi-folder2-open me-2 text-danger"></i>Mantenedor de Órdenes y Presupuestos</h4>
-            <div class="d-flex gap-2">
-                <a href="crear_ot.html" class="btn btn-sm btn-outline-light"><i class="bi bi-plus-lg me-1"></i> Recepción</a>
-                <a href="presupuesto.html" class="btn btn-sm btn-danger"><i class="bi bi-plus-lg me-1"></i> Presupuesto</a>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold m-0">Gestión de Órdenes y Servicios</h3>
+                <p class="text-secondary small m-0">Central de atención vehicular y hojas de vida</p>
             </div>
+            <a href="crear_ot.html" class="btn btn-danger fw-semibold px-3 py-2"><i class="bi bi-plus-lg me-1"></i> Nueva Recepción</a>
         </div>
 
-        <!-- FILTROS Y BÚSQUEDA -->
-        <div class="card card-custom p-3 mb-4">
-            <div class="row g-2">
-                <div class="col-12 col-md-6">
-                    <div class="input-group">
-                        <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-search"></i></span>
-                        <input type="text" id="inputBuscar" class="form-control" placeholder="Buscar por Folio, Cliente, RUT o Patente..." oninput="filtrarOrdenes()">
-                    </div>
+        <div class="card-panel">
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-md-8">
+                    <input type="text" id="inputBuscar" class="form-control" placeholder="Buscar por Folio, Patente, Cliente o RUT..." onkeyup="filtrarTabla()">
                 </div>
-                <div class="col-12 col-md-6">
-                    <select id="selectFiltroEstado" class="form-select bg-dark text-white border-secondary" onchange="filtrarOrdenes()">
-                        <option value="TODOS">Todos los estados</option>
+                <div class="col-12 col-md-4">
+                    <select id="selectFiltroEstado" class="form-select" onchange="filtrarTabla()">
+                        <option value="">Todos los Estados</option>
                         <option value="Recepción">Recepción</option>
-                        <option value="Presupuesto Enviado">Presupuesto Enviado</option>
-                        <option value="Presupuesto Aceptado">Presupuesto Aceptado</option>
-                        <option value="Iniciado">Iniciado</option>
-                        <option value="En Proceso">En Proceso</option>
+                        <option value="Presupuestado">Presupuestado</option>
+                        <option value="Aprobado">Aprobado / En Taller</option>
                         <option value="Finalizado">Finalizado</option>
                     </select>
                 </div>
             </div>
-        </div>
 
-        <!-- TABLA PRINCIPAL DE ÓRDENES -->
-        <div class="card card-custom p-3">
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle mb-0">
                     <thead>
                         <tr class="text-secondary small">
                             <th>FOLIO / FECHA</th>
-                            <th>CLIENTE</th>
-                            <th>VEHÍCULO</th>
+                            <th>CLIENTE / RUT</th>
+                            <th>VEHÍCULO / PATENTE</th>
                             <th>ESTADO</th>
-                            <th class="text-end">TOTAL</th>
-                            <th class="text-center">ACCIONES EN LÍNEA</th>
+                            <th>TOTAL</th>
+                            <th class="text-end">OPCIONES</th>
                         </tr>
                     </thead>
-                    <tbody id="tablaOrdenes">
-                        <tr><td colspan="6" class="text-center py-4 text-secondary"><i class="bi bi-arrow-repeat spin me-2"></i>Cargando órdenes en línea...</td></tr>
+                    <tbody id="tablaOrdenesBody">
+                        <tr><td colspan="6" class="text-center text-secondary py-4">Cargando registros...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- MODAL DE EDICIÓN EN LÍNEA -->
-    <div class="modal fade" id="modalEditarOrden" tabindex="-1">
+    <!-- MODAL HOJA DE VIDA DEL VEHÍCULO -->
+    <div class="modal fade" id="modalHistorial" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content card-custom">
+            <div class="modal-content bg-dark text-white border-secondary">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-white"><i class="bi bi-pencil-square me-2 text-danger"></i>Editar Orden <span id="editFolioTitulo" class="text-warning"></span></h5>
+                    <h5 class="modal-title"><i class="bi bi-clock-history text-danger me-2"></i> Hoja de Vida Vehicular</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="editOrdenId">
-                    <div class="row g-3 mb-3">
-                        <div class="col-12 col-md-6">
-                            <label class="small text-secondary fw-bold">ESTADO DE LA TRABAJO</label>
-                            <select id="editEstado" class="form-select bg-dark text-white border-secondary">
-                                <option value="Recepción">Recepción</option>
-                                <option value="Presupuesto Enviado">Presupuesto Enviado</option>
-                                <option value="Presupuesto Aceptado">Presupuesto Aceptado</option>
-                                <option value="Iniciado">Iniciado</option>
-                                <option value="En Proceso">En Proceso</option>
-                                <option value="Finalizado">Finalizado</option>
-                            </select>
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="small text-secondary fw-bold">CLIENTE</label>
-                            <input type="text" id="editCliente" class="form-control">
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="small text-secondary fw-bold">RUT / DNI</label>
-                            <input type="text" id="editRut" class="form-control">
-                        </div>
-                        <div class="col-12 col-md-6">
-                            <label class="small text-secondary fw-bold">VEHÍCULO Y PATENTE</label>
-                            <div class="input-group">
-                                <input type="text" id="editVehiculo" class="form-control" placeholder="Marca/Modelo">
-                                <input type="text" id="editPatente" class="form-control text-uppercase" placeholder="Patente">
-                            </div>
-                        </div>
-                    </div>
-
-                    <h6 class="fw-bold text-danger mb-2">Detalle de Trabajos / Presupuesto</h6>
-                    <div class="table-responsive mb-2">
-                        <table class="table table-dark align-middle">
+                    <div id="headHistorial" class="p-3 mb-3 bg-secondary bg-opacity-10 rounded border border-secondary"></div>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-striped small align-middle">
                             <thead>
-                                <tr class="small text-secondary">
-                                    <th>Descripción</th>
-                                    <th style="width: 90px;">Cant.</th>
-                                    <th style="width: 130px;">P. Unitario</th>
-                                    <th style="width: 120px;">Subtotal</th>
-                                    <th style="width: 40px;"></th>
-                                </tr>
+                                <tr><th>Fecha</th><th>Folio</th><th>Combustible / KM</th><th>Estado</th><th>Total</th></tr>
                             </thead>
-                            <tbody id="editFilasItems"></tbody>
+                            <tbody id="bodyHistorial"></tbody>
                         </table>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-info mb-3" onclick="agregarFilaEdicion()"><i class="bi bi-plus-lg me-1"></i> Agregar Ítem</button>
-
-                    <div class="text-end border-top border-secondary pt-2">
-                        <h5 class="fw-bold text-danger">Total Final: <span id="editLblTotal">$0</span></h5>
-                    </div>
-                </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger fw-bold" onclick="guardarCambiosEnLinea()"><i class="bi bi-cloud-arrow-up me-1"></i> Actualizar en Línea</button>
                 </div>
             </div>
         </div>
@@ -193,233 +133,126 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
 
     <script>
-        let db = null;
-        let listaOrdenesMemoria = [];
-        let modalEdit = null;
+        let ordenesCache = [];
 
         document.addEventListener("DOMContentLoaded", async () => {
-            if (typeof initSupabase === 'function') db = initSupabase();
-            modalEdit = new bootstrap.Modal(document.getElementById('modalEditarOrden'));
-            await cargarOrdenes();
+            if (typeof checkAuth === 'function') await checkAuth();
+            cargarOrdenes();
         });
 
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('show');
-        }
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('show'); }
 
-        // OBTIENE TODAS LAS ÓRDENES DESDE SUPABASE O LOCALSTORAGE
         async function cargarOrdenes() {
-            if (db) {
+            try {
+                const db = initSupabase();
                 const { data, error } = await db.from('ordenes_trabajo').select('*').order('created_at', { ascending: false });
-                if (!error && data) {
-                    listaOrdenesMemoria = data;
-                    renderTabla(data);
-                    return;
-                }
+                if (error) throw error;
+
+                ordenesCache = data || [];
+                renderizarTabla(ordenesCache);
+            } catch (err) {
+                document.getElementById('tablaOrdenesBody').innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">${err.message}</td></tr>`;
             }
-            // Fallback de contingencia si no hay BD configurada aún
-            listaOrdenesMemoria = JSON.parse(localStorage.getItem('taller_ordenes')) || [];
-            renderTabla(listaOrdenesMemoria);
         }
 
-        function renderTabla(datos) {
-            const tbody = document.getElementById('tablaOrdenes');
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById('tablaOrdenesBody');
             tbody.innerHTML = '';
 
-            if (datos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-secondary">No hay órdenes o presupuestos registrados.</td></tr>`;
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">No se encontraron servicios registrados.</td></tr>';
                 return;
             }
 
-            datos.forEach(o => {
-                const badgeClass = obtenerBadgeEstado(o.estado);
-                const totalFormateado = o.total ? '$' + parseFloat(o.total).toLocaleString('es-CL') : '$0';
-                
+            lista.forEach(ot => {
+                const badgeColor = ot.estado === 'Recepción' ? 'bg-warning text-dark' : (ot.estado === 'Presupuestado' ? 'bg-info text-dark' : 'bg-success');
+                const totalFormateado = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(ot.total || 0);
+
                 tbody.innerHTML += `
                     <tr>
-                        <td>
-                            <span class="fw-bold text-white">${o.numero || 'OT-' + o.id}</span><br>
-                            <span class="small text-secondary">${o.fecha || ''}</span>
-                        </td>
-                        <td>
-                            <strong class="text-white">${o.cliente || 'Sin Nombre'}</strong><br>
-                            <span class="small text-secondary">${o.rut || ''}</span>
-                        </td>
-                        <td>
-                            <span class="text-white">${o.vehiculo || ''}</span><br>
-                            <span class="badge bg-secondary text-uppercase">${o.patente || 'S/P'}</span>
-                        </td>
-                        <td><span class="badge ${badgeClass}">${o.estado || 'Recepción'}</span></td>
-                        <td class="text-end fw-bold text-danger">${totalFormateado}</td>
-                        <td class="text-center">
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-warning" title="Editar en línea" onclick="abrirEditorModal('${o.id}')"><i class="bi bi-pencil-square"></i></button>
-                                <button class="btn btn-outline-info" title="Ver ficha cliente" onclick="verFichaCliente('${o.id}')"><i class="bi bi-eye"></i></button>
-                                <button class="btn btn-outline-success" title="Enviar WhatsApp" onclick="notificarWhatsapp('${o.id}')"><i class="bi bi-whatsapp"></i></button>
+                        <td class="fw-bold text-white">${ot.numero}<br><small class="text-secondary fw-normal">${ot.fecha || ''}</small></td>
+                        <td>${ot.cliente}<br><small class="text-secondary">${ot.rut || '-'}</small></td>
+                        <td>${ot.vehiculo}<br><span class="badge bg-secondary">${ot.patente}</span></td>
+                        <td><span class="badge ${badgeColor}">${ot.estado}</span></td>
+                        <td class="fw-bold text-success">${totalFormateado}</td>
+                        <td class="text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-plus-action dropdown-toggle no-arrow" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary">
+                                    <li><h6 class="dropdown-header text-danger">${ot.numero} - Opción Rápida</h6></li>
+                                    <li>
+                                        <a class="dropdown-item text-warning" href="presupuesto.html?ot=${ot.numero}">
+                                            <i class="bi bi-calculator me-2"></i> ${ot.estado === 'Recepción' ? 'Crear Presupuesto' : 'Editar Presupuesto'}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="#" onclick="verHojaDeVida('${ot.patente}')">
+                                            <i class="bi bi-clock-history me-2"></i> Hoja de Vida (Historial)
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="ver_ot.html?ot=${ot.numero}" target="_blank">
+                                            <i class="bi bi-eye me-2"></i> Vista Pública Cliente
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                         </td>
-                    </tr>`;
+                    </tr>
+                `;
             });
         }
 
-        function obtenerBadgeEstado(estado) {
-            switch (estado) {
-                case 'Recepción': return 'bg-secondary';
-                case 'Presupuesto Enviado': return 'bg-warning text-dark';
-                case 'Presupuesto Aceptado': return 'bg-info text-dark';
-                case 'Iniciado': return 'bg-primary';
-                case 'En Proceso': return 'bg-orange';
-                case 'Finalizado': return 'bg-success';
-                default: return 'bg-dark';
-            }
-        }
-
-        function filtrarOrdenes() {
-            const txt = document.getElementById('inputBuscar').value.toLowerCase();
+        function filtrarTabla() {
+            const q = document.getElementById('inputBuscar').value.toLowerCase();
             const est = document.getElementById('selectFiltroEstado').value;
 
-            const filtradas = listaOrdenesMemoria.filter(o => {
-                const coincideTexto = (o.numero && o.numero.toLowerCase().includes(txt)) ||
-                                     (o.cliente && o.cliente.toLowerCase().includes(txt)) ||
-                                     (o.rut && o.rut.toLowerCase().includes(txt)) ||
-                                     (o.patente && o.patente.toLowerCase().includes(txt));
-                const coincideEstado = (est === 'TODOS' || o.estado === est);
+            const filtradas = ordenesCache.filter(ot => {
+                const coincideTexto = ot.numero.toLowerCase().includes(q) || ot.patente.toLowerCase().includes(q) || ot.cliente.toLowerCase().includes(q) || (ot.rut && ot.rut.toLowerCase().includes(q));
+                const coincideEstado = est === '' || ot.estado === est;
                 return coincideTexto && coincideEstado;
             });
 
-            renderTabla(filtradas);
+            renderizarTabla(filtradas);
         }
 
-        // CARGA LOS DATOS EN EL MANTENEDOR INTERACTIVO
-        function abrirEditorModal(id) {
-            const orden = listaOrdenesMemoria.find(o => o.id == id);
-            if (!orden) return;
+        async function verHojaDeVida(patente) {
+            const db = initSupabase();
+            const { data } = await db.from('ordenes_trabajo').select('*').eq('patente', patente).order('created_at', { ascending: false });
 
-            document.getElementById('editOrdenId').value = orden.id;
-            document.getElementById('editFolioTitulo').innerText = orden.numero || 'OT-' + orden.id;
-            document.getElementById('editEstado').value = orden.estado || 'Recepción';
-            document.getElementById('editCliente').value = orden.cliente || '';
-            document.getElementById('editRut').value = orden.rut || '';
-            document.getElementById('editVehiculo').value = orden.vehiculo || '';
-            document.getElementById('editPatente').value = orden.patente || '';
+            if (data && data.length > 0) {
+                const auto = data[0];
+                document.getElementById('headHistorial').innerHTML = `
+                    <div class="row text-white">
+                        <div class="col-6"><strong>Vehículo:</strong> ${auto.vehiculo}</div>
+                        <div class="col-6"><strong>Patente:</strong> <span class="badge bg-danger">${auto.patente}</span></div>
+                        <div class="col-6 mt-1"><strong>Cliente Habual:</strong> ${auto.cliente}</div>
+                        <div class="col-6 mt-1"><strong>RUT:</strong> ${auto.rut || '-'}</div>
+                    </div>
+                `;
 
-            const tbodyItems = document.getElementById('editFilasItems');
-            tbodyItems.innerHTML = '';
-
-            const items = orden.items || [];
-            if (items.length > 0) {
-                items.forEach(i => {
-                    tbodyItems.innerHTML += `
+                const body = document.getElementById('bodyHistorial');
+                body.innerHTML = '';
+                data.forEach(h => {
+                    const total = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(h.total || 0);
+                    body.innerHTML += `
                         <tr>
-                            <td><input type="text" class="form-control item-desc" value="${i.descripcion}"></td>
-                            <td><input type="number" class="form-control item-cant" value="${i.cantidad}" oninput="recalcularEdicion()"></td>
-                            <td><input type="number" class="form-control item-precio" value="${i.precio}" oninput="recalcularEdicion()"></td>
-                            <td class="item-subtotal text-end fw-bold">$${(i.subtotal || 0).toLocaleString('es-CL')}</td>
-                            <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); recalcularEdicion();"><i class="bi bi-trash"></i></button></td>
-                        </tr>`;
+                            <td>${h.fecha}</td>
+                            <td class="fw-bold">${h.numero}</td>
+                            <td>Comb: ${h.combustible || '-'} / KM: ${h.kilometraje || '-'}</td>
+                            <td><span class="badge bg-secondary">${h.estado}</span></td>
+                            <td class="text-success fw-bold">${total}</td>
+                        </tr>
+                    `;
                 });
-            } else {
-                agregarFilaEdicion();
+
+                new bootstrap.Modal(document.getElementById('modalHistorial')).show();
             }
-
-            recalcularEdicion();
-            modalEdit.show();
-        }
-
-        function agregarFilaEdicion() {
-            const tbodyItems = document.getElementById('editFilasItems');
-            tbodyItems.innerHTML += `
-                <tr>
-                    <td><input type="text" class="form-control item-desc" placeholder="Descripción del trabajo"></td>
-                    <td><input type="number" class="form-control item-cant" value="1" min="1" oninput="recalcularEdicion()"></td>
-                    <td><input type="number" class="form-control item-precio" value="0" oninput="recalcularEdicion()"></td>
-                    <td class="item-subtotal text-end fw-bold">$0</td>
-                    <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('tr').remove(); recalcularEdicion();"><i class="bi bi-trash"></i></button></td>
-                </tr>`;
-            recalcularEdicion();
-        }
-
-        function recalcularEdicion() {
-            let totalNeto = 0;
-            document.querySelectorAll('#editFilasItems tr').forEach(row => {
-                const cant = parseFloat(row.querySelector('.item-cant').value) || 0;
-                const precio = parseFloat(row.querySelector('.item-precio').value) || 0;
-                const sub = cant * precio;
-                row.querySelector('.item-subtotal').innerText = '$' + sub.toLocaleString('es-CL');
-                totalNeto += sub;
-            });
-            const totalFinal = totalNeto + Math.round(totalNeto * 0.19);
-            document.getElementById('editLblTotal').innerText = '$' + totalFinal.toLocaleString('es-CL');
-        }
-
-        // GUARDA Y SINCRONIZA AUTOMÁTICAMENTE DE CARA AL CLIENTE
-        async function guardarCambiosEnLinea() {
-            const id = document.getElementById('editOrdenId').value;
-            let items = [];
-            let totalNeto = 0;
-
-            document.querySelectorAll('#editFilasItems tr').forEach(row => {
-                const desc = row.querySelector('.item-desc').value;
-                const cant = parseFloat(row.querySelector('.item-cant').value) || 0;
-                const precio = parseFloat(row.querySelector('.item-precio').value) || 0;
-                if (desc) {
-                    items.push({ descripcion: desc, cantidad: cant, precio: precio, subtotal: cant * precio });
-                    totalNeto += (cant * precio);
-                }
-            });
-
-            const totalFinal = totalNeto + Math.round(totalNeto * 0.19);
-
-            const cambios = {
-                estado: document.getElementById('editEstado').value,
-                cliente: document.getElementById('editCliente').value,
-                rut: document.getElementById('editRut').value,
-                vehiculo: document.getElementById('editVehiculo').value,
-                patente: document.getElementById('editPatente').value,
-                items: items,
-                total: totalFinal
-            };
-
-            if (db) {
-                const { error } = await db.from('ordenes_trabajo').update(cambios).eq('id', id);
-                if (error) return alert('Error al actualizar: ' + error.message);
-            } else {
-                // Actualización LocalStorage de respaldo
-                const idx = listaOrdenesMemoria.findIndex(o => o.id == id);
-                if (idx !== -1) {
-                    listaOrdenesMemoria[idx] = { ...listaOrdenesMemoria[idx], ...cambios };
-                    localStorage.setItem('taller_ordenes', JSON.stringify(listaOrdenesMemoria));
-                }
-            }
-
-            modalEdit.hide();
-            await cargarOrdenes();
-            alert('¡Orden actualizada exitosamente! El cliente verá los cambios reflejados en tiempo real.');
-        }
-
-        function verFichaCliente(id) {
-            const baseUrl = window.location.origin + window.location.pathname.replace('ordenes.html', '');
-            window.open(`${baseUrl}ver_ot.html?id=${id}`, '_blank');
-        }
-
-        function notificarWhatsapp(id) {
-            const orden = listaOrdenesMemoria.find(o => o.id == id);
-            if (!orden) return;
-
-            const baseUrl = window.location.origin + window.location.pathname.replace('ordenes.html', '');
-            const linkOT = `${baseUrl}ver_ot.html?id=${id}`;
-
-            const msg = `*ACTUALIZACIÓN DE SU VEHÍCULO - TALLERPRO*%0A` +
-                `----------------------------------------%0A` +
-                `*Folio:* ${orden.numero || 'OT-' + orden.id}%0A` +
-                `*Estado actual:* ${orden.estado}%0A` +
-                `*Vehículo:* ${orden.vehiculo} (${orden.patente})%0A` +
-                `💰 *Total actualizado:* $${parseFloat(orden.total || 0).toLocaleString('es-CL')}%0A%0A` +
-                `📌 *Consulte el detalle completo en vivo aquí:*%0A${encodeURIComponent(linkOT)}`;
-
-            window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
         }
     </script>
 </body>
