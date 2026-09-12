@@ -311,68 +311,81 @@
         }
 
         document.getElementById('formNuevaOT').addEventListener('submit', async function(e) {
-            e.preventDefault();
+    e.preventDefault();
 
-            const alerta = document.getElementById('alertaForm');
-            const btnText = document.getElementById('btnTextOT');
-            const btnSpinner = document.getElementById('btnSpinnerOT');
-            const btn = document.getElementById('btnGuardarOT');
-            const inputFotos = document.getElementById('inputFotos');
+    const alerta = document.getElementById('alertaForm');
+    const btnText = document.getElementById('btnTextOT');
+    const btnSpinner = document.getElementById('btnSpinnerOT');
+    const btn = document.getElementById('btnGuardarOT');
+    const inputFotos = document.getElementById('inputFotos');
 
-            alerta.className = 'alert alert-info py-2 px-3 small m-0';
-            alerta.innerText = 'Subiendo archivos a Storage y creando orden...';
-            
-            btnText.innerText = 'Guardando...';
-            btnSpinner.classList.remove('d-none');
-            btn.disabled = true;
+    alerta.className = 'alert alert-info py-2 px-3 small m-0';
+    alerta.innerText = 'Procesando registro de orden...';
+    
+    btnText.innerText = 'Guardando...';
+    btnSpinner.classList.remove('d-none');
+    btn.disabled = true;
 
+    // 1. Intento de subida de fotos (Opcional / Resiliente)
+    const urlsFotos = [];
+    if (inputFotos.files.length > 0) {
+        for (let i = 0; i < inputFotos.files.length; i++) {
             try {
-                const db = initSupabase();
-                if (!db) throw new Error("Sin conexión con el backend.");
-
-                const urlsFotos = [];
-                if (inputFotos.files.length > 0) {
-                    for (let i = 0; i < inputFotos.files.length; i++) {
-                        const url = await subirFotoSupabase(inputFotos.files[i]);
-                        urlsFotos.push(url);
-                    }
-                }
-
-                const folio = 'OT-' + Math.floor(1000 + Math.random() * 9000);
-                const payload = {
-                    numero: folio,
-                    cliente: document.getElementById('cliente').value,
-                    rut: document.getElementById('rut').value,
-                    vehiculo: document.getElementById('vehiculo').value,
-                    patente: document.getElementById('patente').value.toUpperCase(),
-                    kilometraje: document.getElementById('kilometraje').value,
-                    combustible: document.getElementById('combustible').value,
-                    fecha: document.getElementById('fecha').value,
-                    observaciones: document.getElementById('observaciones').value,
-                    fotos: urlsFotos,
-                    estado: 'Recepción',
-                    items: [],
-                    total: 0
-                };
-
-                const { data, error } = await db.from('ordenes_trabajo').insert([payload]);
-                if (error) throw error;
-
-                alerta.className = 'alert alert-success py-2 px-3 small m-0';
-                alerta.innerText = '¡Orden de trabajo creada correctamente!';
-                
-                setTimeout(() => {
-                    window.location.href = 'ordenes.html';
-                }, 1000);
-
-            } catch (err) {
-                alerta.className = 'alert alert-danger py-2 px-3 small m-0';
-                alerta.innerText = err.message || 'Error en la operación.';
-                btnText.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Generar Orden de Trabajo';
-                btnSpinner.classList.add('d-none');
-                btn.disabled = false;
+                const url = await subirFotoSupabase(inputFotos.files[i]);
+                if (url) urlsFotos.push(url);
+            } catch (errFoto) {
+                console.warn(`No se pudo subir la foto ${inputFotos.files[i].name}:`, errFoto);
+                // Continúa con la siguiente foto sin detener el flujo principal
             }
-        });
+        }
+    }
+
+    // 2. Registro de la Orden de Trabajo en la BD
+    try {
+        const db = initSupabase();
+        if (!db) throw new Error("Sin conexión con el backend.");
+
+        const folio = 'OT-' + Math.floor(1000 + Math.random() * 9000);
+        
+        // Asignamos [] si no hay fotos subidas
+        const payload = {
+            numero: folio,
+            cliente: document.getElementById('cliente').value.trim(),
+            rut: document.getElementById('rut').value.trim(),
+            vehiculo: document.getElementById('vehiculo').value.trim(),
+            patente: document.getElementById('patente').value.toUpperCase().trim(),
+            kilometraje: document.getElementById('kilometraje').value.trim(),
+            combustible: document.getElementById('combustible').value,
+            fecha: document.getElementById('fecha').value,
+            observaciones: document.getElementById('observaciones').value.trim(),
+            fotos: urlsFotos, // Si falló Storage, enviará [] y no dará error 400
+            estado: 'Recepción',
+            items: [],
+            total: 0
+        };
+
+        const { data, error } = await db.from('ordenes_trabajo').insert([payload]);
+        if (error) throw error;
+
+        alerta.className = 'alert alert-success py-2 px-3 small m-0';
+        alerta.innerText = urlsFotos.length < inputFotos.files.length && inputFotos.files.length > 0 
+            ? '¡Orden creada! (Algunas imágenes no se pudieron adjuntar).' 
+            : '¡Orden de trabajo registrada exitosamente!';
+        
+        setTimeout(() => {
+            window.location.href = 'ordenes.html';
+        }, 1200);
+
+    } catch (err) {
+        alerta.className = 'alert alert-danger py-2 px-3 small m-0';
+        alerta.innerText = 'Error al registrar orden: ' + (err.message || 'Verifica la conexión.');
+        
+        btnText.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Generar Orden de Trabajo';
+        btnSpinner.classList.add('d-none');
+        btn.disabled = false;
+    }
+});
+        
     </script>
 </body>
 </html>
