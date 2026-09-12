@@ -49,3 +49,28 @@ async function subirFotoSupabase(file) {
 
     return publicUrlData.publicUrl;
 }
+
+function mostrarToast(mensaje, tipo = 'exito') {
+    const toastEl = document.getElementById('toastNotificacion');
+    const toastBody = document.getElementById('toastMensaje');
+
+    if (!toastEl || !toastBody) return;
+
+    // Configurar color según tipo ('exito', 'error', 'info')
+    toastEl.classList.remove('bg-success', 'bg-danger', 'bg-info', 'bg-warning', 'text-dark');
+    
+    if (tipo === 'exito') {
+        toastEl.classList.add('bg-success', 'text-white');
+        toastBody.innerHTML = `<i class="bi bi-check-circle-fill me-2 fs-5"></i> ${mensaje}`;
+    } else if (tipo === 'error') {
+        toastEl.classList.add('bg-danger', 'text-white');
+        toastBody.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i> ${mensaje}`;
+    } else if (tipo === 'info') {
+        toastEl.classList.add('bg-info', 'text-dark');
+        toastBody.innerHTML = `<i class="bi bi-info-circle-fill me-2 fs-5"></i> ${mensaje}`;
+    }
+
+    // Inicializar y mostrar el Toast de Bootstrap con autodestrucción en 3000ms
+    const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+    toast.show();
+}

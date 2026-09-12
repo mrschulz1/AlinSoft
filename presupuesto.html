@@ -3,221 +3,645 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presupuestar OT - AlinSoft</title>
+    <title>Presupuesto y Estado - AlinSoft</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="shortcut icon" href="#">
     <style>
-        :root { --bg-body: #090d16; --bg-card: #131c2e; --bg-input: #1a263d; --border-color: #24344d; --accent-orange: #ff5722; }
+        :root { 
+            --bg-body: #090d16; 
+            --bg-card: #131c2e; 
+            --border-color: #24344d; 
+            --accent-red: #e63946; 
+        }
         body { background-color: var(--bg-body); color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
-        .sidebar { width: 240px; height: 100vh; background-color: #0b111e; border-right: 1px solid var(--border-color); position: fixed; top: 0; left: 0; }
+        .sidebar { width: 240px; height: 100vh; background-color: #0b111e; border-right: 1px solid var(--border-color); position: fixed; top: 0; left: 0; z-index: 1000; }
         .main-content { margin-left: 240px; padding: 30px; }
         @media (max-width: 768px) { .sidebar { margin-left: -240px; } .main-content { margin-left: 0; padding: 15px; } }
-        .card-panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; }
-        .form-control { background-color: var(--bg-input); border: 1px solid var(--border-color); color: #fff; }
+        .nav-link { color: #94a3b8; padding: 12px 18px; font-size: 0.9rem; font-weight: 500; border-radius: 8px; margin: 4px 12px; }
+        .nav-link:hover, .nav-link.active { color: #fff; background-color: #1a263d; border-left: 4px solid var(--accent-red); }
+        
+        .card-panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; position: relative; }
+        .table-dark { --bs-table-bg: var(--bg-card); --bs-table-border-color: var(--border-color); }
+        .form-control, .form-select { background-color: #0d1424; border-color: var(--border-color); color: #fff; }
+        .form-control:focus, .form-select:focus { background-color: #0d1424; border-color: var(--accent-red); color: #fff; box-shadow: 0 0 0 0.25rem rgba(230, 57, 70, 0.25); }
+
+        /* Autocomplete desplegable in-situ */
+        .search-results-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            background-color: #0d1424;
+            border: 1px solid var(--border-color);
+            border-radius: 0 0 8px 8px;
+            max-height: 220px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .search-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background 0.15s;
+        }
+        .search-item:hover { background-color: #1a263d; }
+
+        .btn-accent { background-color: var(--accent-red); border-color: var(--accent-red); color: #fff; font-weight: 600; }
+        .btn-accent:hover { background-color: #c92a37; border-color: #c92a37; color: #fff; }
+        .btn-delete-row { background: rgba(230, 57, 70, 0.12); color: var(--accent-red); border: 1px solid rgba(230, 57, 70, 0.25); }
+        .btn-delete-row:hover { background: var(--accent-red); color: #fff; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar d-flex flex-column justify-content-between py-3" id="sidebar">
+    <!-- SIDEBAR -->
+    <div class="sidebar d-flex flex-column justify-content-between p-2">
         <div>
-            <div class="px-4 mb-4"><span class="fs-4 fw-bold text-white">Alin<span class="text-danger">Soft</span></span></div>
-            <ul class="nav flex-column">
-                <li class="nav-item"><a href="ordenes.html" class="nav-link text-white"><i class="bi bi-arrow-left me-2"></i> Volver a Órdenes</a></li>
+            <div class="d-flex align-items-center px-3 py-3 mb-2">
+                <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
+                <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
+            </div>
+            <ul class="nav nav-pills flex-column">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
+                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
+                <li class="nav-item"><a href="presupuesto.html" class="nav-link active"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
+                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de Datos</a></li>
             </ul>
+        </div>
+        <div class="px-3 py-2 border-top border-secondary">
+            <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
         </div>
     </div>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- HEADER -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
             <div>
-                <h3 class="fw-bold m-0" id="tituloOT">Cargando Orden...</h3>
-                <p class="text-secondary small m-0" id="subtituloOT">Ingreso de ítems y cotización de mano de obra</p>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <h3 class="fw-bold m-0" id="lblFolioOT">NUEVA COTIZACIÓN</h3>
+                    <span class="badge bg-danger fs-6" id="lblBadgePatente">S/P</span>
+                </div>
+                <p class="text-secondary small m-0">Gestión integral de trabajos, costos y ficha del vehículo</p>
+            </div>
+            
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-dark p-2 px-3 rounded border border-secondary text-center">
+                    <span class="text-secondary small d-block" style="font-size:0.75rem;">Estado del Servicio</span>
+                    <select id="selectEstadoOT" class="form-select form-select-sm border-0 bg-transparent text-info fw-bold p-0 shadow-none cursor-pointer" style="width: auto;">
+                        <option value="Recepción" class="text-white">Recepción</option>
+                        <option value="Presupuestado" class="text-white">Presupuestado</option>
+                        <option value="En Proceso" class="text-white">En Proceso</option>
+                        <option value="Listo para Retiro" class="text-white">Listo para Retiro</option>
+                        <option value="Finalizado" class="text-white">Finalizado</option>
+                    </select>
+                </div>
+                
+                <div class="bg-dark p-2 px-3 rounded border border-secondary text-end">
+                    <span class="text-secondary small d-block" style="font-size:0.75rem;">Total a Cobrar</span>
+                    <span id="lblTotalHeader" class="fs-5 fw-bold text-success">$0</span>
+                </div>
             </div>
         </div>
 
-        <div class="card-panel mb-4" id="infoClienteCard">
-            <!-- Datos del auto cargados dinámicamente -->
+        <!-- 1. BÚSQUEDA Y ASIGNACIÓN IN-SITU -->
+        <div class="card-panel mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-person-vcard text-danger fs-4 me-2"></i>
+                    <h5 class="fw-bold m-0">Información del Cliente y Vehículo</h5>
+                </div>
+                <!-- POPUP SOLAMENTE PARA CREAR DATOS NUEVOS -->
+                <button type="button" class="btn btn-sm btn-outline-danger fw-semibold" data-bs-toggle="modal" data-bs-target="#modalNuevoRegistro">
+                    <i class="bi bi-plus-lg me-1"></i> Crear Nuevo Cliente / Vehículo
+                </button>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <!-- BUSCADOR CLIENTE IN-SITU -->
+                <div class="col-12 col-md-4 position-relative">
+                    <label class="form-label text-secondary small mb-1">Buscar Cliente (Nombre o RUT)</label>
+                    <input type="text" id="inputBuscarCliente" class="form-control" placeholder="Escribe para buscar..." autocomplete="off" onkeyup="buscarClienteInSitu()">
+                    <div id="dropdownClientes" class="search-results-dropdown d-none"></div>
+                </div>
+
+                <!-- SELECCIÓN DE VEHÍCULO (SOPORTA MÚLTIPLES AUTOS POR CLIENTE) -->
+                <div class="col-12 col-md-4">
+                    <label class="form-label text-secondary small mb-1">Vehículos Asociados</label>
+                    <select id="selectVehiculosCliente" class="form-select" onchange="seleccionarVehiculo(this.value)" disabled>
+                        <option value="">Selecciona un cliente primero...</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-2">
+                    <label class="form-label text-secondary small mb-1">Kilometraje</label>
+                    <input type="text" id="inputKilometraje" class="form-control" placeholder="Ej: 120.000 KM">
+                </div>
+                
+                <div class="col-12 col-md-2">
+                    <label class="form-label text-secondary small mb-1">Combustible</label>
+                    <select id="selectCombustible" class="form-select">
+                        <option value="No Registra">No Registra</option>
+                        <option value="Reserva">Reserva</option>
+                        <option value="1/4 Tanque">1/4 Tanque</option>
+                        <option value="1/2 Tanque" selected>1/2 Tanque</option>
+                        <option value="3/4 Tanque">3/4 Tanque</option>
+                        <option value="Lleno">Lleno</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="form-label text-secondary small mb-1">Observaciones / Motivo de Cotización</label>
+                <textarea id="txtObservaciones" class="form-control" rows="2" placeholder="Detalles de fallas reportadas, hallazgos técnicos o notas..."></textarea>
+            </div>
         </div>
 
-        <!-- FORMULARIO DE ÍTEMS -->
-        <div class="card-panel">
-            <h5 class="fw-bold text-danger mb-3"><i class="bi bi-list-check me-2"></i> Detalle de Trabajos y Repuestos</h5>
-            
-            <div class="row g-2 mb-3">
+        <!-- 2. DETALLE DE TRABAJOS Y REPUESTOS -->
+        <div class="card-panel mb-4">
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-tools text-danger fs-4 me-2"></i>
+                <h5 class="fw-bold m-0">Detalle de Trabajos y Repuestos</h5>
+            </div>
+
+            <form id="formAgregarItem" onsubmit="agregarItem(event)" class="row g-2 mb-4">
                 <div class="col-12 col-md-6">
-                    <input type="text" id="itemDesc" class="form-control" placeholder="Descripción del trabajo o repuesto (ej: Cambio Pastillas)">
+                    <input type="text" id="itemDescripcion" class="form-control" placeholder="Descripción del trabajo o repuesto..." required>
                 </div>
                 <div class="col-6 col-md-2">
-                    <input type="number" id="itemCant" class="form-control" value="1" min="1" placeholder="Cant.">
+                    <input type="number" id="itemCantidad" class="form-control" placeholder="Cant." min="1" value="1" required>
                 </div>
                 <div class="col-6 col-md-2">
-                    <input type="number" id="itemPrecio" class="form-control" placeholder="Precio ($)">
+                    <input type="number" id="itemPrecio" class="form-control" placeholder="Precio Unit. ($)" min="0" step="100" required>
                 </div>
                 <div class="col-12 col-md-2">
-                    <button class="btn btn-danger w-100 fw-bold" onclick="agregarItem()"><i class="bi bi-plus-lg me-1"></i> Agregar</button>
+                    <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-lg me-1"></i> Añadir</button>
                 </div>
-            </div>
+            </form>
 
-            <div class="table-responsive mb-3">
-                <table class="table table-dark align-middle">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0">
                     <thead>
                         <tr class="text-secondary small">
-                            <th>DESCRIPCIÓN</th>
-                            <th class="text-center">CANT.</th>
-                            <th class="text-end">P. UNITARIO</th>
-                            <th class="text-end">SUBTOTAL</th>
-                            <th class="text-center">ACCIONES</th>
+                            <th style="width: 45%;">DESCRIPCIÓN</th>
+                            <th class="text-center" style="width: 15%;">CANT.</th>
+                            <th class="text-end" style="width: 15%;">P. UNITARIO</th>
+                            <th class="text-end" style="width: 15%;">SUBTOTAL</th>
+                            <th class="text-center" style="width: 10%;">ACCIÓN</th>
                         </tr>
                     </thead>
-                    <tbody id="bodyItems">
-                        <tr><td colspan="5" class="text-center text-secondary py-3">No hay ítems agregados al presupuesto.</td></tr>
+                    <tbody id="bodyItemsPresupuesto">
+                        <tr><td colspan="5" class="text-center text-secondary py-4">No hay ítems registrados en esta orden.</td></tr>
                     </tbody>
                 </table>
             </div>
+        </div>
 
-            <div class="d-flex justify-content-between align-items-center border-top border-secondary pt-3">
-                <h4 class="m-0 fw-bold">Total Presupuesto: <span id="totalMonto" class="text-success">$0</span></h4>
-                <button class="btn btn-success fw-bold px-4 py-2" id="btnGuardarPpto" onclick="guardarPresupuestoBD()">
-                    <i class="bi bi-check-circle me-1"></i> Guardar Presupuesto
-                </button>
+        <!-- 3. RESUMEN FINANCIERO -->
+        <div class="row g-4">
+            <div class="col-12 col-lg-6">
+                <div class="card-panel h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="bi bi-sliders text-danger fs-4 me-2"></i>
+                        <h5 class="fw-bold m-0">Ajustes de Facturación</h5>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Descuento ($)</label>
+                        <input type="number" id="inputDescuento" class="form-control" value="0" min="0" oninput="calcularTotales()">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Medio de Pago Estimado</label>
+                        <select id="selectMedioPago" class="form-select">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Transferencia">Transferencia Bancaria</option>
+                            <option value="Débito">Tarjeta de Débito</option>
+                            <option value="Crédito">Tarjeta de Crédito</option>
+                        </select>
+                    </div>
+                    <div class="form-check form-switch mt-3">
+                        <input class="form-check-input" type="checkbox" id="checkAplicarIVA" checked onchange="calcularTotales()">
+                        <label class="form-check-input-label text-white" for="checkAplicarIVA">Aplicar IVA (+19%)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-6">
+                <div class="card-panel h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 class="fw-bold mb-3 border-bottom border-secondary pb-2">Resumen General</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Subtotal Neto:</span>
+                            <span id="lblSubtotalNeto" class="fw-bold">$0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-secondary">Descuento:</span>
+                            <span id="lblMontoDescuento" class="text-danger fw-bold">-$0</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-secondary">IVA (19%):</span>
+                            <span id="lblMontoIVA" class="text-info fw-bold">$0</span>
+                        </div>
+                        <div class="d-flex justify-content-between pt-2 border-top border-secondary">
+                            <span class="fs-5 fw-bold">Total Final:</span>
+                            <span id="lblTotalFinal" class="fs-4 fw-bold text-success">$0</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-4">
+                        <div class="col-6">
+                            <button class="btn btn-outline-success w-100 fw-semibold" onclick="enviarWhatsApp()">
+                                <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-accent w-100" onclick="guardarPresupuesto()">
+                                <i class="bi bi-floppy me-1"></i> Guardar Todo
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- MODAL POP-UP EXCLUSIVO DE CREACIÓN RÁPIDA -->
+    <div class="modal fade" id="modalNuevoRegistro" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-person-plus text-danger me-2"></i> Crear Cliente / Vehículo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-secondary small">Nombre del Cliente *</label>
+                            <input type="text" id="modalCrearCliente" class="form-control" placeholder="Ej: Juan Pérez">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-secondary small">RUT / Identificación</label>
+                            <input type="text" id="modalCrearRut" class="form-control" placeholder="Ej: 15.668.911-0">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label text-secondary small">Teléfono</label>
+                            <input type="text" id="modalCrearTelefono" class="form-control" placeholder="Ej: +56912345678">
+                        </div>
+                        <div class="col-7">
+                            <label class="form-label text-secondary small">Modelo / Vehículo *</label>
+                            <input type="text" id="modalCrearVehiculo" class="form-control" placeholder="Ej: Peugeot 208">
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label text-secondary small">Patente *</label>
+                            <input type="text" id="modalCrearPatente" class="form-control text-uppercase" placeholder="Ej: BBCC10" maxlength="6">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-accent" onclick="confirmarModalCrear()">Guardar y Seleccionar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+        <div id="toastNotificacion" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center fs-6" id="toastMensaje"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="app.js"></script>
 
     <script>
         let ordenActual = null;
-        let itemsPresupuesto = [];
+        let listaItems = [];
+        let clienteSeleccionado = null;
+        let vehiculoSeleccionado = null;
+        let historialRegistrosCliente = []; 
+        const formatterCLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            if (typeof checkAuth === 'function') await checkAuth();
-            
-            const params = new URLSearchParams(window.location.search);
-            const folio = params.get('ot');
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const folioOT = urlParams.get('ot');
 
-            if (folio) {
-                cargarOT(folio);
-            } else {
-                alert("No se especificó un folio de orden.");
-                window.location.href = 'ordenes.html';
+            if (folioOT) {
+                cargarFichaOT(folioOT);
             }
+
+            // Ocultar dropdown al hacer click fuera
+            document.addEventListener("click", (e) => {
+                const drop = document.getElementById('dropdownClientes');
+                if (!e.target.closest('#inputBuscarCliente') && !e.target.closest('#dropdownClientes')) {
+                    drop.classList.add('d-none');
+                }
+            });
         });
 
-        async function cargarOT(folio) {
-            const db = initSupabase();
-            const { data, error } = await db.from('ordenes_trabajo').select('*').eq('numero', folio).single();
+        async function cargarFichaOT(folio) {
+            try {
+                const db = initSupabase();
+                const { data, error } = await db.from('ordenes_trabajo').select('*').eq('numero', folio).single();
 
-            if (error || !data) {
-                alert("No se encontró la orden especificada.");
-                window.location.href = 'ordenes.html';
+                if (error || !data) throw new Error("No se encontró la orden especificada.");
+
+                ordenActual = data;
+                document.getElementById('lblFolioOT').textContent = `Folio ${data.numero}`;
+                document.getElementById('lblBadgePatente').textContent = data.patente || 'S/P';
+                document.getElementById('selectEstadoOT').value = data.estado || 'Recepción';
+                document.getElementById('inputKilometraje').value = data.kilometraje || '';
+                document.getElementById('selectCombustible').value = data.combustible || '1/2 Tanque';
+                document.getElementById('txtObservaciones').value = data.observaciones || '';
+                document.getElementById('inputDescuento').value = data.descuento || 0;
+
+                // Cargar datos cliente in-situ
+                document.getElementById('inputBuscarCliente').value = data.cliente || '';
+                clienteSeleccionado = { cliente: data.cliente, rut: data.rut, telefono: data.telefono };
+                vehiculoSeleccionado = { vehiculo: data.vehiculo, patente: data.patente };
+
+                const selectVeh = document.getElementById('selectVehiculosCliente');
+                selectVeh.innerHTML = `<option value="0">${data.vehiculo} (${data.patente})</option>`;
+                selectVeh.disabled = false;
+
+                listaItems = data.items || [];
+                renderizarItems();
+            } catch (err) {
+                mostrarToast(err.message, "error");
+            }
+        }
+
+        // --- BÚSQUEDA IN-SITU CON DROPDOWN ---
+        async function buscarClienteInSitu() {
+            const query = document.getElementById('inputBuscarCliente').value.trim();
+            const drop = document.getElementById('dropdownClientes');
+
+            if (query.length < 2) {
+                drop.classList.add('d-none');
                 return;
             }
 
-            ordenActual = data;
-            itemsPresupuesto = Array.isArray(data.items) ? data.items : [];
+            try {
+                const db = initSupabase();
+                // Buscar clientes únicos en la BD
+                const { data } = await db.from('ordenes_trabajo').select('cliente, rut, telefono, vehiculo, patente').or(`cliente.ilike.%${query}%,rut.ilike.%${query}%,patente.ilike.%${query}%`).limit(10);
 
-            document.getElementById('tituloOT').innerText = `Presupuestar Folio ${data.numero}`;
-            document.getElementById('infoClienteCard').innerHTML = `
-                <div class="row text-white">
-                    <div class="col-12 col-md-3"><strong>Cliente:</strong> ${data.cliente}</div>
-                    <div class="col-12 col-md-3"><strong>Patente:</strong> <span class="badge bg-danger">${data.patente}</span></div>
-                    <div class="col-12 col-md-3"><strong>Vehículo:</strong> ${data.vehiculo}</div>
-                    <div class="col-12 col-md-3"><strong>Fecha Ingreso:</strong> ${data.fecha}</div>
-                </div>
-            `;
+                if (!data || data.length === 0) {
+                    drop.innerHTML = '<div class="search-item text-secondary">No se encontraron coincidencias...</div>';
+                    drop.classList.remove('d-none');
+                    return;
+                }
 
-            renderizarItems();
+                // Agrupar por cliente para manejar multivehículo
+                const clientesMap = {};
+                data.forEach(item => {
+                    const key = item.cliente.toLowerCase();
+                    if (!clientesMap[key]) {
+                        clientesMap[key] = {
+                            cliente: item.cliente,
+                            rut: item.rut,
+                            telefono: item.telefono,
+                            vehiculos: []
+                        };
+                    }
+                    if (item.vehiculo) {
+                        clientesMap[key].vehiculos.push({ vehiculo: item.vehiculo, patente: item.patente });
+                    }
+                });
+
+                drop.innerHTML = '';
+                Object.values(clientesMap).forEach(c => {
+                    drop.innerHTML += `
+                        <div class="search-item" onclick='seleccionarClienteInSitu(${JSON.stringify(c)})'>
+                            <div class="fw-bold text-white">${c.cliente}</div>
+                            <small class="text-secondary">RUT: ${c.rut || 'N/A'} | Autos registrados: ${c.vehiculos.length}</small>
+                        </div>
+                    `;
+                });
+                drop.classList.remove('d-none');
+            } catch (err) {
+                console.error(err);
+            }
         }
 
-        function agregarItem() {
-            const desc = document.getElementById('itemDesc').value.trim();
-            const cant = parseInt(document.getElementById('itemCant').value) || 1;
+        function seleccionarClienteInSitu(clienteObj) {
+            clienteSeleccionado = clienteObj;
+            document.getElementById('inputBuscarCliente').value = clienteObj.cliente;
+            document.getElementById('dropdownClientes').classList.add('d-none');
+
+            // Cargar selector de múltiples vehículos
+            const selectVeh = document.getElementById('selectVehiculosCliente');
+            selectVeh.innerHTML = '';
+            historialRegistrosCliente = clienteObj.vehiculos;
+
+            if (clienteObj.vehiculos.length === 0) {
+                selectVeh.innerHTML = '<option value="">Sin vehículos registrados</option>';
+                selectVeh.disabled = true;
+            } else {
+                clienteObj.vehiculos.forEach((v, index) => {
+                    selectVeh.innerHTML += `<option value="${index}">${v.vehiculo} [${v.patente || 'S/P'}]</option>`;
+                });
+                selectVeh.disabled = false;
+                seleccionarVehiculo(0); // Seleccionar el primero por defecto
+            }
+
+            mostrarToast(`Cliente ${clienteObj.cliente} seleccionado.`, "exito");
+        }
+
+        function seleccionarVehiculo(index) {
+            if (historialRegistrosCliente[index]) {
+                vehiculoSeleccionado = historialRegistrosCliente[index];
+                document.getElementById('lblBadgePatente').textContent = vehiculoSeleccionado.patente || 'S/P';
+            }
+        }
+
+        // --- MODAL CREACIÓN RÁPIDA (PARA CLIENTES/VEHÍCULOS NUEVOS) ---
+        function confirmarModalCrear() {
+            const cliente = document.getElementById('modalCrearCliente').value.trim();
+            const vehiculo = document.getElementById('modalCrearVehiculo').value.trim();
+            const patente = document.getElementById('modalCrearPatente').value.trim().toUpperCase();
+
+            if (!cliente || !vehiculo) {
+                mostrarToast("Nombre de cliente y vehículo son obligatorios.", "error");
+                return;
+            }
+
+            clienteSeleccionado = {
+                cliente: cliente,
+                rut: document.getElementById('modalCrearRut').value.trim(),
+                telefono: document.getElementById('modalCrearTelefono').value.trim()
+            };
+
+            vehiculoSeleccionado = {
+                vehiculo: vehiculo,
+                patente: patente || 'S/P'
+            };
+
+            document.getElementById('inputBuscarCliente').value = cliente;
+            
+            const selectVeh = document.getElementById('selectVehiculosCliente');
+            selectVeh.innerHTML = `<option value="0">${vehiculo} [${patente || 'S/P'}]</option>`;
+            selectVeh.disabled = false;
+            historialRegistrosCliente = [vehiculoSeleccionado];
+            
+            document.getElementById('lblBadgePatente').textContent = patente || 'S/P';
+
+            const modalEl = document.getElementById('modalNuevoRegistro');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            mostrarToast("Nuevo registro asignado correctamente.", "exito");
+        }
+
+        // --- CÁLCULOS E ÍTEMS ---
+        function agregarItem(e) {
+            e.preventDefault();
+            const desc = document.getElementById('itemDescripcion').value.trim();
+            const cant = parseInt(document.getElementById('itemCantidad').value) || 1;
             const precio = parseFloat(document.getElementById('itemPrecio').value) || 0;
 
-            if (!desc || precio <= 0) {
-                alert("Ingresa una descripción y precio válidos.");
-                return;
-            }
+            if (!desc || precio <= 0) return;
 
-            itemsPresupuesto.push({ descripcion: desc, cantidad: cant, precio: precio, subtotal: cant * precio });
+            listaItems.push({
+                id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                descripcion: desc,
+                cantidad: cant,
+                precio: precio
+            });
             
-            document.getElementById('itemDesc').value = '';
-            document.getElementById('itemCant').value = '1';
+            document.getElementById('itemDescripcion').value = '';
+            document.getElementById('itemCantidad').value = '1';
             document.getElementById('itemPrecio').value = '';
-
             renderizarItems();
         }
 
-        function eliminarItem(index) {
-            itemsPresupuesto.splice(index, 1);
+        function eliminarItem(idTarget) {
+            listaItems = listaItems.filter(item => String(item.id) !== String(idTarget));
             renderizarItems();
         }
 
         function renderizarItems() {
-            const body = document.getElementById('bodyItems');
-            body.innerHTML = '';
+            const tbody = document.getElementById('bodyItemsPresupuesto');
+            tbody.innerHTML = '';
 
-            let total = 0;
-
-            if (itemsPresupuesto.length === 0) {
-                body.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-3">No hay ítems agregados al presupuesto.</td></tr>';
-            } else {
-                itemsPresupuesto.forEach((item, index) => {
-                    total += item.subtotal;
-                    const pUnit = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(item.precio);
-                    const subT = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(item.subtotal);
-
-                    body.innerHTML += `
-                        <tr>
-                            <td>${item.descripcion}</td>
-                            <td class="text-center">${item.cantidad}</td>
-                            <td class="text-end">${pUnit}</td>
-                            <td class="text-end fw-bold text-success">${subT}</td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarItem(${index})"><i class="bi bi-trash"></i></button>
-                            </td>
-                        </tr>
-                    `;
-                });
+            if (listaItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">No hay ítems registrados en esta orden.</td></tr>';
+                calcularTotales();
+                return;
             }
 
-            document.getElementById('totalMonto').innerText = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(total);
+            listaItems.forEach(item => {
+                const subtotal = item.cantidad * item.precio;
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-semibold text-white">${item.descripcion}</td>
+                        <td class="text-center">${item.cantidad}</td>
+                        <td class="text-end text-secondary">${formatterCLP.format(item.precio)}</td>
+                        <td class="text-end fw-bold text-success">${formatterCLP.format(subtotal)}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-delete-row rounded-circle" type="button" onclick="eliminarItem('${item.id}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            calcularTotales();
         }
 
-        async function guardarPresupuestoBD() {
-            if (!ordenActual) return;
+        function calcularTotales() {
+            const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
+            const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
+            const aplicarIVA = document.getElementById('checkAplicarIVA').checked;
 
-            const btn = document.getElementById('btnGuardarPpto');
-            btn.disabled = true;
-            btn.innerText = 'Guardando...';
+            const baseImponible = Math.max(0, subtotalNeto - descuento);
+            const iva = aplicarIVA ? baseImponible * 0.19 : 0;
+            const totalFinal = baseImponible + iva;
 
-            const totalSumado = itemsPresupuesto.reduce((acc, i) => acc + i.subtotal, 0);
+            document.getElementById('lblSubtotalNeto').textContent = formatterCLP.format(subtotalNeto);
+            document.getElementById('lblMontoDescuento').textContent = `-${formatterCLP.format(descuento)}`;
+            document.getElementById('lblMontoIVA').textContent = formatterCLP.format(iva);
+            document.getElementById('lblTotalFinal').textContent = formatterCLP.format(totalFinal);
+            document.getElementById('lblTotalHeader').textContent = formatterCLP.format(totalFinal);
+        }
+
+        async function guardarPresupuesto() {
+            if (!clienteSeleccionado || !vehiculoSeleccionado) {
+                mostrarToast("Selecciona un cliente y un vehículo para la cotización.", "error");
+                return;
+            }
 
             try {
                 const db = initSupabase();
-                const { error } = await db
-                    .from('ordenes_trabajo')
-                    .update({
-                        items: itemsPresupuesto,
-                        total: totalSumado,
-                        estado: 'Presupuestado'
-                    })
-                    .eq('numero', ordenActual.numero);
+                const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
+                const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
+                const aplicarIVA = document.getElementById('checkAplicarIVA').checked;
+                const baseImponible = Math.max(0, subtotalNeto - descuento);
+                const totalFinal = baseImponible + (aplicarIVA ? baseImponible * 0.19 : 0);
 
-                if (error) throw error;
+                const payload = {
+                    cliente: clienteSeleccionado.cliente,
+                    rut: clienteSeleccionado.rut || null,
+                    telefono: clienteSeleccionado.telefono || null,
+                    vehiculo: vehiculoSeleccionado.vehiculo,
+                    patente: vehiculoSeleccionado.patente || 'S/P',
+                    estado: document.getElementById('selectEstadoOT').value,
+                    kilometraje: document.getElementById('inputKilometraje').value,
+                    combustible: document.getElementById('selectCombustible').value,
+                    observaciones: document.getElementById('txtObservaciones').value,
+                    descuento: descuento,
+                    total: totalFinal,
+                    items: listaItems
+                };
 
-                alert("¡Presupuesto guardado con éxito!");
-                window.location.href = 'ordenes.html';
+                if (ordenActual) {
+                    const { error } = await db.from('ordenes_trabajo').update(payload).eq('numero', ordenActual.numero);
+                    if (error) throw error;
+                    mostrarToast("Presupuesto actualizado correctamente.", "exito");
+                } else {
+                    const nuevoFolio = 'PPTO-' + Date.now().toString().slice(-4);
+                    payload.numero = nuevoFolio;
 
+                    const { error } = await db.from('ordenes_trabajo').insert([payload]);
+                    if (error) throw error;
+
+                    mostrarToast("Presupuesto creado con éxito.", "exito");
+                    setTimeout(() => { window.location.href = `presupuesto.html?ot=${nuevoFolio}`; }, 1200);
+                }
             } catch (err) {
-                alert("Error al guardar presupuesto: " + err.message);
-                btn.disabled = false;
-                btn.innerText = 'Guardar Presupuesto';
+                mostrarToast("Error: " + err.message, "error");
             }
+        }
+
+        function enviarWhatsApp() {
+            if (!clienteSeleccionado || !clienteSeleccionado.telefono) {
+                mostrarToast("El cliente seleccionado no tiene número telefónico.", "error");
+                return;
+            }
+            const fono = clienteSeleccionado.telefono.replace(/\D/g, '');
+            const total = document.getElementById('lblTotalFinal').textContent;
+            const msg = encodeURIComponent(`Hola ${clienteSeleccionado.cliente}, adjuntamos la cotización para tu ${vehiculoSeleccionado.vehiculo} (Patente: ${vehiculoSeleccionado.patente}). Total: ${total}.`);
+            window.open(`https://wa.me/${fono}?text=${msg}`, '_blank');
+        }
+
+        function mostrarToast(mensaje, tipo = 'exito') {
+            const toastEl = document.getElementById('toastNotificacion');
+            const toastBody = document.getElementById('toastMensaje');
+            if (!toastEl || !toastBody) return;
+
+            toastEl.classList.remove('bg-success', 'bg-danger');
+            toastEl.classList.add(tipo === 'exito' ? 'bg-success' : 'bg-danger');
+            toastBody.innerHTML = `<i class="bi bi-info-circle-fill me-2 fs-5"></i> ${mensaje}`;
+
+            new bootstrap.Toast(toastEl, { delay: 3000 }).show();
         }
     </script>
 </body>
