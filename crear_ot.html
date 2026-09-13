@@ -319,10 +319,8 @@
     <script src="app.js"></script>
 
     <script>
-        // CONFIGURACIÓN CENTRALIZADA DE LA API
+        // CONFIGURACIÓN CENTRALIZADA DE RESPALDO LOCAL
         const API_PATENTE_CONFIG = {
-            urlEndpoint: 'https://api.boostr.cl/vehicle/',
-            tokenJWT: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOiJWaWN0b3Igc2NodWx6IiwicGxhbiI6ImZyZWUiLCJhZGRvbnMiOiIiLCJleGNsdWRlcyI6IiIsInJhdGUiOiI1eDEwIiwiY3VzdG9tIjp7ImRvY3VtZW50X251bWJlcl9kYWlseV9saW1pdCI6MCwicGxhdGVzX2RhaWx5X2xpbWl0Ijo1fSwiaWF0IjoxNzg3Nzc4MjEyLCJleHAiOjE3OTAzNzAyMTJ9.ar95ZcK9fs6prl7SX5WpG8-uiKSj_BCmgRJcwrA21uE',
             usarMockSiFalla: true
         };
 
@@ -330,7 +328,7 @@
             if (typeof checkAuth === 'function') await checkAuth();
             document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
 
-            // Evento al presionar ENTER o perder el foco (blur) en el input de patente
+            // Evento al presionar ENTER en el input de patente
             const inputPatente = document.getElementById('patente');
             if (inputPatente) {
                 inputPatente.addEventListener('keypress', (e) => {
@@ -358,7 +356,7 @@
         }
 
         /**
-         * CONSULTA A LA API DE PATENTES
+         * CONSULTA A LA EDGE FUNCTION DE SUPABASE (PROXIED API DE BOOSTR)
          */
         async function consultarPatenteAPI() {
             const inputPatente = document.getElementById('patente');
@@ -366,7 +364,7 @@
             const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
 
             if (!patenteQuery || patenteQuery.length < 5) {
-                mostrarToast("Ingresa una patente válida (Ej: BBCL10)", "error");
+                mostrarToast("Ingresa una patente válida (Ej: HHTZ36)", "error");
                 return;
             }
 
@@ -378,43 +376,50 @@
             }
 
             try {
-                let datosObtenidos = null;
+                // Obtener el cliente Supabase (asume inicialización en supabase-config.js o initSupabase())
+                const client = typeof supabaseClient !== 'undefined' ? supabaseClient : (typeof initSupabase === 'function' ? initSupabase() : null);
 
-                if (API_PATENTE_CONFIG.tokenJWT) {
-                    const response = await fetch(`${API_PATENTE_CONFIG.urlEndpoint}${patenteQuery}.json?include=owner`, {
-                        method: 'GET',
-                        headers: {
-                            'accept': 'application/json',
-                            'Authorization': `Bearer ${API_PATENTE_CONFIG.tokenJWT}`,
-                            'x-api-key': API_PATENTE_CONFIG.tokenJWT
-                        }
-                    });
-
-                    if (response.ok) {
-                        const json = await response.json();
-                        if (json.status === 'success' && json.data) {
-                            datosObtenidos = normalizarRespuestaAPI(json.data);
-                        } else if (json.data) {
-                            datosObtenidos = normalizarRespuestaAPI(json);
-                        }
-                    }
+                if (!client) {
+                    throw new Error("Cliente de Supabase no disponible.");
                 }
 
-                // Si la consulta externa falla o se acaba la cuota, utiliza el mock de respaldo
+                // Invocación a la Edge Function 'get-vehiculo'
+                const { data, error } = await client.functions.invoke('get-vehiculo', {
+                    body: { patente: patenteQuery }
+                });
+
+                if (error) throw error;
+
+                let datosObtenidos = null;
+                if (data && (data.status === 'success' || data.data)) {
+                    datosObtenidos = normalizarRespuestaAPI(data.data || data);
+                } else if (data && !data.error) {
+                    datosObtenidos = normalizarRespuestaAPI(data);
+                }
+
+                // Respaldo Mock si la API no entrega resultados
                 if (!datosObtenidos && API_PATENTE_CONFIG.usarMockSiFalla) {
                     datosObtenidos = obtenerDatosMockPatente(patenteQuery);
                 }
 
                 if (datosObtenidos) {
                     autocompletarFormularioRecepcion(datosObtenidos);
-                    mostrarToast(`¡Vehículo ${patenteQuery} autocompletado!`, "exito");
+                    mostrarToast(`¡Vehículo ${patenteQuery} autocompletado con éxito!`, "exito");
                 } else {
                     throw new Error("No se encontraron datos para la patente consultada.");
                 }
 
             } catch (error) {
-                console.error("Error al consultar API:", error);
-                mostrarToast(error.message || "Error al conectar con el servidor de patentes", "error");
+                console.warn("Error al consultar API mediante Edge Function:", error);
+                
+                // Fallback automático al Mock en caso de fallo de red o servidor
+                if (API_PATENTE_CONFIG.usarMockSiFalla) {
+                    const datosMock = obtenerDatosMockPatente(patenteQuery);
+                    autocompletarFormularioRecepcion(datosMock);
+                    mostrarToast(`Datos autocompletados (Modo Desacoplado / Mock)`, "exito");
+                } else {
+                    mostrarToast(error.message || "Error al conectar con la función de patentes", "error");
+                }
             } finally {
                 if (btnConsultar) {
                     btnConsultar.disabled = false;
@@ -504,7 +509,7 @@
 
             // 2. Inserción de la Recepción / OT en Supabase
             try {
-                const db = initSupabase();
+                const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
                 if (!db) throw new Error("Sin conexión con la base de datos.");
 
                 const folio = 'OT-' + Math.floor(1000 + Math.random() * 9000);
