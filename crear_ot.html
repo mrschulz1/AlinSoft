@@ -104,7 +104,6 @@
             color: #fff;
         }
 
-        /* Area de Subida de Fotos (Dropzone Style) */
         .dropzone-box {
             border: 2px dashed var(--border-color);
             background-color: rgba(26, 38, 61, 0.4);
@@ -319,16 +318,10 @@
     <script src="app.js"></script>
 
     <script>
-        // CONFIGURACIÓN CENTRALIZADA DE RESPALDO LOCAL
-        const API_PATENTE_CONFIG = {
-            usarMockSiFalla: true
-        };
-
         document.addEventListener("DOMContentLoaded", async () => {
             if (typeof checkAuth === 'function') await checkAuth();
             document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
 
-            // Evento al presionar ENTER en el input de patente
             const inputPatente = document.getElementById('patente');
             if (inputPatente) {
                 inputPatente.addEventListener('keypress', (e) => {
@@ -356,7 +349,7 @@
         }
 
         /**
-         * CONSULTA A LA EDGE FUNCTION DE SUPABASE (PROXIED API DE BOOSTR)
+         * CONSULTA DIRECTA Y REAL A LA EDGE FUNCTION DE SUPABASE
          */
         async function consultarPatenteAPI() {
             const inputPatente = document.getElementById('patente');
@@ -368,7 +361,7 @@
                 return;
             }
 
-            mostrarToast(`Consultando datos de ${patenteQuery}...`, "exito");
+            mostrarToast(`Consultando datos reales de ${patenteQuery}...`, "exito");
             
             if (btnConsultar) {
                 btnConsultar.disabled = true;
@@ -376,50 +369,33 @@
             }
 
             try {
-                // Obtener el cliente Supabase (asume inicialización en supabase-config.js o initSupabase())
-                const client = typeof supabaseClient !== 'undefined' ? supabaseClient : (typeof initSupabase === 'function' ? initSupabase() : null);
+                // Endpoint directo de tu Edge Function en Supabase
+                const FUNCTION_URL = "https://okkydrwdexacxvfbtopb.supabase.co/functions/v1/get-vehiculo";
 
-                if (!client) {
-                    throw new Error("Cliente de Supabase no disponible.");
-                }
-
-                // Invocación a la Edge Function 'get-vehiculo'
-                const { data, error } = await client.functions.invoke('get-vehiculo', {
-                    body: { patente: patenteQuery }
+                const response = await fetch(FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ patente: patenteQuery })
                 });
 
-                if (error) throw error;
+                const jsonResult = await response.json();
 
-                let datosObtenidos = null;
-                if (data && (data.status === 'success' || data.data)) {
-                    datosObtenidos = normalizarRespuestaAPI(data.data || data);
-                } else if (data && !data.error) {
-                    datosObtenidos = normalizarRespuestaAPI(data);
+                if (!response.ok) {
+                    throw new Error(jsonResult.error || `Error en el servidor (${response.status})`);
                 }
 
-                // Respaldo Mock si la API no entrega resultados
-                if (!datosObtenidos && API_PATENTE_CONFIG.usarMockSiFalla) {
-                    datosObtenidos = obtenerDatosMockPatente(patenteQuery);
-                }
+                // Normalización de la respuesta real enviada por la API
+                const rawData = jsonResult.data || jsonResult;
+                const datosProcesados = normalizarRespuestaAPI(rawData);
 
-                if (datosObtenidos) {
-                    autocompletarFormularioRecepcion(datosObtenidos);
-                    mostrarToast(`¡Vehículo ${patenteQuery} autocompletado con éxito!`, "exito");
-                } else {
-                    throw new Error("No se encontraron datos para la patente consultada.");
-                }
+                autocompletarFormularioRecepcion(datosProcesados);
+                mostrarToast(`¡Vehículo ${patenteQuery} obtenido con éxito!`, "exito");
 
             } catch (error) {
-                console.warn("Error al consultar API mediante Edge Function:", error);
-                
-                // Fallback automático al Mock en caso de fallo de red o servidor
-                if (API_PATENTE_CONFIG.usarMockSiFalla) {
-                    const datosMock = obtenerDatosMockPatente(patenteQuery);
-                    autocompletarFormularioRecepcion(datosMock);
-                    mostrarToast(`Datos autocompletados (Modo Desacoplado / Mock)`, "exito");
-                } else {
-                    mostrarToast(error.message || "Error al conectar con la función de patentes", "error");
-                }
+                console.error("Error en la consulta real:", error);
+                mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
             } finally {
                 if (btnConsultar) {
                     btnConsultar.disabled = false;
@@ -447,15 +423,6 @@
             if (datos.rut) document.getElementById('rut').value = datos.rut;
             if (datos.vehiculo) document.getElementById('vehiculo').value = datos.vehiculo;
             if (datos.vin) document.getElementById('vin').value = datos.vin;
-        }
-
-        function obtenerDatosMockPatente(patente) {
-            return {
-                cliente: "VICTOR SCHULZ (REGISTRO API)",
-                rut: "18.452.109-K",
-                vehiculo: "AUDI A3 SPORTBACK 2019",
-                vin: "WAUZZZ8P16A119324"
-            };
         }
 
         function mostrarPrevisualizaciones(input) {
@@ -492,7 +459,6 @@
             btnSpinner.classList.remove('d-none');
             btn.disabled = true;
 
-            // 1. Subida resiliente de fotografías
             const urlsFotos = [];
             if (inputFotos.files.length > 0) {
                 for (let i = 0; i < inputFotos.files.length; i++) {
@@ -507,7 +473,6 @@
                 }
             }
 
-            // 2. Inserción de la Recepción / OT en Supabase
             try {
                 const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
                 if (!db) throw new Error("Sin conexión con la base de datos.");
@@ -552,4 +517,4 @@
         });
     </script>
 </body>
-</html>
+</html
