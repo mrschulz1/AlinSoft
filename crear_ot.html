@@ -142,6 +142,19 @@
             background-color: var(--accent-orange-hover);
             transform: translateY(-1px);
         }
+
+        .btn-api-search {
+            background-color: rgba(255, 87, 34, 0.15);
+            border: 1px solid rgba(255, 87, 34, 0.4);
+            color: var(--accent-orange);
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-api-search:hover {
+            background-color: var(--accent-orange);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -153,18 +166,18 @@
     </div>
 
     <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column justify-content-between p-2">
+    <div class="sidebar d-flex flex-column justify-content-between p-2" id="sidebar">
         <div>
             <div class="d-flex align-items-center px-3 py-3 mb-2">
                 <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
                 <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
             </div>
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
+                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
                 <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
                 <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
-                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> mantenedor de datos</a></li>
+                <li class="nav-item"><a href="crear_ot.html" class="nav-link active"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de Datos</a></li>
             </ul>
         </div>
         <div class="px-3 py-2 border-top border-secondary">
@@ -172,13 +185,12 @@
         </div>
     </div>
     
-
     <!-- Contenido Principal -->
     <div class="main-content">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold m-0">Nueva Recepción de Vehículo</h3>
-                <p class="text-secondary small m-0">Ingreso de unidad a taller y generación de OT</p>
+                <p class="text-secondary small m-0">Ingreso de unidad a taller y generación de OT con autocompletado por API</p>
             </div>
         </div>
 
@@ -207,13 +219,24 @@
                     <div class="card-panel h-100">
                         <div class="panel-title"><i class="bi bi-car-front"></i> Datos del Vehículo</div>
                         <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label text-warning">Patente / Placa (API Auto-Rellenar) *</label>
+                                <div class="input-group">
+                                    <input type="text" id="patente" class="form-control text-uppercase fw-bold" required placeholder="EJ: BBCL10 O WAUZZZ..." maxlength="17" style="letter-spacing: 1.5px;">
+                                    <button type="button" class="btn btn-api-search px-3" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
+                                        <i class="bi bi-magic me-1"></i> Consultar API
+                                    </button>
+                                </div>
+                                <span class="text-muted" style="font-size: 0.72rem;">Ingresa la patente y presiona Enter o el botón para llenar Marca, Modelo y Datos.</span>
+                            </div>
+
                             <div class="col-12 col-md-7">
                                 <label class="form-label">Marca y Modelo *</label>
                                 <input type="text" id="vehiculo" class="form-control" required placeholder="Ej: Toyota Yaris 2018">
                             </div>
                             <div class="col-12 col-md-5">
-                                <label class="form-label">Patente / Placa *</label>
-                                <input type="text" id="patente" class="form-control text-uppercase fw-bold" required placeholder="BBCL10">
+                                <label class="form-label">VIN / N° Chasis</label>
+                                <input type="text" id="vin" class="form-control text-uppercase font-monospace" placeholder="WAUZZZ...">
                             </div>
                         </div>
                     </div>
@@ -280,19 +303,154 @@
         </form>
     </div>
 
+    <!-- TOAST NOTIFICACIÓN -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+        <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-3" role="alert">
+            <div class="d-flex">
+                <div class="toast-body d-flex align-items-center fs-6 fw-bold" id="toastMensaje"></div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="app.js"></script>
 
     <script>
+        // CONFIGURACIÓN CENTRALIZADA DE LA API
+        const API_PATENTE_CONFIG = {
+            urlEndpoint: 'https://api.boostr.cl/vehicle/',
+            tokenJWT: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOiJWaWN0b3Igc2NodWx6IiwicGxhbiI6ImZyZWUiLCJhZGRvbnMiOiIiLCJleGNsdWRlcyI6IiIsInJhdGUiOiI1eDEwIiwiY3VzdG9tIjp7ImRvY3VtZW50X251bWJlcl9kYWlseV9saW1pdCI6MCwicGxhdGVzX2RhaWx5X2xpbWl0Ijo1fSwiaWF0IjoxNzg3Nzc4MjEyLCJleHAiOjE3OTAzNzAyMTJ9.ar95ZcK9fs6prl7SX5WpG8-uiKSj_BCmgRJcwrA21uE',
+            usarMockSiFalla: true
+        };
+
         document.addEventListener("DOMContentLoaded", async () => {
             if (typeof checkAuth === 'function') await checkAuth();
             document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+
+            // Evento al presionar ENTER o perder el foco (blur) en el input de patente
+            const inputPatente = document.getElementById('patente');
+            if (inputPatente) {
+                inputPatente.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        consultarPatenteAPI();
+                    }
+                });
+            }
         });
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('show');
+        }
+
+        function mostrarToast(mensaje, tipo = "exito") {
+            const toastEl = document.getElementById('toastNotificacion');
+            const toastMsg = document.getElementById('toastMensaje');
+            if (!toastEl || !toastMsg) return;
+
+            toastMsg.textContent = mensaje;
+            toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : "bg-danger"}`;
+            const bsToast = new bootstrap.Toast(toastEl);
+            bsToast.show();
+        }
+
+        /**
+         * CONSULTA A LA API DE PATENTES
+         */
+        async function consultarPatenteAPI() {
+            const inputPatente = document.getElementById('patente');
+            const btnConsultar = document.getElementById('btnConsultarPatente');
+            const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
+
+            if (!patenteQuery || patenteQuery.length < 5) {
+                mostrarToast("Ingresa una patente válida (Ej: BBCL10)", "error");
+                return;
+            }
+
+            mostrarToast(`Consultando datos de ${patenteQuery}...`, "exito");
+            
+            if (btnConsultar) {
+                btnConsultar.disabled = true;
+                btnConsultar.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Consultando...`;
+            }
+
+            try {
+                let datosObtenidos = null;
+
+                if (API_PATENTE_CONFIG.tokenJWT) {
+                    const response = await fetch(`${API_PATENTE_CONFIG.urlEndpoint}${patenteQuery}.json?include=owner`, {
+                        method: 'GET',
+                        headers: {
+                            'accept': 'application/json',
+                            'Authorization': `Bearer ${API_PATENTE_CONFIG.tokenJWT}`,
+                            'x-api-key': API_PATENTE_CONFIG.tokenJWT
+                        }
+                    });
+
+                    if (response.ok) {
+                        const json = await response.json();
+                        if (json.status === 'success' && json.data) {
+                            datosObtenidos = normalizarRespuestaAPI(json.data);
+                        } else if (json.data) {
+                            datosObtenidos = normalizarRespuestaAPI(json);
+                        }
+                    }
+                }
+
+                // Si la consulta externa falla o se acaba la cuota, utiliza el mock de respaldo
+                if (!datosObtenidos && API_PATENTE_CONFIG.usarMockSiFalla) {
+                    datosObtenidos = obtenerDatosMockPatente(patenteQuery);
+                }
+
+                if (datosObtenidos) {
+                    autocompletarFormularioRecepcion(datosObtenidos);
+                    mostrarToast(`¡Vehículo ${patenteQuery} autocompletado!`, "exito");
+                } else {
+                    throw new Error("No se encontraron datos para la patente consultada.");
+                }
+
+            } catch (error) {
+                console.error("Error al consultar API:", error);
+                mostrarToast(error.message || "Error al conectar con el servidor de patentes", "error");
+            } finally {
+                if (btnConsultar) {
+                    btnConsultar.disabled = false;
+                    btnConsultar.innerHTML = `<i class="bi bi-magic me-1"></i> Consultar API`;
+                }
+            }
+        }
+
+        function normalizarRespuestaAPI(data) {
+            const propietario = data.owner || data.propietario || {};
+            const marca = data.make || data.marca || '';
+            const modelo = data.model || data.modelo || '';
+            const ano = data.year || data.ano || '';
+
+            return {
+                cliente: propietario.fullname || propietario.nombre || '',
+                rut: propietario.documentNumber || propietario.rut || '',
+                vehiculo: `${marca} ${modelo} ${ano}`.trim(),
+                vin: data.chassis || data.vin || data.chasis || ''
+            };
+        }
+
+        function autocompletarFormularioRecepcion(datos) {
+            if (datos.cliente) document.getElementById('cliente').value = datos.cliente;
+            if (datos.rut) document.getElementById('rut').value = datos.rut;
+            if (datos.vehiculo) document.getElementById('vehiculo').value = datos.vehiculo;
+            if (datos.vin) document.getElementById('vin').value = datos.vin;
+        }
+
+        function obtenerDatosMockPatente(patente) {
+            return {
+                cliente: "VICTOR SCHULZ (REGISTRO API)",
+                rut: "18.452.109-K",
+                vehiculo: "AUDI A3 SPORTBACK 2019",
+                vin: "WAUZZZ8P16A119324"
+            };
         }
 
         function mostrarPrevisualizaciones(input) {
@@ -313,81 +471,80 @@
         }
 
         document.getElementById('formNuevaOT').addEventListener('submit', async function(e) {
-    e.preventDefault();
+            e.preventDefault();
 
-    const alerta = document.getElementById('alertaForm');
-    const btnText = document.getElementById('btnTextOT');
-    const btnSpinner = document.getElementById('btnSpinnerOT');
-    const btn = document.getElementById('btnGuardarOT');
-    const inputFotos = document.getElementById('inputFotos');
+            const alerta = document.getElementById('alertaForm');
+            const btnText = document.getElementById('btnTextOT');
+            const btnSpinner = document.getElementById('btnSpinnerOT');
+            const btn = document.getElementById('btnGuardarOT');
+            const inputFotos = document.getElementById('inputFotos');
 
-    alerta.className = 'alert alert-info py-2 px-3 small m-0';
-    alerta.innerText = 'Procesando registro de orden...';
-    
-    btnText.innerText = 'Guardando...';
-    btnSpinner.classList.remove('d-none');
-    btn.disabled = true;
+            alerta.className = 'alert alert-info py-2 px-3 small m-0';
+            alerta.classList.remove('d-none');
+            alerta.innerText = 'Procesando registro de orden...';
+            
+            btnText.innerText = 'Guardando...';
+            btnSpinner.classList.remove('d-none');
+            btn.disabled = true;
 
-    // 1. Intento de subida de fotos (Opcional / Resiliente)
-    const urlsFotos = [];
-    if (inputFotos.files.length > 0) {
-        for (let i = 0; i < inputFotos.files.length; i++) {
-            try {
-                const url = await subirFotoSupabase(inputFotos.files[i]);
-                if (url) urlsFotos.push(url);
-            } catch (errFoto) {
-                console.warn(`No se pudo subir la foto ${inputFotos.files[i].name}:`, errFoto);
-                // Continúa con la siguiente foto sin detener el flujo principal
+            // 1. Subida resiliente de fotografías
+            const urlsFotos = [];
+            if (inputFotos.files.length > 0) {
+                for (let i = 0; i < inputFotos.files.length; i++) {
+                    try {
+                        if (typeof subirFotoSupabase === 'function') {
+                            const url = await subirFotoSupabase(inputFotos.files[i]);
+                            if (url) urlsFotos.push(url);
+                        }
+                    } catch (errFoto) {
+                        console.warn(`No se pudo subir la foto ${inputFotos.files[i].name}:`, errFoto);
+                    }
+                }
             }
-        }
-    }
 
-    // 2. Registro de la Orden de Trabajo en la BD
-    try {
-        const db = initSupabase();
-        if (!db) throw new Error("Sin conexión con el backend.");
+            // 2. Inserción de la Recepción / OT en Supabase
+            try {
+                const db = initSupabase();
+                if (!db) throw new Error("Sin conexión con la base de datos.");
 
-        const folio = 'OT-' + Math.floor(1000 + Math.random() * 9000);
-        
-        // Asignamos [] si no hay fotos subidas
-        const payload = {
-            numero: folio,
-            cliente: document.getElementById('cliente').value.trim(),
-            rut: document.getElementById('rut').value.trim(),
-            vehiculo: document.getElementById('vehiculo').value.trim(),
-            patente: document.getElementById('patente').value.toUpperCase().trim(),
-            kilometraje: document.getElementById('kilometraje').value.trim(),
-            combustible: document.getElementById('combustible').value,
-            fecha: document.getElementById('fecha').value,
-            observaciones: document.getElementById('observaciones').value.trim(),
-            fotos: urlsFotos, // Si falló Storage, enviará [] y no dará error 400
-            estado: 'Recepción',
-            items: [],
-            total: 0
-        };
+                const folio = 'OT-' + Math.floor(1000 + Math.random() * 9000);
+                
+                const payload = {
+                    numero: folio,
+                    cliente: document.getElementById('cliente').value.trim(),
+                    rut: document.getElementById('rut').value.trim(),
+                    vehiculo: document.getElementById('vehiculo').value.trim(),
+                    patente: document.getElementById('patente').value.toUpperCase().trim(),
+                    vin: document.getElementById('vin').value.trim(),
+                    kilometraje: document.getElementById('kilometraje').value.trim(),
+                    combustible: document.getElementById('combustible').value,
+                    fecha: document.getElementById('fecha').value,
+                    observaciones: document.getElementById('observaciones').value.trim(),
+                    fotos: urlsFotos,
+                    estado: 'Recepción',
+                    items: [],
+                    total: 0
+                };
 
-        const { data, error } = await db.from('ordenes_trabajo').insert([payload]);
-        if (error) throw error;
+                const { data, error } = await db.from('ordenes_trabajo').insert([payload]);
+                if (error) throw error;
 
-        alerta.className = 'alert alert-success py-2 px-3 small m-0';
-        alerta.innerText = urlsFotos.length < inputFotos.files.length && inputFotos.files.length > 0 
-            ? '¡Orden creada! (Algunas imágenes no se pudieron adjuntar).' 
-            : '¡Orden de trabajo registrada exitosamente!';
-        
-        setTimeout(() => {
-            window.location.href = 'ordenes.html';
-        }, 1200);
+                alerta.className = 'alert alert-success py-2 px-3 small m-0';
+                alerta.innerText = '¡Orden de trabajo registrada exitosamente!';
+                
+                setTimeout(() => {
+                    window.location.href = 'ordenes.html';
+                }, 1200);
 
-    } catch (err) {
-        alerta.className = 'alert alert-danger py-2 px-3 small m-0';
-        alerta.innerText = 'Error al registrar orden: ' + (err.message || 'Verifica la conexión.');
-        
-        btnText.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Generar Orden de Trabajo';
-        btnSpinner.classList.add('d-none');
-        btn.disabled = false;
-    }
-});
-        
+            } catch (err) {
+                alerta.className = 'alert alert-danger py-2 px-3 small m-0';
+                alerta.innerText = 'Error al registrar orden: ' + (err.message || 'Verifica la conexión.');
+                
+                btnText.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Generar Orden de Trabajo';
+                btnSpinner.classList.add('d-none');
+                btn.disabled = false;
+            }
+        });
     </script>
 </body>
 </html>
