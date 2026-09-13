@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Presupuesto & Cotizador - AlinSoft Studio</title>
-    <!-- Google Fonts: Outfit & Space Grotesk -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -18,7 +17,6 @@
             --panel-border: rgba(255, 255, 255, 0.07); 
             --accent-red: #ff2a4b; 
             --accent-glow: rgba(255, 42, 75, 0.4);
-            --accent-cyan: #00f2fe;
             --accent-green: #10b981;
             --text-main: #f8fafc;
             --text-sub: #64748b;
@@ -26,29 +24,24 @@
 
         body { 
             background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(255, 42, 75, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
+            background-image: radial-gradient(at 0% 0%, rgba(255, 42, 75, 0.08) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
             background-attachment: fixed;
             color: var(--text-main); 
             font-family: 'Outfit', sans-serif;
             min-height: 100vh;
         }
 
-        /* SIDEBAR HUD MODERNO */
         .sidebar { 
             width: 260px; 
             height: calc(100vh - 30px); 
             background: rgba(10, 15, 26, 0.8); 
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--panel-border);
             border-radius: 24px;
             position: fixed; 
             top: 15px; 
             left: 15px; 
             z-index: 1000; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
         
         .main-content { 
@@ -56,22 +49,14 @@
             padding: 20px 30px 40px 10px; 
         }
 
-        @media (max-width: 992px) { 
-            .sidebar { margin-left: -300px; } 
-            .main-content { margin-left: 0; padding: 15px; } 
-        }
-
-        /* BRANDING */
         .brand-logo {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            letter-spacing: -0.5px;
             background: linear-gradient(135deg, #ffffff 30%, var(--accent-red));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* LINKS NAV */
         .nav-link { 
             color: #8a99ad; 
             padding: 12px 18px; 
@@ -79,40 +64,23 @@
             font-weight: 600; 
             border-radius: 14px; 
             margin-bottom: 6px; 
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
         }
-
-        .nav-link:hover { 
-            color: #fff; 
-            background: rgba(255, 255, 255, 0.04); 
-            transform: translateX(4px);
-        }
-
+        .nav-link:hover { color: #fff; background: rgba(255, 255, 255, 0.04); }
         .nav-link.active { 
             color: #fff; 
             background: linear-gradient(135deg, rgba(255, 42, 75, 0.25) 0%, rgba(255, 42, 75, 0.05) 100%);
             border: 1px solid rgba(255, 42, 75, 0.3);
-            box-shadow: 0 8px 20px var(--accent-glow);
         }
 
-        /* TARJETAS GLASS HUD */
         .hud-card { 
             background: var(--panel-bg); 
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--panel-border); 
             border-radius: 24px; 
             padding: 24px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            position: relative;
-            overflow: hidden;
-            transition: border-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .hud-card:hover {
-            border-color: rgba(255, 255, 255, 0.15);
         }
 
         .hud-title {
@@ -133,7 +101,43 @@
             font-size: 0.8rem;
         }
 
-        /* CONTROLES E INPUTS FUTURISTAS */
+        /* TARJETAS SEPARADAS TIPO BUJÍA */
+        .bujia-card {
+            background: rgba(10, 16, 28, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 20px;
+            transition: all 0.25s ease;
+        }
+        .bujia-card:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .bujia-badge-patente {
+            background: #ffffff;
+            color: #07090e;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800;
+            letter-spacing: 1px;
+            padding: 4px 12px;
+            border-radius: 8px;
+            display: inline-block;
+            font-size: 1.1rem;
+        }
+
+        .data-label {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .data-value {
+            font-size: 0.9rem;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
         .form-label-tech {
             font-size: 0.75rem;
             font-weight: 700;
@@ -151,9 +155,7 @@
             border-radius: 14px;
             padding: 12px 16px;
             font-size: 0.95rem;
-            transition: all 0.25s ease;
         }
-
         .form-control-tech:focus, .form-select-tech:focus { 
             background: rgba(12, 18, 30, 0.95); 
             border-color: var(--accent-red); 
@@ -162,12 +164,9 @@
             outline: none;
         }
 
-        /* BUSCADOR DE CLIENTES DROPDOWN */
         .search-results-panel {
             position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
+            top: 100%; left: 0; right: 0;
             z-index: 1050;
             background: rgba(11, 16, 26, 0.95);
             backdrop-filter: blur(20px);
@@ -176,128 +175,46 @@
             margin-top: 8px;
             max-height: 280px;
             overflow-y: auto;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
-        
         .search-item-card {
             padding: 14px 18px;
             cursor: pointer;
             border-bottom: 1px solid rgba(255,255,255,0.04);
-            transition: all 0.2s ease;
         }
+        .search-item-card:hover { background: rgba(255, 42, 75, 0.15); }
 
-        .search-item-card:hover { 
-            background: rgba(255, 42, 75, 0.15); 
-            padding-left: 22px;
-        }
-
-        /* BOTONES INTERACTIVOS */
         .btn-glow-danger { 
             background: linear-gradient(135deg, #ff2a4b 0%, #b91c1c 100%);
-            border: none;
-            color: #fff; 
-            font-weight: 700; 
-            border-radius: 14px;
-            padding: 12px 24px;
-            box-shadow: 0 4px 20px var(--accent-glow);
-            transition: all 0.25s ease;
-        }
-
-        .btn-glow-danger:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(255, 42, 75, 0.6);
-            color: #fff;
+            border: none; color: #fff; font-weight: 700; border-radius: 14px;
+            padding: 12px 24px; box-shadow: 0 4px 20px var(--accent-glow);
         }
 
         .btn-glass {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-radius: 14px;
-            font-weight: 600;
-            transition: all 0.2s ease;
+            color: #fff; border-radius: 14px; font-weight: 600;
         }
 
-        .btn-glass:hover {
-            background: rgba(255, 255, 255, 0.12);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.25);
-        }
-
-        /* TABLA DINÁMICA DE ÍTEMS */
-        .tech-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 8px;
-        }
-
-        .tech-table th {
-            font-size: 0.75rem;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-sub);
-            padding: 12px 16px;
-            border: none;
-        }
-
-        .tech-table tbody tr {
-            background: rgba(10, 15, 26, 0.5);
-            border-radius: 14px;
-            transition: all 0.25s ease;
-        }
-
-        .tech-table tbody tr:hover {
-            background: rgba(20, 30, 48, 0.7);
-            transform: scale(1.005);
-        }
-
-        .tech-table td {
-            padding: 16px;
-            border-top: 1px solid var(--panel-border);
-            border-bottom: 1px solid var(--panel-border);
-        }
-
-        .tech-table td:first-child {
-            border-left: 1px solid var(--panel-border);
-            border-top-left-radius: 14px;
-            border-bottom-left-radius: 14px;
-        }
-
-        .tech-table td:last-child {
-            border-right: 1px solid var(--panel-border);
-            border-top-right-radius: 14px;
-            border-bottom-right-radius: 14px;
-        }
+        .tech-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        .tech-table th { font-size: 0.75rem; letter-spacing: 1.5px; color: var(--text-sub); padding: 12px 16px; }
+        .tech-table tbody tr { background: rgba(10, 15, 26, 0.5); }
+        .tech-table td { padding: 16px; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
 
         .btn-delete-row {
-            background: rgba(255, 42, 75, 0.1);
-            color: var(--accent-red);
-            border: 1px solid rgba(255, 42, 75, 0.2);
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-        .btn-delete-row:hover {
-            background: var(--accent-red);
-            color: #fff;
+            background: rgba(255, 42, 75, 0.1); color: var(--accent-red);
+            border: 1px solid rgba(255, 42, 75, 0.2); width: 34px; height: 34px; border-radius: 10px;
         }
 
-        /* TICKET RESUMEN FINANCIERO */
         .ticket-panel {
             background: linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, rgba(10, 15, 26, 0.95) 100%);
             border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 24px;
+            border-radius: 20px; padding: 24px;
         }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR FLOTANTE -->
+    <!-- SIDEBAR -->
     <div class="sidebar d-flex flex-column justify-content-between p-3">
         <div>
             <div class="d-flex align-items-center px-2 py-3 mb-4">
@@ -308,8 +225,6 @@
                 <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-grid-1x2-fill me-3"></i> Dashboard</a></li>
                 <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-receipt-cutoff me-3"></i> Órdenes</a></li>
                 <li class="nav-item"><a href="presupuesto.html" class="nav-link active"><i class="bi bi-calculator-fill me-3"></i> Cotizador UI</a></li>
-                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-plus-square-fill me-3"></i> Nueva OT</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-database-fill me-3"></i> Base Datos</a></li>
             </ul>
         </div>
         <div class="px-2 py-2 border-top border-secondary border-opacity-25">
@@ -330,9 +245,9 @@
                     <div>
                         <div class="d-flex align-items-center gap-2">
                             <h3 class="fw-bold m-0" id="lblFolioOT">NUEVO PRESUPUESTO</h3>
-                            <span class="badge-hud" id="lblBadgePatente">SIN PATENTE</span>
+                            <span class="badge-hud" id="lblBadgePatenteHeader">SIN PATENTE</span>
                         </div>
-                        <p class="text-muted small m-0 mt-1">Configura ítems, repuestos y ajustes de facturación dinámica</p>
+                        <p class="text-muted small m-0 mt-1">Configura ítems, repuestos y especificaciones del vehículo</p>
                     </div>
                 </div>
 
@@ -355,43 +270,115 @@
             </div>
         </div>
 
-        <!-- 1. SECCIÓN CLIENTE Y VEHÍCULO -->
+        <!-- 1. BUSCADOR & REGISTRO -->
         <div class="hud-card mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge-hud">01</span>
-                    <h5 class="hud-title m-0">Ficha del Cliente & Vehículo</h5>
-                </div>
-                <button type="button" class="btn btn-glass btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalNuevoRegistro">
-                    <i class="bi bi-person-plus-fill me-1 text-danger"></i> Registro Rápido
-                </button>
-            </div>
-
-            <div class="row g-3 mb-3">
-                <!-- BUSCADOR AUTOCOMPLETE -->
-                <div class="col-12 col-md-4 position-relative">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-6 position-relative">
                     <label class="form-label-tech">Buscador Inteligente</label>
                     <div class="input-group">
                         <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" id="inputBuscarCliente" class="form-control-tech border-start-0 w-75" placeholder="Cliente, RUT o Patente..." autocomplete="off">
+                        <input type="text" id="inputBuscarCliente" class="form-control-tech border-start-0 w-75" placeholder="Cliente, RUT, VIN o Patente..." autocomplete="off">
                     </div>
                     <div id="dropdownClientes" class="search-results-panel d-none"></div>
                 </div>
 
-                <!-- SELECTOR VEHÍCULOS -->
                 <div class="col-12 col-md-4">
-                    <label class="form-label-tech">Vehículo Seleccionado</label>
+                    <label class="form-label-tech">Vehículo Asociado</label>
                     <select id="selectVehiculosCliente" class="form-select-tech" onchange="seleccionarVehiculo(this.value)" disabled>
                         <option value="">Selecciona un cliente primero...</option>
                     </select>
                 </div>
 
-                <div class="col-6 col-md-2">
+                <div class="col-12 col-md-2 text-end">
+                    <button type="button" class="btn btn-glass w-100 py-2 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#modalNuevoRegistro">
+                        <i class="bi bi-plus-circle-fill text-danger"></i> Nuevo Registro
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TARJETAS SEPARADAS: CLIENTE Y VEHÍCULO ESTILO BUJÍA -->
+        <div class="row g-4 mb-4">
+            <!-- TARJETA CLIENTE -->
+            <div class="col-12 col-lg-6">
+                <div class="bujia-card h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold text-white m-0 d-flex align-items-center gap-2">
+                                <i class="bi bi-person-fill text-danger fs-5"></i> Cliente
+                            </h6>
+                            <span id="badgeClienteRut" class="badge bg-secondary bg-opacity-25 text-light border border-white border-opacity-10 fs-7">RUT: S/I</span>
+                        </div>
+
+                        <h4 class="fw-bold text-white mb-3" id="lblClienteNombre">No seleccionado</h4>
+
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <span class="data-label d-block">Teléfono:</span>
+                                <span class="data-value text-info" id="lblClienteTelefono">—</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="data-label d-block">Email:</span>
+                                <span class="data-value" id="lblClienteEmail">—</span>
+                            </div>
+                            <div class="col-12">
+                                <span class="data-label d-block">Dirección:</span>
+                                <span class="data-value" id="lblClienteDireccion">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TARJETA VEHÍCULO -->
+            <div class="col-12 col-lg-6">
+                <div class="bujia-card h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="fw-bold text-white m-0 d-flex align-items-center gap-2">
+                                <i class="bi bi-car-front-fill text-danger fs-5"></i> Vehículo
+                            </h6>
+                            <span id="lblVehiculoPatenteBadge" class="bujia-badge-patente">S/P</span>
+                        </div>
+
+                        <h5 class="fw-bold text-white mb-3" id="lblVehiculoTitulo">Sin especificar</h5>
+
+                        <div class="row g-3">
+                            <div class="col-4">
+                                <span class="data-label d-block">Color:</span>
+                                <span class="data-value" id="lblVehiculoColor">—</span>
+                            </div>
+                            <div class="col-4">
+                                <span class="data-label d-block">Año:</span>
+                                <span class="data-value" id="lblVehiculoAno">—</span>
+                            </div>
+                            <div class="col-4">
+                                <span class="data-label d-block">Transmisión:</span>
+                                <span class="data-value" id="lblVehiculoTransmision">—</span>
+                            </div>
+
+                            <div class="col-6">
+                                <span class="data-label d-block">N° de Motor:</span>
+                                <span class="data-value font-monospace text-warning" id="lblVehiculoNumMotor">—</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="data-label d-block">VIN / Chasis:</span>
+                                <span class="data-value font-monospace text-info" id="lblVehiculoVin">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PARAMETROS ADICIONALES DE SERVICIO -->
+        <div class="hud-card mb-4">
+            <div class="row g-3">
+                <div class="col-6 col-md-3">
                     <label class="form-label-tech">Kilometraje</label>
                     <input type="text" id="inputKilometraje" class="form-control-tech" placeholder="100.000 KM">
                 </div>
-
-                <div class="col-6 col-md-2">
+                <div class="col-6 col-md-3">
                     <label class="form-label-tech">Combustible</label>
                     <select id="selectCombustible" class="form-select-tech">
                         <option value="No Registra">No Registra</option>
@@ -402,11 +389,10 @@
                         <option value="Lleno">Lleno</option>
                     </select>
                 </div>
-            </div>
-
-            <div>
-                <label class="form-label-tech">Observaciones Diagnósticas / Requerimientos</label>
-                <textarea id="txtObservaciones" class="form-control-tech" rows="2" placeholder="Describe los síntomas, fallas encontradas o requerimientos especiales..."></textarea>
+                <div class="col-12 col-md-6">
+                    <label class="form-label-tech">Observaciones Diagnósticas / Requerimientos</label>
+                    <input type="text" id="txtObservaciones" class="form-control-tech" placeholder="Describe requerimientos del cliente o diagnóstico previo...">
+                </div>
             </div>
         </div>
 
@@ -452,7 +438,7 @@
             </div>
         </div>
 
-        <!-- 3. CONFIGURACIÓN FINANCIERA -->
+        <!-- 3. CONFIGURACIÓN FINANCIERA Y TOTALES -->
         <div class="row g-4">
             <div class="col-12 col-lg-6">
                 <div class="hud-card h-100">
@@ -488,7 +474,6 @@
                 </div>
             </div>
 
-            <!-- TICKET CALCULADORA DINÁMICA -->
             <div class="col-12 col-lg-6">
                 <div class="hud-card h-100 d-flex flex-column justify-content-between">
                     <div class="ticket-panel">
@@ -530,47 +515,10 @@
         </div>
     </div>
 
-    <!-- MODAL REGISTRO RÁPIDO -->
-    <div class="modal fade" id="modalNuevoRegistro" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content hud-card border-secondary">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title hud-title text-danger"><i class="bi bi-person-plus-fill me-2"></i> Nuevo Cliente / Vehículo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label-tech">Nombre Completo *</label>
-                            <input type="text" id="modalCrearCliente" class="form-control-tech w-100" placeholder="Ej: Mario Rossi">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label-tech">RUT / DNI</label>
-                            <input type="text" id="modalCrearRut" class="form-control-tech w-100" placeholder="12.345.678-9">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label-tech">Teléfono Contacto</label>
-                            <input type="text" id="modalCrearTelefono" class="form-control-tech w-100" placeholder="+56912345678">
-                        </div>
-                        <div class="col-7">
-                            <label class="form-label-tech">Modelo Vehículo *</label>
-                            <input type="text" id="modalCrearVehiculo" class="form-control-tech w-100" placeholder="Ej: Audi A3 2.0 TFSI">
-                        </div>
-                        <div class="col-5">
-                            <label class="form-label-tech">Patente *</label>
-                            <input type="text" id="modalCrearPatente" class="form-control-tech w-100 text-uppercase" placeholder="BBCC10" maxlength="6">
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-glow-danger" onclick="confirmarModalCrear()">Guardar & Seleccionar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- MODAL INCLUIDO EN PASO 2 -->
+    <!-- ... Se inserta el HTML del modal del Paso 2 aquí ... -->
 
-    <!-- TOAST NOTIFICACIÓN HUD -->
+    <!-- TOAST NOTIFICACIÓN -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
         <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-4" role="alert">
             <div class="d-flex">
@@ -580,7 +528,6 @@
         </div>
     </div>
 
-    <!-- SCRIPTS CORE -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
@@ -607,9 +554,7 @@
             if (inputBusqueda) {
                 inputBusqueda.addEventListener('input', () => {
                     clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => {
-                        buscarClienteInSitu();
-                    }, 300);
+                    debounceTimer = setTimeout(() => { buscarClienteInSitu(); }, 300);
                 });
             }
 
@@ -636,26 +581,38 @@
             try {
                 const db = initSupabase();
                 const { data, error } = await db.from('ordenes_trabajo').select('*').eq('numero', folio).single();
-
                 if (error || !data) throw new Error("No se encontró la orden especificada.");
 
                 ordenActual = data;
                 document.getElementById('lblFolioOT').textContent = `OT #${data.numero}`;
-                document.getElementById('lblBadgePatente').textContent = data.patente || 'S/P';
+                document.getElementById('lblBadgePatenteHeader').textContent = data.patente || 'S/P';
                 document.getElementById('selectEstadoOT').value = data.estado || 'Recepción';
                 document.getElementById('inputKilometraje').value = data.kilometraje || '';
                 document.getElementById('selectCombustible').value = data.combustible || '1/2 Tanque';
                 document.getElementById('txtObservaciones').value = data.observaciones || '';
                 document.getElementById('inputDescuento').value = data.descuento || 0;
 
-                document.getElementById('inputBuscarCliente').value = data.cliente || '';
-                clienteSeleccionado = { cliente: data.cliente, rut: data.rut, telefono: data.telefono };
-                vehiculoSeleccionado = { vehiculo: data.vehiculo, patente: data.patente };
+                clienteSeleccionado = {
+                    cliente: data.cliente,
+                    rut: data.rut,
+                    telefono: data.telefono,
+                    email: data.email_cliente,
+                    direccion: data.direccion_cliente
+                };
 
-                const selectVeh = document.getElementById('selectVehiculosCliente');
-                selectVeh.innerHTML = `<option value="0">${data.vehiculo} [${data.patente || 'S/P'}]</option>`;
-                selectVeh.disabled = false;
+                vehiculoSeleccionado = {
+                    vehiculo: data.vehiculo,
+                    patente: data.patente,
+                    marca: data.marca,
+                    modelo: data.modelo,
+                    ano: data.ano,
+                    color: data.color,
+                    transmision: data.transmision,
+                    numero_motor: data.numero_motor,
+                    vin: data.vin
+                };
 
+                actualizarVistasTarjetas();
                 listaItems = data.items || [];
                 renderizarItems();
             } catch (err) {
@@ -677,17 +634,16 @@
                 const db = initSupabase();
                 const cleanQuery = query.replace(/[%_\\]/g, '\\$&');
                 const filterPattern = `*${cleanQuery}*`;
-                const searchFilter = `cliente.ilike.${filterPattern},rut.ilike.${filterPattern},patente.ilike.${filterPattern}`;
+                const searchFilter = `cliente.ilike.${filterPattern},rut.ilike.${filterPattern},patente.ilike.${filterPattern},vin.ilike.${filterPattern}`;
 
                 const { data, error } = await db.from('ordenes_trabajo')
-                    .select('cliente, rut, telefono, vehiculo, patente')
+                    .select('*')
                     .or(searchFilter)
                     .limit(20);
 
                 if (error) return;
 
                 const registrosValidos = (data || []).filter(item => item && item.cliente);
-
                 if (registrosValidos.length === 0) {
                     drop.innerHTML = '<div class="search-item-card text-muted small">Sin resultados encontrados...</div>';
                     drop.classList.remove('d-none');
@@ -701,16 +657,25 @@
                         clientesMap[key] = {
                             cliente: item.cliente,
                             rut: item.rut || 'N/A',
-                            telefono: item.telefono || '', 
+                            telefono: item.telefono || '',
+                            email: item.email_cliente || '',
+                            direccion: item.direccion_cliente || '',
                             vehiculos: []
                         };
                     }
-                    if (item.vehiculo) {
+                    if (item.vehiculo || item.patente) {
                         const existe = clientesMap[key].vehiculos.some(v => v.patente === item.patente);
                         if (!existe) {
                             clientesMap[key].vehiculos.push({ 
-                                vehiculo: item.vehiculo, 
-                                patente: item.patente || 'S/P' 
+                                vehiculo: item.vehiculo || `${item.marca || ''} ${item.modelo || ''}`.trim(),
+                                patente: item.patente || 'S/P',
+                                marca: item.marca || '',
+                                modelo: item.modelo || '',
+                                ano: item.ano || '',
+                                color: item.color || '',
+                                transmision: item.transmision || '',
+                                numero_motor: item.numero_motor || '',
+                                vin: item.vin || ''
                             });
                         }
                     }
@@ -755,51 +720,85 @@
                 seleccionarVehiculo(0);
             }
 
+            actualizarVistasTarjetas();
             mostrarToast(`Cliente ${clienteObj.cliente} seleccionado.`, "exito");
         }
 
         function seleccionarVehiculo(index) {
             if (historialRegistrosCliente[index]) {
                 vehiculoSeleccionado = historialRegistrosCliente[index];
-                document.getElementById('lblBadgePatente').textContent = vehiculoSeleccionado.patente || 'S/P';
+                actualizarVistasTarjetas();
+            }
+        }
+
+        function actualizarVistasTarjetas() {
+            // Cliente Card
+            if (clienteSeleccionado) {
+                document.getElementById('lblClienteNombre').textContent = clienteSeleccionado.cliente || 'No seleccionado';
+                document.getElementById('badgeClienteRut').textContent = `RUT: ${clienteSeleccionado.rut || 'S/I'}`;
+                document.getElementById('lblClienteTelefono').textContent = clienteSeleccionado.telefono || '—';
+                document.getElementById('lblClienteEmail').textContent = clienteSeleccionado.email || '—';
+                document.getElementById('lblClienteDireccion').textContent = clienteSeleccionado.direccion || '—';
+            }
+
+            // Vehículo Card
+            if (vehiculoSeleccionado) {
+                document.getElementById('lblVehiculoPatenteBadge').textContent = vehiculoSeleccionado.patente || 'S/P';
+                document.getElementById('lblBadgePatenteHeader').textContent = vehiculoSeleccionado.patente || 'S/P';
+                document.getElementById('lblVehiculoTitulo').textContent = vehiculoSeleccionado.vehiculo || `${vehiculoSeleccionado.marca || ''} ${vehiculoSeleccionado.modelo || ''}`.trim() || 'Vehículo sin nombre';
+                document.getElementById('lblVehiculoColor').textContent = vehiculoSeleccionado.color || '—';
+                document.getElementById('lblVehiculoAno').textContent = vehiculoSeleccionado.ano || '—';
+                document.getElementById('lblVehiculoTransmision').textContent = vehiculoSeleccionado.transmision || '—';
+                document.getElementById('lblVehiculoNumMotor').textContent = vehiculoSeleccionado.numero_motor || '—';
+                document.getElementById('lblVehiculoVin').textContent = vehiculoSeleccionado.vin || '—';
             }
         }
 
         function confirmarModalCrear() {
             const cliente = document.getElementById('modalCrearCliente').value.trim();
-            const vehiculo = document.getElementById('modalCrearVehiculo').value.trim();
+            const rut = document.getElementById('modalCrearRut').value.trim();
             const patente = document.getElementById('modalCrearPatente').value.trim().toUpperCase();
+            const marca = document.getElementById('modalCrearMarca').value.trim();
+            const modelo = document.getElementById('modalCrearModelo').value.trim();
 
-            if (!cliente || !vehiculo) {
-                mostrarToast("Nombre de cliente y vehículo son obligatorios.", "error");
+            if (!cliente || !patente || !marca || !modelo) {
+                mostrarToast("Cliente, Patente, Marca y Modelo son obligatorios.", "error");
                 return;
             }
 
             clienteSeleccionado = {
                 cliente: cliente,
-                rut: document.getElementById('modalCrearRut').value.trim() || null,
-                telefono: document.getElementById('modalCrearTelefono').value.trim() || null
+                rut: rut || 'N/A',
+                telefono: document.getElementById('modalCrearTelefono').value.trim() || null,
+                email: document.getElementById('modalCrearEmail').value.trim() || null,
+                direccion: document.getElementById('modalCrearDireccion').value.trim() || null
             };
 
             vehiculoSeleccionado = {
-                vehiculo: vehiculo,
-                patente: patente || 'S/P'
+                vehiculo: `${marca} ${modelo}`,
+                patente: patente,
+                marca: marca,
+                modelo: modelo,
+                ano: document.getElementById('modalCrearAno').value.trim() || null,
+                color: document.getElementById('modalCrearColor').value.trim() || null,
+                transmision: document.getElementById('modalCrearTransmision').value || 'Manual',
+                numero_motor: document.getElementById('modalCrearNumMotor').value.trim().toUpperCase() || null,
+                vin: document.getElementById('modalCrearVin').value.trim().toUpperCase() || null
             };
 
             document.getElementById('inputBuscarCliente').value = cliente;
-            
             const selectVeh = document.getElementById('selectVehiculosCliente');
-            selectVeh.innerHTML = `<option value="0">${vehiculo} [${patente || 'S/P'}]</option>`;
+            selectVeh.innerHTML = `<option value="0">${vehiculoSeleccionado.vehiculo} [${patente}]</option>`;
             selectVeh.disabled = false;
             historialRegistrosCliente = [vehiculoSeleccionado];
-            
-            document.getElementById('lblBadgePatente').textContent = patente || 'S/P';
+
+            actualizarVistasTarjetas();
 
             const modalEl = document.getElementById('modalNuevoRegistro');
             const modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
 
-            mostrarToast("Registro asignado correctamente.", "exito");
+            mostrarToast("Registro de Cliente y Vehículo asignados correctamente.", "exito");
         }
 
         function agregarItem(e) {
@@ -894,19 +893,29 @@
                 const totalFinal = netoConDescuento + montoIVA;
 
                 const payload = {
-                    cliente: clienteSeleccionado.cliente,
-                    rut: clienteSeleccionado.rut || null,
-                    telefono: clienteSeleccionado.telefono || null,
-                    vehiculo: vehiculoSeleccionado.vehiculo,
-                    patente: vehiculoSeleccionado.patente || 'S/P',
-                    kilometraje: document.getElementById('inputKilometraje').value,
-                    combustible: document.getElementById('selectCombustible').value,
-                    observaciones: document.getElementById('txtObservaciones').value,
-                    estado: document.getElementById('selectEstadoOT').value,
-                    medio_pago: document.getElementById('selectMedioPago').value,
+                    cliente: String(clienteSeleccionado.cliente || ''),
+                    rut: clienteSeleccionado.rut ? String(clienteSeleccionado.rut) : null,
+                    telefono: clienteSeleccionado.telefono ? String(clienteSeleccionado.telefono) : null,
+                    email_cliente: clienteSeleccionado.email ? String(clienteSeleccionado.email) : null,
+                    direccion_cliente: clienteSeleccionado.direccion ? String(clienteSeleccionado.direccion) : null,
+                    
+                    vehiculo: String(vehiculoSeleccionado.vehiculo || ''),
+                    patente: String(vehiculoSeleccionado.patente || 'S/P'),
+                    marca: vehiculoSeleccionado.marca ? String(vehiculoSeleccionado.marca) : null,
+                    modelo: vehiculoSeleccionado.modelo ? String(vehiculoSeleccionado.modelo) : null,
+                    ano: vehiculoSeleccionado.ano ? String(vehiculoSeleccionado.ano) : null,
+                    color: vehiculoSeleccionado.color ? String(vehiculoSeleccionado.color) : null,
+                    transmision: vehiculoSeleccionado.transmision ? String(vehiculoSeleccionado.transmision) : null,
+                    numero_motor: vehiculoSeleccionado.numero_motor ? String(vehiculoSeleccionado.numero_motor) : null,
+                    vin: vehiculoSeleccionado.vin ? String(vehiculoSeleccionado.vin) : null,
+
+                    kilometraje: document.getElementById('inputKilometraje').value || null,
+                    combustible: document.getElementById('selectCombustible').value || null,
+                    observaciones: document.getElementById('txtObservaciones').value || null,
+                    estado: document.getElementById('selectEstadoOT').value || 'Presupuestado',
+                    medio_pago: document.getElementById('selectMedioPago').value || 'Efectivo',
                     items: listaItems,
                     descuento: descuento,
-                    aplica_iva: aplicarIVA,
                     subtotal: subtotalNeto,
                     iva: montoIVA,
                     total: totalFinal
@@ -914,17 +923,18 @@
 
                 let response;
                 if (ordenActual && ordenActual.numero) {
-                    response = await db.from('ordenes_trabajo').update(payload).eq('numero', ordenActual.numero);
+                    response = await db.from('ordenes_trabajo').update(payload).eq('numero', ordenActual.numero).select();
                 } else {
                     payload.fecha = new Date().toISOString();
-                    response = await db.from('ordenes_trabajo').insert([payload]);
+                    response = await db.from('ordenes_trabajo').insert([payload]).select();
                 }
 
                 if (response.error) throw response.error;
 
-                mostrarToast("Cotización guardada exitosamente con Supabase.", "exito");
+                mostrarToast("Cotización guardada exitosamente.", "exito");
             } catch (err) {
-                mostrarToast("Error al guardar: " + err.message, "error");
+                console.error("Error al guardar:", err);
+                mostrarToast("Error al guardar: " + (err.message || "Error al conectar"), "error");
             }
         }
 
@@ -937,15 +947,17 @@
             const total = document.getElementById('lblTotalFinal').textContent;
             let mensaje = `*PRESUPUESTO ALINSOFT.IO*\n\n`;
             mensaje += `*Cliente:* ${clienteSeleccionado.cliente}\n`;
-            mensaje += `*Vehículo:* ${vehiculoSeleccionado.vehiculo} (${vehiculoSeleccionado.patente || 'S/P'})\n\n`;
-            mensaje += `*Detalle:*\n`;
+            mensaje += `*Vehículo:* ${vehiculoSeleccionado.vehiculo} [Patente: ${vehiculoSeleccionado.patente || 'S/P'}]\n`;
+            if (vehiculoSeleccionado.vin) mensaje += `*VIN / Chasis:* ${vehiculoSeleccionado.vin}\n`;
+            if (vehiculoSeleccionado.numero_motor) mensaje += `*N° Motor:* ${vehiculoSeleccionado.numero_motor}\n`;
+            mensaje += `\n*Detalle de Trabajos / Repuestos:*\n`;
             
             listaItems.forEach(i => {
                 mensaje += `- ${i.cantidad}x ${i.descripcion}: ${formatterCLP.format(i.cantidad * i.precio)}\n`;
             });
 
             mensaje += `\n*Total Estimado:* ${total}\n`;
-            mensaje += `\nPara más detalles o confirmar tu atención, respóndenos a este mensaje.`;
+            mensaje += `\nPara más información o confirmar tu orden, responde a este mensaje.`;
 
             const url = `https://wa.me/${(clienteSeleccionado.telefono || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
