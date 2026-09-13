@@ -45,25 +45,24 @@
     </div>
 
     <!-- Sidebar -->
-   <div class="sidebar d-flex flex-column justify-content-between p-2">
+    <div class="sidebar d-flex flex-column justify-content-between p-2" id="sidebar">
         <div>
             <div class="d-flex align-items-center px-3 py-3 mb-2">
                 <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
                 <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
             </div>
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
+                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
                 <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
                 <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
                 <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> mantenedor de datos</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link active"><i class="bi bi-people me-2"></i> Mantenedor de Datos</a></li>
             </ul>
         </div>
         <div class="px-3 py-2 border-top border-secondary">
             <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
         </div>
     </div>
-    
 
     <!-- Contenido Principal -->
     <div class="main-content">
@@ -144,12 +143,12 @@
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL DE ÓRDENES -->
+    <!-- MODAL HISTORIAL -->
     <div class="modal fade" id="modalHistorial" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content card-custom">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-white"><i class="bi bi-clock-history me-2 text-danger"></i>Historial de Trabajos: <span id="historialTarget" class="text-warning"></span></h5>
+                    <h5 class="modal-title fw-bold text-white"><i class="bi bi-clock-history me-2 text-danger"></i>Historial: <span id="historialTarget" class="text-warning"></span></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -172,12 +171,12 @@
         </div>
     </div>
 
-    <!-- MODALES DE EDICIÓN (CLIENTE Y VEHÍCULO) -->
+    <!-- MODAL CLIENTE -->
     <div class="modal fade" id="modalCliente" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content card-custom">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold" id="tituloModalCliente">Editar Cliente</h5>
+                    <h5 class="modal-title fw-bold text-white" id="tituloModalCliente">Editar Cliente</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -200,11 +199,12 @@
         </div>
     </div>
 
+    <!-- MODAL VEHÍCULO -->
     <div class="modal fade" id="modalVehiculo" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content card-custom">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold" id="tituloModalVehiculo">Editar Vehículo</h5>
+                    <h5 class="modal-title fw-bold text-white" id="tituloModalVehiculo">Editar Vehículo</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -223,6 +223,7 @@
         </div>
     </div>
 
+    <!-- SCRIPTS CORE -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
@@ -236,6 +237,7 @@
 
         document.addEventListener("DOMContentLoaded", async () => {
             if (typeof initSupabase === 'function') db = initSupabase();
+            
             mCliente = new bootstrap.Modal(document.getElementById('modalCliente'));
             mVehiculo = new bootstrap.Modal(document.getElementById('modalVehiculo'));
             mHistorial = new bootstrap.Modal(document.getElementById('modalHistorial'));
@@ -246,7 +248,8 @@
         });
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('show');
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('show');
         }
 
         async function cargarOrdenesGeneral() {
@@ -258,72 +261,129 @@
             }
         }
 
-        // CLIENTES
+        // CARGAR CLIENTES CON SOPORTE COMPLETO
         async function cargarClientes() {
-            if (db) {
-                const { data } = await db.from('clientes').select('*').order('nombre', { ascending: true });
-                if (data) clientesMemoria = data;
+            try {
+                let dataClientes = null;
+                if (db) {
+                    const res = await db.from('clientes').select('*');
+                    if (res.error) console.error("Error SELECT clientes:", res.error.message);
+                    dataClientes = res.data;
+                }
+                
+                if (dataClientes && dataClientes.length > 0) {
+                    clientesMemoria = dataClientes;
+                } else if (clientesMemoria.length === 0) {
+                    // Si la tabla 'clientes' está vacía o sin permisos, extrae de las órdenes
+                    const clientesMap = {};
+                    ordenesMemoria.forEach(item => {
+                        if (item.cliente) {
+                            const key = item.cliente.trim().toLowerCase();
+                            if (!clientesMap[key]) {
+                                clientesMap[key] = {
+                                    id: item.rut || item.cliente,
+                                    nombre: item.cliente,
+                                    rut: item.rut || 'S/R',
+                                    telefono: item.telefono || 'Sin Contacto'
+                                };
+                            }
+                        }
+                    });
+                    clientesMemoria = Object.values(clientesMap);
+                }
+            } catch (err) {
+                console.error("Excepción cargando clientes:", err);
             }
             renderClientes(clientesMemoria);
         }
 
-        function renderClientes(datos) {
-            const tbody = document.getElementById('tablaClientes');
-            tbody.innerHTML = '';
-            if (datos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary py-3">No hay clientes registrados.</td></tr>`;
-                return;
-            }
-            datos.forEach(c => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="fw-bold text-white">${c.nombre}</td>
-                        <td>${c.rut || 'S/R'}</td>
-                        <td>${c.telefono || 'Sin Contacto'}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-info me-1" title="Ver Historial" onclick="verHistorialCliente('${c.rut}', '${c.nombre}')"><i class="bi bi-clock-history"></i> Historial</button>
-                            <button class="btn btn-sm btn-outline-warning me-1" onclick="editarCliente('${c.id}')"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarCliente('${c.id}')"><i class="bi bi-trash"></i></button>
-                        </td>
-                    </tr>`;
-            });
-        }
-
-        function verHistorialCliente(rut, nombre) {
-            document.getElementById('historialTarget').innerText = `${nombre} (${rut || 'Sin RUT'})`;
-            const ordenesCliente = ordenesMemoria.filter(o => (rut && o.rut === rut) || o.cliente.toLowerCase() === nombre.toLowerCase());
-            renderTablaHistorial(ordenesCliente);
-            mHistorial.show();
-        }
-
-        // VEHÍCULOS
+        // CARGAR VEHÍCULOS CON SOPORTE COMPLETO
         async function cargarVehiculos() {
-            if (db) {
-                const { data } = await db.from('vehiculos').select('*').order('patente', { ascending: true });
-                if (data) vehiculosMemoria = data;
+            try {
+                let dataVeh = null;
+                if (db) {
+                    const res = await db.from('vehiculos').select('*');
+                    if (res.error) console.error("Error SELECT vehiculos:", res.error.message);
+                    dataVeh = res.data;
+                }
+                
+                if (dataVeh && dataVeh.length > 0) {
+                    vehiculosMemoria = dataVeh;
+                } else if (vehiculosMemoria.length === 0) {
+                    // Si la tabla 'vehiculos' está vacía o sin permisos, extrae de las órdenes
+                    const vehiculosMap = {};
+                    ordenesMemoria.forEach(item => {
+                        if (item.patente) {
+                            const key = item.patente.trim().toUpperCase();
+                            if (!vehiculosMap[key]) {
+                                vehiculosMap[key] = {
+                                    id: item.patente,
+                                    patente: key,
+                                    marca: item.vehiculo || 'Sin Detalle'
+                                };
+                            }
+                        }
+                    });
+                    vehiculosMemoria = Object.values(vehiculosMap);
+                }
+            } catch (err) {
+                console.error("Excepción cargando vehículos:", err);
             }
             renderVehiculos(vehiculosMemoria);
         }
 
-        function renderVehiculos(datos) {
-            const tbody = document.getElementById('tablaVehiculos');
+        // RENDERIZADO DE TABLAS
+        function renderClientes(lista) {
+            const tbody = document.getElementById('tablaClientes');
+            if (!tbody) return;
             tbody.innerHTML = '';
-            if (datos.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary py-3">No hay vehículos registrados.</td></tr>`;
+            if (lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary py-3">No hay clientes registrados.</td></tr>`;
                 return;
             }
-            datos.forEach(v => {
+            lista.forEach(c => {
                 tbody.innerHTML += `
                     <tr>
-                        <td><span class="badge bg-secondary text-uppercase fs-6">${v.patente}</span></td>
-                        <td class="fw-bold text-white">${v.marca}</td>
+                        <td class="fw-bold text-white">${c.nombre || ''}</td>
+                        <td><span class="badge bg-secondary">${c.rut || 'S/R'}</span></td>
+                        <td>${c.telefono || 'Sin Contacto'}</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-outline-info me-1" title="Ver Historial" onclick="verHistorialVehiculo('${v.patente}')"><i class="bi bi-clock-history"></i> Historial</button>
-                            <button class="btn btn-sm btn-outline-warning me-1" onclick="editarVehiculo('${v.id}')"><i class="bi bi-pencil-square"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarVehiculo('${v.id}')"><i class="bi bi-trash"></i></button>
+                            <button class="btn btn-sm btn-outline-info me-1" title="Ver Historial" onclick="verHistorialCliente('${c.nombre}')"><i class="bi bi-clock-history"></i></button>
+                            <button class="btn btn-sm btn-outline-warning me-1" title="Editar" onclick="editarCliente('${c.id}')"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="eliminarCliente('${c.id}')"><i class="bi bi-trash"></i></button>
                         </td>
                     </tr>`;
             });
+        }
+
+        function renderVehiculos(lista) {
+            const tbody = document.getElementById('tablaVehiculos');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if (lista.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary py-3">No hay vehículos registrados.</td></tr>`;
+                return;
+            }
+            lista.forEach(v => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="badge bg-danger fs-6 text-uppercase">${v.patente || ''}</span></td>
+                        <td class="text-white">${v.marca || 'Sin Detalle'}</td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-info me-1" title="Ver Historial" onclick="verHistorialVehiculo('${v.patente}')"><i class="bi bi-clock-history"></i></button>
+                            <button class="btn btn-sm btn-outline-warning me-1" title="Editar" onclick="editarVehiculo('${v.id}')"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="eliminarVehiculo('${v.id}')"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        // HISTORIAL EN MODAL
+        function verHistorialCliente(nombreCliente) {
+            document.getElementById('historialTarget').innerText = nombreCliente;
+            const ordenesCliente = ordenesMemoria.filter(o => o.cliente && o.cliente.toLowerCase() === nombreCliente.toLowerCase());
+            renderTablaHistorial(ordenesCliente);
+            mHistorial.show();
         }
 
         function verHistorialVehiculo(patente) {
@@ -333,7 +393,6 @@
             mHistorial.show();
         }
 
-        // RENDERIZADO DEL MODAL HISTORIAL
         function renderTablaHistorial(lista) {
             const tbody = document.getElementById('tablaHistorial');
             tbody.innerHTML = '';
@@ -361,7 +420,7 @@
             window.open(`${baseUrl}ver_ot.html?id=${id}`, '_blank');
         }
 
-        // BÚSQUEDAS Y MANTENIMIENTO
+        // BÚSQUEDAS
         function filtrarClientes() {
             const txt = document.getElementById('buscarCliente').value.toLowerCase();
             renderClientes(clientesMemoria.filter(c => (c.nombre && c.nombre.toLowerCase().includes(txt)) || (c.rut && c.rut.toLowerCase().includes(txt))));
@@ -372,6 +431,7 @@
             renderVehiculos(vehiculosMemoria.filter(v => (v.patente && v.patente.toLowerCase().includes(txt)) || (v.marca && v.marca.toLowerCase().includes(txt))));
         }
 
+        // MODALES Y OPERACIONES CLIENTES
         function modalClienteNuevo() {
             document.getElementById('cliId').value = '';
             document.getElementById('cliNombre').value = '';
@@ -394,21 +454,55 @@
 
         async function guardarCliente() {
             const id = document.getElementById('cliId').value;
-            const payload = { nombre: document.getElementById('cliNombre').value, rut: document.getElementById('cliRut').value, telefono: document.getElementById('cliTelefono').value };
+            const payload = { 
+                nombre: document.getElementById('cliNombre').value, 
+                rut: document.getElementById('cliRut').value, 
+                telefono: document.getElementById('cliTelefono').value 
+            };
+            
             if (!payload.nombre) return alert('Ingresa el nombre.');
+
             if (db) {
-                if (id) await db.from('clientes').update(payload).eq('id', id);
-                else await db.from('clientes').insert([payload]);
+                let res;
+                if (id) res = await db.from('clientes').update(payload).eq('id', id).select();
+                else res = await db.from('clientes').insert([payload]).select();
+
+                if (res.error) console.error("Error BD:", res.error.message);
+                if (res.data && res.data.length > 0) {
+                    const deVuelta = res.data[0];
+                    const idx = clientesMemoria.findIndex(x => x.id == deVuelta.id);
+                    if (idx >= 0) clientesMemoria[idx] = deVuelta;
+                    else clientesMemoria.push(deVuelta);
+                } else {
+                    if (id) {
+                        const idx = clientesMemoria.findIndex(x => x.id == id);
+                        if (idx >= 0) clientesMemoria[idx] = { id, ...payload };
+                    } else {
+                        clientesMemoria.push({ id: Date.now(), ...payload });
+                    }
+                }
+            } else {
+                if (id) {
+                    const idx = clientesMemoria.findIndex(x => x.id == id);
+                    if (idx >= 0) clientesMemoria[idx] = { id, ...payload };
+                } else {
+                    clientesMemoria.push({ id: Date.now(), ...payload });
+                }
             }
+
             mCliente.hide();
-            await cargarClientes();
+            renderClientes(clientesMemoria);
         }
 
         async function eliminarCliente(id) {
-            if (confirm('¿Eliminar cliente?') && db) await db.from('clientes').delete().eq('id', id);
-            await cargarClientes();
+            if (confirm('¿Eliminar cliente?')) {
+                if (db) await db.from('clientes').delete().eq('id', id);
+                clientesMemoria = clientesMemoria.filter(c => c.id != id);
+                renderClientes(clientesMemoria);
+            }
         }
 
+        // MODALES Y OPERACIONES VEHÍCULOS
         function modalVehiculoNuevo() {
             document.getElementById('vehId').value = '';
             document.getElementById('vehPatente').value = '';
@@ -429,19 +523,56 @@
 
         async function guardarVehiculo() {
             const id = document.getElementById('vehId').value;
-            const payload = { patente: document.getElementById('vehPatente').value.toUpperCase(), marca: document.getElementById('vehMarca').value };
+            const payload = { 
+                patente: document.getElementById('vehPatente').value.toUpperCase(), 
+                marca: document.getElementById('vehMarca').value 
+            };
+            
             if (!payload.patente) return alert('Ingresa la patente.');
+
             if (db) {
-                if (id) await db.from('vehiculos').update(payload).eq('id', id);
-                else await db.from('vehiculos').insert([payload]);
+                let res;
+                if (id) res = await db.from('vehiculos').update(payload).eq('id', id).select();
+                else res = await db.from('vehiculos').insert([payload]).select();
+
+                if (res.error) console.error("Error BD:", res.error.message);
+                if (res.data && res.data.length > 0) {
+                    const deVuelta = res.data[0];
+                    const idx = vehiculosMemoria.findIndex(x => x.id == deVuelta.id);
+                    if (idx >= 0) vehiculosMemoria[idx] = deVuelta;
+                    else vehiculosMemoria.push(deVuelta);
+                } else {
+                    if (id) {
+                        const idx = vehiculosMemoria.findIndex(x => x.id == id);
+                        if (idx >= 0) vehiculosMemoria[idx] = { id, ...payload };
+                    } else {
+                        vehiculosMemoria.push({ id: Date.now(), ...payload });
+                    }
+                }
+            } else {
+                if (id) {
+                    const idx = vehiculosMemoria.findIndex(x => x.id == id);
+                    if (idx >= 0) vehiculosMemoria[idx] = { id, ...payload };
+                } else {
+                    vehiculosMemoria.push({ id: Date.now(), ...payload });
+                }
             }
+
             mVehiculo.hide();
-            await cargarVehiculos();
+            renderVehiculos(vehiculosMemoria);
         }
 
         async function eliminarVehiculo(id) {
-            if (confirm('¿Eliminar vehículo?') && db) await db.from('vehiculos').delete().eq('id', id);
-            await cargarVehiculos();
+            if (confirm('¿Eliminar vehículo?')) {
+                if (db) await db.from('vehiculos').delete().eq('id', id);
+                vehiculosMemoria = vehiculosMemoria.filter(v => v.id != id);
+                renderVehiculos(vehiculosMemoria);
+            }
+        }
+
+        function logout() {
+            if (typeof supabase !== 'undefined' && db) db.auth.signOut();
+            window.location.href = 'index.html';
         }
     </script>
 </body>

@@ -113,7 +113,6 @@
                     <i class="bi bi-person-vcard text-danger fs-4 me-2"></i>
                     <h5 class="fw-bold m-0">Información del Cliente y Vehículo</h5>
                 </div>
-                <!-- POPUP SOLAMENTE PARA CREAR DATOS NUEVOS -->
                 <button type="button" class="btn btn-sm btn-outline-danger fw-semibold" data-bs-toggle="modal" data-bs-target="#modalNuevoRegistro">
                     <i class="bi bi-plus-lg me-1"></i> Crear Nuevo Cliente / Vehículo
                 </button>
@@ -123,11 +122,11 @@
                 <!-- BUSCADOR CLIENTE IN-SITU -->
                 <div class="col-12 col-md-4 position-relative">
                     <label class="form-label text-secondary small mb-1">Buscar Cliente (Nombre o RUT)</label>
-                    <input type="text" id="inputBuscarCliente" class="form-control" placeholder="Escribe para buscar..." autocomplete="off" onkeyup="buscarClienteInSitu()">
+                    <input type="text" id="inputBuscarCliente" class="form-control" placeholder="Escribe para buscar..." autocomplete="off">
                     <div id="dropdownClientes" class="search-results-dropdown d-none"></div>
                 </div>
 
-                <!-- SELECCIÓN DE VEHÍCULO (SOPORTA MÚLTIPLES AUTOS POR CLIENTE) -->
+                <!-- SELECCIÓN DE VEHÍCULO -->
                 <div class="col-12 col-md-4">
                     <label class="form-label text-secondary small mb-1">Vehículos Asociados</label>
                     <select id="selectVehiculosCliente" class="form-select" onchange="seleccionarVehiculo(this.value)" disabled>
@@ -266,7 +265,7 @@
         </div>
     </div>
 
-    <!-- MODAL POP-UP EXCLUSIVO DE CREACIÓN RÁPIDA -->
+    <!-- MODAL POP-UP CREACIÓN RÁPIDA -->
     <div class="modal fade" id="modalNuevoRegistro" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-white border-secondary">
@@ -306,7 +305,7 @@
         </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- TOAST NOTIFICACIONES -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
         <div id="toastNotificacion" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
@@ -316,18 +315,20 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
+    <!-- SCRIPTS CORE -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="app.js"></script>
 
+    <!-- LOGICA SCRIPT CORREGIDA -->
     <script>
         let ordenActual = null;
         let listaItems = [];
         let clienteSeleccionado = null;
         let vehiculoSeleccionado = null;
         let historialRegistrosCliente = []; 
+        let debounceTimer = null;
         const formatterCLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -338,14 +339,36 @@
                 cargarFichaOT(folioOT);
             }
 
-            // Ocultar dropdown al hacer click fuera
+            // Event listener con debounce para búsqueda fluida sin saturate la BD
+            const inputBusqueda = document.getElementById('inputBuscarCliente');
+            if (inputBusqueda) {
+                inputBusqueda.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(() => {
+                        buscarClienteInSitu();
+                    }, 300);
+                });
+            }
+
+            // Ocultar dropdown al hacer clic fuera
             document.addEventListener("click", (e) => {
                 const drop = document.getElementById('dropdownClientes');
-                if (!e.target.closest('#inputBuscarCliente') && !e.target.closest('#dropdownClientes')) {
+                if (drop && !e.target.closest('#inputBuscarCliente') && !e.target.closest('#dropdownClientes')) {
                     drop.classList.add('d-none');
                 }
             });
         });
+
+        function mostrarToast(mensaje, tipo = "exito") {
+            const toastEl = document.getElementById('toastNotificacion');
+            const toastMsg = document.getElementById('toastMensaje');
+            if (!toastEl || !toastMsg) return;
+
+            toastMsg.textContent = mensaje;
+            toastEl.className = `toast align-items-center text-white border-0 shadow-lg bg-${tipo === "exito" ? "success" : "danger"}`;
+            const bsToast = new bootstrap.Toast(toastEl);
+            bsToast.show();
+        }
 
         async function cargarFichaOT(folio) {
             try {
@@ -363,13 +386,12 @@
                 document.getElementById('txtObservaciones').value = data.observaciones || '';
                 document.getElementById('inputDescuento').value = data.descuento || 0;
 
-                // Cargar datos cliente in-situ
                 document.getElementById('inputBuscarCliente').value = data.cliente || '';
                 clienteSeleccionado = { cliente: data.cliente, rut: data.rut, telefono: data.telefono };
                 vehiculoSeleccionado = { vehiculo: data.vehiculo, patente: data.patente };
 
                 const selectVeh = document.getElementById('selectVehiculosCliente');
-                selectVeh.innerHTML = `<option value="0">${data.vehiculo} (${data.patente})</option>`;
+                selectVeh.innerHTML = `<option value="0">${data.vehiculo} [${data.patente || 'S/P'}]</option>`;
                 selectVeh.disabled = false;
 
                 listaItems = data.items || [];
@@ -379,78 +401,105 @@
             }
         }
 
-        // --- BÚSQUEDA IN-SITU CON DROPDOWN ---
-        async function buscarClienteInSitu() {
-            const query = document.getElementById('inputBuscarCliente').value.trim();
-            const drop = document.getElementById('dropdownClientes');
+                    // BÚSQUEDA ROBUSTA E IN-SITU CON DROPDOWN (CORREGIDA)
+            async function buscarClienteInSitu() {
+                const input = document.getElementById('inputBuscarCliente');
+                const query = input.value.trim();
+                const drop = document.getElementById('dropdownClientes');
 
-            if (query.length < 2) {
-                drop.classList.add('d-none');
-                return;
-            }
-
-            try {
-                const db = initSupabase();
-                // Buscar clientes únicos en la BD
-                const { data } = await db.from('ordenes_trabajo').select('cliente, rut, telefono, vehiculo, patente').or(`cliente.ilike.%${query}%,rut.ilike.%${query}%,patente.ilike.%${query}%`).limit(10);
-
-                if (!data || data.length === 0) {
-                    drop.innerHTML = '<div class="search-item text-secondary">No se encontraron coincidencias...</div>';
-                    drop.classList.remove('d-none');
+                if (query.length < 2) {
+                    drop.classList.add('d-none');
                     return;
                 }
 
-                // Agrupar por cliente para manejar multivehículo
-                const clientesMap = {};
-                data.forEach(item => {
-                    const key = item.cliente.toLowerCase();
-                    if (!clientesMap[key]) {
-                        clientesMap[key] = {
-                            cliente: item.cliente,
-                            rut: item.rut,
-                            telefono: item.telefono,
-                            vehiculos: []
-                        };
-                    }
-                    if (item.vehiculo) {
-                        clientesMap[key].vehiculos.push({ vehiculo: item.vehiculo, patente: item.patente });
-                    }
-                });
+                try {
+                    const db = initSupabase();
 
-                drop.innerHTML = '';
-                Object.values(clientesMap).forEach(c => {
-                    drop.innerHTML += `
-                        <div class="search-item" onclick='seleccionarClienteInSitu(${JSON.stringify(c)})'>
+                    // Limpiamos la cadena para evitar que caracteres especiales o espacios rompan la sintaxis de PostgREST
+                    const cleanQuery = query.replace(/[%_\\]/g, '\\$&');
+                    
+                    // Construimos el filtro .or() escapando las comillas adecuadamente
+                    const filterPattern = `*${cleanQuery}*`;
+                    const searchFilter = `cliente.ilike.${filterPattern},rut.ilike.${filterPattern},patente.ilike.${filterPattern}`;
+
+                    const { data, error } = await db.from('ordenes_trabajo')
+                        .select('cliente, rut, telefono, vehiculo, patente')
+                        .or(searchFilter)
+                        .limit(20);
+
+                    if (error) {
+                        console.error("Error devuelto por Supabase:", error.message, error.details, error.hint);
+                        return;
+                    }
+
+                    const registrosValidos = (data || []).filter(item => item && item.cliente);
+
+                    if (registrosValidos.length === 0) {
+                        drop.innerHTML = '<div class="search-item text-secondary">No se encontraron coincidencias...</div>';
+                        drop.classList.remove('d-none');
+                        return;
+                    }
+
+                    // Agrupamiento por cliente para soportar múltiples vehículos
+                    const clientesMap = {};
+                    registrosValidos.forEach(item => {
+                        const key = item.cliente.trim().toLowerCase();
+                        if (!clientesMap[key]) {
+                            clientesMap[key] = {
+                                cliente: item.cliente,
+                                rut: item.rut || 'N/A',
+                                telefono: item.telefono || '',
+                                vehiculos: []
+                            };
+                        }
+                        if (item.vehiculo) {
+                            const existe = clientesMap[key].vehiculos.some(v => v.patente === item.patente);
+                            if (!existe) {
+                                clientesMap[key].vehiculos.push({ 
+                                    vehiculo: item.vehiculo, 
+                                    patente: item.patente || 'S/P' 
+                                });
+                            }
+                        }
+                    });
+
+                    drop.innerHTML = '';
+                    Object.values(clientesMap).forEach(c => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.className = 'search-item';
+                        itemDiv.innerHTML = `
                             <div class="fw-bold text-white">${c.cliente}</div>
-                            <small class="text-secondary">RUT: ${c.rut || 'N/A'} | Autos registrados: ${c.vehiculos.length}</small>
-                        </div>
-                    `;
-                });
-                drop.classList.remove('d-none');
-            } catch (err) {
-                console.error(err);
+                            <small class="text-secondary">RUT: ${c.rut} | Autos registrados: ${c.vehiculos.length}</small>
+                        `;
+                        itemDiv.onclick = () => seleccionarClienteInSitu(c);
+                        drop.appendChild(itemDiv);
+                    });
+                    
+                    drop.classList.remove('d-none');
+                } catch (err) {
+                    console.error("Excepción en búsqueda:", err);
+                }
             }
-        }
 
         function seleccionarClienteInSitu(clienteObj) {
             clienteSeleccionado = clienteObj;
             document.getElementById('inputBuscarCliente').value = clienteObj.cliente;
             document.getElementById('dropdownClientes').classList.add('d-none');
 
-            // Cargar selector de múltiples vehículos
             const selectVeh = document.getElementById('selectVehiculosCliente');
             selectVeh.innerHTML = '';
-            historialRegistrosCliente = clienteObj.vehiculos;
+            historialRegistrosCliente = clienteObj.vehiculos || [];
 
-            if (clienteObj.vehiculos.length === 0) {
+            if (historialRegistrosCliente.length === 0) {
                 selectVeh.innerHTML = '<option value="">Sin vehículos registrados</option>';
                 selectVeh.disabled = true;
+                vehiculoSeleccionado = null;
             } else {
-                clienteObj.vehiculos.forEach((v, index) => {
+                historialRegistrosCliente.forEach((v, index) => {
                     selectVeh.innerHTML += `<option value="${index}">${v.vehiculo} [${v.patente || 'S/P'}]</option>`;
                 });
                 selectVeh.disabled = false;
-                seleccionarVehiculo(0); // Seleccionar el primero por defecto
+                seleccionarVehiculo(0);
             }
 
             mostrarToast(`Cliente ${clienteObj.cliente} seleccionado.`, "exito");
@@ -463,7 +512,6 @@
             }
         }
 
-        // --- MODAL CREACIÓN RÁPIDA (PARA CLIENTES/VEHÍCULOS NUEVOS) ---
         function confirmarModalCrear() {
             const cliente = document.getElementById('modalCrearCliente').value.trim();
             const vehiculo = document.getElementById('modalCrearVehiculo').value.trim();
@@ -476,8 +524,8 @@
 
             clienteSeleccionado = {
                 cliente: cliente,
-                rut: document.getElementById('modalCrearRut').value.trim(),
-                telefono: document.getElementById('modalCrearTelefono').value.trim()
+                rut: document.getElementById('modalCrearRut').value.trim() || null,
+                telefono: document.getElementById('modalCrearTelefono').value.trim() || null
             };
 
             vehiculoSeleccionado = {
@@ -501,7 +549,6 @@
             mostrarToast("Nuevo registro asignado correctamente.", "exito");
         }
 
-        // --- CÁLCULOS E ÍTEMS ---
         function agregarItem(e) {
             e.preventDefault();
             const desc = document.getElementById('itemDescripcion').value.trim();
@@ -511,7 +558,7 @@
             if (!desc || precio <= 0) return;
 
             listaItems.push({
-                id: 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
                 descripcion: desc,
                 cantidad: cant,
                 precio: precio
@@ -594,54 +641,45 @@
                     vehiculo: vehiculoSeleccionado.vehiculo,
                     patente: vehiculoSeleccionado.patente || 'S/P',
                     estado: document.getElementById('selectEstadoOT').value,
-                    kilometraje: document.getElementById('inputKilometraje').value,
+                    kilometraje: document.getElementById('inputKilometraje').value.trim() || null,
                     combustible: document.getElementById('selectCombustible').value,
-                    observaciones: document.getElementById('txtObservaciones').value,
+                    observaciones: document.getElementById('txtObservaciones').value.trim() || null,
+                    items: listaItems,
                     descuento: descuento,
+                    aplicar_iva: aplicarIVA,
                     total: totalFinal,
-                    items: listaItems
+                    medio_pago: document.getElementById('selectMedioPago').value,
+                    updated_at: new Date().toISOString()
                 };
 
-                if (ordenActual) {
-                    const { error } = await db.from('ordenes_trabajo').update(payload).eq('numero', ordenActual.numero);
-                    if (error) throw error;
-                    mostrarToast("Presupuesto actualizado correctamente.", "exito");
+                let response;
+                if (ordenActual && ordenActual.id) {
+                    response = await db.from('ordenes_trabajo').update(payload).eq('id', ordenActual.id);
                 } else {
-                    const nuevoFolio = 'PPTO-' + Date.now().toString().slice(-4);
-                    payload.numero = nuevoFolio;
-
-                    const { error } = await db.from('ordenes_trabajo').insert([payload]);
-                    if (error) throw error;
-
-                    mostrarToast("Presupuesto creado con éxito.", "exito");
-                    setTimeout(() => { window.location.href = `presupuesto.html?ot=${nuevoFolio}`; }, 1200);
+                    response = await db.from('ordenes_trabajo').insert([payload]);
                 }
+
+                if (response.error) throw response.error;
+
+                mostrarToast("Presupuesto guardado exitosamente.", "exito");
             } catch (err) {
-                mostrarToast("Error: " + err.message, "error");
+                console.error("Error al guardar:", err);
+                mostrarToast("Error al guardar presupuesto: " + err.message, "error");
             }
         }
 
         function enviarWhatsApp() {
             if (!clienteSeleccionado || !clienteSeleccionado.telefono) {
-                mostrarToast("El cliente seleccionado no tiene número telefónico.", "error");
+                mostrarToast("El cliente seleccionado no posee teléfono registrado.", "error");
                 return;
             }
-            const fono = clienteSeleccionado.telefono.replace(/\D/g, '');
+
             const total = document.getElementById('lblTotalFinal').textContent;
-            const msg = encodeURIComponent(`Hola ${clienteSeleccionado.cliente}, adjuntamos la cotización para tu ${vehiculoSeleccionado.vehiculo} (Patente: ${vehiculoSeleccionado.patente}). Total: ${total}.`);
-            window.open(`https://wa.me/${fono}?text=${msg}`, '_blank');
-        }
-
-        function mostrarToast(mensaje, tipo = 'exito') {
-            const toastEl = document.getElementById('toastNotificacion');
-            const toastBody = document.getElementById('toastMensaje');
-            if (!toastEl || !toastBody) return;
-
-            toastEl.classList.remove('bg-success', 'bg-danger');
-            toastEl.classList.add(tipo === 'exito' ? 'bg-success' : 'bg-danger');
-            toastBody.innerHTML = `<i class="bi bi-info-circle-fill me-2 fs-5"></i> ${mensaje}`;
-
-            new bootstrap.Toast(toastEl, { delay: 3000 }).show();
+            const folio = ordenActual ? ordenActual.numero : 'NUEVA';
+            const msg = `Hola ${clienteSeleccionado.cliente}, adjuntamos el detalle del presupuesto Folio #${folio} para el vehículo ${vehiculoSeleccionado.vehiculo} [${vehiculoSeleccionado.patente}]. Total: ${total}.`;
+            
+            const numLimpio = clienteSeleccionado.telefono.replace(/\D/g, '');
+            window.open(`https://api.whatsapp.com/send?phone=${numLimpio}&text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
 </body>

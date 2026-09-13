@@ -7,55 +7,132 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        :root { --bg-body: #090d16; --bg-card: #131c2e; --border-color: #24344d; --accent-red: #e63946; }
-        body { background-color: var(--bg-body); color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
-        .sidebar { width: 240px; height: 100vh; background-color: #0b111e; border-right: 1px solid var(--border-color); position: fixed; top: 0; left: 0; z-index: 1000; }
-        .main-content { margin-left: 240px; padding: 30px; }
-        @media (max-width: 768px) { .sidebar { margin-left: -240px; } .main-content { margin-left: 0; padding: 15px; } }
-        .nav-link { color: #94a3b8; padding: 12px 18px; font-size: 0.9rem; font-weight: 500; border-radius: 8px; margin: 4px 12px; }
-        .nav-link:hover, .nav-link.active { color: #fff; background-color: #1a263d; border-left: 4px solid var(--accent-red); }
-        
-        .card-panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; overflow: visible !important; }
-        .table-responsive { overflow: visible !important; }
-        .table-dark { --bs-table-bg: var(--bg-card); --bs-table-border-color: var(--border-color); }
-        
+        :root { 
+            --bg-body: #090d16; 
+            --bg-card: #131c2e; 
+            --border-color: #24344d; 
+            --accent-red: #e63946; 
+        }
+
+        body { 
+            background-color: var(--bg-body); 
+            color: #e2e8f0; 
+            font-family: system-ui, -apple-system, sans-serif; 
+        }
+
+        .sidebar { 
+            width: 240px; 
+            height: 100vh; 
+            background-color: #0b111e; 
+            border-right: 1px solid var(--border-color); 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            z-index: 1000; 
+            transition: all 0.3s ease-in-out;
+        }
+
+        .main-content { 
+            margin-left: 240px; 
+            padding: 30px; 
+            transition: all 0.3s ease-in-out;
+        }
+
+        @media (max-width: 768px) { 
+            .sidebar { margin-left: -240px; } 
+            .sidebar.show { margin-left: 0; }
+            .main-content { margin-left: 0; padding: 15px; } 
+        }
+
+        .nav-link { 
+            color: #94a3b8; 
+            padding: 12px 18px; 
+            font-size: 0.9rem; 
+            font-weight: 500; 
+            border-radius: 8px; 
+            margin: 4px 12px; 
+        }
+
+        .nav-link:hover, .nav-link.active { 
+            color: #fff; 
+            background-color: #1a263d; 
+            border-left: 4px solid var(--accent-red); 
+        }
+
+        .card-panel { 
+            background-color: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 20px; 
+        }
+
+        .table-dark { 
+            --bs-table-bg: var(--bg-card); 
+            --bs-table-border-color: var(--border-color); 
+        }
+
         .dropdown-toggle.no-arrow::after { display: none !important; }
-        .btn-plus-action { background: rgba(230, 57, 70, 0.15); color: var(--accent-red); border: 1px solid rgba(230, 57, 70, 0.3); border-radius: 50%; width: 34px; height: 34px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
-        .btn-plus-action:hover { background: var(--accent-red); color: #fff; }
-        
-        .table td .dropdown { position: relative; }
-        .dropdown-menu { z-index: 1065 !important; margin-top: 2px !important; }
-        .dropdown-menu-end { right: 0; left: auto !important; }
+
+        .btn-plus-action { 
+            background: rgba(230, 57, 70, 0.15); 
+            color: var(--accent-red); 
+            border: 1px solid rgba(230, 57, 70, 0.3); 
+            border-radius: 50%; 
+            width: 34px; 
+            height: 34px; 
+            padding: 0; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+
+        .btn-plus-action:hover { 
+            background: var(--accent-red); 
+            color: #fff; 
+        }
+
+        .dropdown-menu { 
+            z-index: 1065 !important; 
+        }
     </style>
 </head>
 <body>
 
-  <div class="sidebar d-flex flex-column justify-content-between p-2">
+    <!-- HEADER MÓVIL -->
+    <div class="d-md-none p-3 bg-dark border-bottom border-secondary d-flex justify-content-between align-items-center">
+        <span class="fw-bold fs-5 text-white">Alin<span class="text-danger">Soft</span></span>
+        <button class="btn btn-outline-light btn-sm" onclick="toggleSidebar()">
+            <i class="bi bi-list fs-5"></i>
+        </button>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar d-flex flex-column justify-content-between p-2" id="sidebar">
         <div>
             <div class="d-flex align-items-center px-3 py-3 mb-2">
                 <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
                 <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
             </div>
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
-                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
+                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
+                <li class="nav-item"><a href="ordenes.html" class="nav-link active"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
                 <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
                 <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> mantenedor de datos</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de Datos</a></li>
             </ul>
         </div>
         <div class="px-3 py-2 border-top border-secondary">
             <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
         </div>
     </div>
-    
 
+    <!-- CONTENIDO PRINCIPAL -->
     <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <div>
                 <h3 class="fw-bold m-0">Mantenedor de Órdenes y Presupuestos</h3>
             </div>
-            <a href="crear_ot.html" class="btn btn-danger fw-semibold"><i class="bi bi-plus-lg me-1"></i> Recepción</a>
+            <a href="crear_ot.html" class="btn btn-danger fw-semibold"><i class="bi bi-plus-lg me-1"></i> Nueva Recepción</a>
         </div>
 
         <div class="card-panel">
@@ -100,7 +177,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content bg-dark text-white border-secondary">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title"><i class="bi bi-clock-history text-danger me-2"></i> Historial</h5>
+                    <h5 class="modal-title"><i class="bi bi-clock-history text-danger me-2"></i> Historial del Vehículo</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -130,6 +207,7 @@
         </div>
     </div>
 
+    <!-- SCRIPTS DE CORE -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
@@ -137,8 +215,19 @@
 
     <script>
         let ordenesCache = [];
+        let db = null;
 
-        document.addEventListener("DOMContentLoaded", () => { cargarOrdenes(); });
+        document.addEventListener("DOMContentLoaded", () => { 
+            if (typeof initSupabase === 'function') {
+                db = initSupabase();
+            }
+            cargarOrdenes(); 
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.toggle('show');
+        }
 
         function mostrarToast(mensaje, tipo = 'exito') {
             const toastEl = document.getElementById('toastNotificacion');
@@ -159,18 +248,56 @@
             toast.show();
         }
 
+        // CARGA Y CORRELACIÓN DE ÓRDENES
         async function cargarOrdenes() {
             try {
-                const db = initSupabase();
-                const { data, error } = await db.from('ordenes_trabajo').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                ordenesCache = data || [];
+                if (!db && typeof initSupabase === 'function') db = initSupabase();
+
+                if (db) {
+                    const { data, error } = await db.from('ordenes_trabajo').select('*').order('created_at', { ascending: false });
+                    if (error) throw error;
+                    ordenesCache = data || [];
+                } else {
+                    ordenesCache = JSON.parse(localStorage.getItem('taller_ordenes')) || [];
+                }
+
                 renderizarTabla(ordenesCache);
             } catch (err) {
-                document.getElementById('tablaOrdenesBody').innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">${err.message}</td></tr>`;
+                console.error("Error cargando órdenes:", err);
+                document.getElementById('tablaOrdenesBody').innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4">Error al cargar datos: ${err.message}</td></tr>`;
             }
         }
 
+        // CÁLCULO DE FOLIO CORRELATIVO DESDE EL 29500 (Para uso al crear OT)
+        async function obtenerSiguienteNumeroOT() {
+            const BASE_NUMERO = 29500;
+            try {
+                if (db) {
+                    const { data, error } = await db.from('ordenes_trabajo')
+                        .select('numero')
+                        .not('numero', 'is', null)
+                        .order('numero', { ascending: false })
+                        .limit(1);
+
+                    if (!error && data && data.length > 0) {
+                        const maxBD = parseInt(data[0].numero, 10);
+                        return isNaN(maxBD) ? BASE_NUMERO : Math.max(maxBD + 1, BASE_NUMERO);
+                    }
+                } else {
+                    const ordenesLocal = JSON.parse(localStorage.getItem('taller_ordenes')) || [];
+                    if (ordenesLocal.length > 0) {
+                        const numeros = ordenesLocal.map(o => parseInt(o.numero || 0, 10)).filter(n => !isNaN(n));
+                        const maxLocal = Math.max(...numeros);
+                        return Math.max(maxLocal + 1, BASE_NUMERO);
+                    }
+                }
+            } catch (e) {
+                console.error("Error calculando correlativo OT:", e);
+            }
+            return BASE_NUMERO;
+        }
+
+        // RENDERIZADO DE TABLA DE ÓRDENES
         function renderizarTabla(lista) {
             const tbody = document.getElementById('tablaOrdenesBody');
             tbody.innerHTML = '';
@@ -191,15 +318,17 @@
                 const totalFormateado = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(ot.total || 0);
 
                 const fonoLimpio = ot.telefono ? ot.telefono.replace(/\D/g, '') : '';
-                const msgListo = encodeURIComponent(`Hola ${ot.cliente}, te informamos desde el taller que tu vehículo ${ot.vehiculo} (Patente: ${ot.patente}) ya está LISTO PARA RETIRAR. El total del servicio es ${totalFormateado}. Folio OT: ${ot.numero}.`);
+                const msgListo = encodeURIComponent(`Hola ${ot.cliente}, te informamos que tu vehículo ${ot.vehiculo} (Patente: ${ot.patente}) está LISTO PARA RETIRAR. Total: ${totalFormateado}. Folio OT: ${ot.numero}.`);
                 const msgPpto = encodeURIComponent(`Hola ${ot.cliente}, adjuntamos el detalle del presupuesto para tu vehículo ${ot.vehiculo} (Patente: ${ot.patente}). Total: ${totalFormateado}. Puedes revisar la ficha aquí: ${window.location.origin}/ver_ot.html?ot=${ot.numero}`);
+
+                const folioTexto = ot.numero ? (isNaN(ot.numero) ? ot.numero : `OT-${ot.numero}`) : 'S/F';
 
                 tbody.innerHTML += `
                     <tr>
-                        <td class="fw-bold text-white">${ot.numero}<br><small class="text-secondary fw-normal">${ot.fecha || ''}</small></td>
-                        <td>${ot.cliente}<br><small class="text-secondary">${ot.rut || '-'}</small></td>
-                        <td>${ot.vehiculo}<br><span class="badge bg-secondary">${ot.patente}</span></td>
-                        <td><span class="badge ${badgeColor}">${ot.estado}</span></td>
+                        <td class="fw-bold text-white">${folioTexto}<br><small class="text-secondary fw-normal">${ot.fecha || ''}</small></td>
+                        <td>${ot.cliente || 'Sin Nombre'}<br><small class="text-secondary">${ot.rut || '-'}</small></td>
+                        <td>${ot.vehiculo || 'Vehículo'}<br><span class="badge bg-danger text-uppercase">${ot.patente || 'S/P'}</span></td>
+                        <td><span class="badge ${badgeColor}">${ot.estado || 'Recepción'}</span></td>
                         <td class="fw-bold text-danger">${totalFormateado}</td>
                         <td class="text-end">
                             <div class="dropdown">
@@ -207,7 +336,7 @@
                                     <i class="bi bi-plus-lg"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary">
-                                    <li><h6 class="dropdown-header text-danger">${ot.numero}</h6></li>
+                                    <li><h6 class="dropdown-header text-danger">${folioTexto}</h6></li>
                                     <li>
                                         <a class="dropdown-item text-warning" href="presupuesto.html?ot=${ot.numero}">
                                             <i class="bi bi-pencil-square me-2"></i> Presupuesto / Cambiar Estado
@@ -232,7 +361,7 @@
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
-                                        <a class="dropdown-item text-danger" href="#" onclick="eliminarOT('${ot.numero}')">
+                                        <a class="dropdown-item text-danger" href="#" onclick="eliminarOT('${ot.numero}', '${ot.id}')">
                                             <i class="bi bi-trash-fill me-2"></i> Eliminar Orden
                                         </a>
                                     </li>
@@ -244,66 +373,100 @@
             });
         }
 
-        async function eliminarOT(folio) {
+        // ELIMINACIÓN SEGURA DE OT
+        async function eliminarOT(folio, idBD) {
             if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente la orden ${folio}?`)) return;
 
             try {
-                const db = initSupabase();
-                const { error } = await db.from('ordenes_trabajo').delete().eq('numero', folio);
-                if (error) throw error;
+                if (db) {
+                    let req;
+                    if (idBD && idBD !== 'undefined') req = db.from('ordenes_trabajo').delete().eq('id', idBD);
+                    else req = db.from('ordenes_trabajo').delete().eq('numero', folio);
 
-                mostrarToast(`La orden ${folio} fue eliminada.`, "exito");
-                cargarOrdenes();
+                    const { error } = await req;
+                    if (error) throw error;
+                }
+                
+                ordenesCache = ordenesCache.filter(o => o.numero != folio && o.id != idBD);
+                mostrarToast(`La orden ${folio} fue eliminada exitosamente.`, "exito");
+                renderizarTabla(ordenesCache);
             } catch (err) {
                 mostrarToast("Error al eliminar la orden: " + err.message, "error");
             }
         }
 
+        // FILTRADO DINÁMICO
         function filtrarTabla() {
-            const q = document.getElementById('inputBuscar').value.toLowerCase();
+            const q = document.getElementById('inputBuscar').value.toLowerCase().trim();
             const est = document.getElementById('selectFiltroEstado').value;
 
             const filtradas = ordenesCache.filter(ot => {
-                const coincideTexto = ot.numero.toLowerCase().includes(q) || ot.patente.toLowerCase().includes(q) || ot.cliente.toLowerCase().includes(q) || (ot.rut && ot.rut.toLowerCase().includes(q));
+                const numStr = String(ot.numero || '').toLowerCase();
+                const patStr = String(ot.patente || '').toLowerCase();
+                const cliStr = String(ot.cliente || '').toLowerCase();
+                const rutStr = String(ot.rut || '').toLowerCase();
+
+                const coincideTexto = numStr.includes(q) || patStr.includes(q) || cliStr.includes(q) || rutStr.includes(q);
                 const coincideEstado = est === '' || ot.estado === est;
+
                 return coincideTexto && coincideEstado;
             });
 
             renderizarTabla(filtradas);
         }
 
+        // MODAL DE HISTORIAL POR PATENTE
         async function verHojaDeVida(patente) {
-            const db = initSupabase();
-            const { data } = await db.from('ordenes_trabajo').select('*').eq('patente', patente).order('created_at', { ascending: false });
+            if (!patente) return alert("Patente no válida.");
 
-            if (data && data.length > 0) {
-                const auto = data[0];
-                document.getElementById('headHistorial').innerHTML = `
-                    <div class="row text-white">
-                        <div class="col-6"><strong>Vehículo:</strong> ${auto.vehiculo}</div>
-                        <div class="col-6"><strong>Patente:</strong> <span class="badge bg-danger">${auto.patente}</span></div>
-                        <div class="col-6 mt-1"><strong>Cliente:</strong> ${auto.cliente}</div>
-                        <div class="col-6 mt-1"><strong>RUT:</strong> ${auto.rut || '-'}</div>
-                    </div>
-                `;
+            try {
+                let data = [];
+                if (db) {
+                    const res = await db.from('ordenes_trabajo').select('*').eq('patente', patente).order('created_at', { ascending: false });
+                    data = res.data || [];
+                } else {
+                    data = ordenesCache.filter(o => o.patente && o.patente.toUpperCase() === patente.toUpperCase());
+                }
 
-                const body = document.getElementById('bodyHistorial');
-                body.innerHTML = '';
-                data.forEach(h => {
-                    const total = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(h.total || 0);
-                    body.innerHTML += `
-                        <tr>
-                            <td>${h.fecha || ''}</td>
-                            <td class="fw-bold">${h.numero}</td>
-                            <td>KM: ${h.kilometraje || '-'}</td>
-                            <td><span class="badge bg-secondary">${h.estado}</span></td>
-                            <td class="text-success fw-bold">${total}</td>
-                        </tr>
+                if (data.length > 0) {
+                    const auto = data[0];
+                    document.getElementById('headHistorial').innerHTML = `
+                        <div class="row text-white">
+                            <div class="col-6"><strong>Vehículo:</strong> ${auto.vehiculo || 'S/D'}</div>
+                            <div class="col-6"><strong>Patente:</strong> <span class="badge bg-danger text-uppercase">${auto.patente}</span></div>
+                            <div class="col-6 mt-1"><strong>Cliente:</strong> ${auto.cliente || 'S/D'}</div>
+                            <div class="col-6 mt-1"><strong>RUT:</strong> ${auto.rut || '-'}</div>
+                        </div>
                     `;
-                });
 
-                new bootstrap.Modal(document.getElementById('modalHistorial')).show();
+                    const body = document.getElementById('bodyHistorial');
+                    body.innerHTML = '';
+                    data.forEach(h => {
+                        const total = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(h.total || 0);
+                        const numFolio = h.numero ? (isNaN(h.numero) ? h.numero : `OT-${h.numero}`) : 'S/F';
+                        body.innerHTML += `
+                            <tr>
+                                <td>${h.fecha || ''}</td>
+                                <td class="fw-bold">${numFolio}</td>
+                                <td>KM: ${h.kilometraje || '-'}</td>
+                                <td><span class="badge bg-secondary">${h.estado || 'Recepción'}</span></td>
+                                <td class="text-success fw-bold">${total}</td>
+                            </tr>
+                        `;
+                    });
+
+                    new bootstrap.Modal(document.getElementById('modalHistorial')).show();
+                } else {
+                    mostrarToast("No se encontraron registros anteriores para esta patente.", "error");
+                }
+            } catch (err) {
+                console.error("Error al cargar hoja de vida:", err);
             }
+        }
+
+        function logout() {
+            if (typeof supabase !== 'undefined' && db) db.auth.signOut();
+            window.location.href = 'index.html';
         }
     </script>
 </body>
