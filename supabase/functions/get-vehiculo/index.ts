@@ -1,48 +1,41 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+  // 1. Validar que la petición incluya el encabezado de autorización del usuario
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: 'No autorizado. Inicia sesión para continuar.' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   try {
+    // 2. Opcional: Validar el usuario con el cliente de Supabase usando su propio token
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    )
+
+    // Verificar que el usuario esté autenticado en el sistema
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: 'Sesión inválida o expirada.' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    // 3. Procesar la petición de la patente con seguridad
     const { patente } = await req.json()
+    // ... tu lógica de consulta a la API externa ...
 
-    if (!patente) {
-      return new Response(
-        JSON.stringify({ error: 'Debes proporcionar una patente' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    // Petición a la API externa (ej. API de patentes / Boostr)
-    const API_URL = `https://api.vehiculos.cl/v1/patente/${patente}` // Reemplaza con tu endpoint real de API
-    const response = await fetch(API_URL, {
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('API_PATENTES_KEY') || ''}`
-      }
+  } catch (err) {
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
     })
-
-    if (!response.ok) {
-      throw new Error(`Error en la consulta externa: ${response.status}`)
-    }
-
-    const data = await response.json()
-
-    return new Response(
-      JSON.stringify(data),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-
-  } catch (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
   }
 })
