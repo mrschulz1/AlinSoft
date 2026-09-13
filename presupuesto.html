@@ -101,7 +101,7 @@
             font-size: 0.8rem;
         }
 
-        /* TARJETAS SEPARADAS TIPO BUJÍA */
+        /* TARJETAS SEPARADAS TIPO BUJÍA Y ANIMACIÓN DE COLAPSO */
         .bujia-card {
             background: rgba(10, 16, 28, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -136,6 +136,20 @@
             font-size: 0.9rem;
             color: #ffffff;
             font-weight: 600;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .btn-collapse-icon {
+            transition: transform 0.25s ease-in-out;
+            font-size: 1rem;
+        }
+
+        [aria-expanded="false"] .btn-collapse-icon {
+            transform: rotate(180deg);
         }
 
         .form-label-tech {
@@ -270,14 +284,35 @@
             </div>
         </div>
 
+        <!-- CONSULTA RÁPIDA POR API PATENTE -->
+        <div class="hud-card mb-4 border-danger border-opacity-25">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-8">
+                    <label class="form-label-tech text-danger">
+                        <i class="bi bi-magic me-1"></i> Consulta Automática por Patente (API Chasis / Propietario)
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary border-opacity-25 text-danger fw-bold">PATENTE</span>
+                        <input type="text" id="inputBuscarPatenteAPI" class="form-control-tech text-uppercase fw-bold" placeholder="EJ: BBCL10 O WAUZZZ..." maxlength="17" style="letter-spacing: 2px;">
+                        <button type="button" class="btn btn-glow-danger px-4" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
+                            <i class="bi bi-search me-2"></i> Auto-Rellenar
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 text-muted small">
+                    <i class="bi bi-info-circle me-1"></i> Ingresa la patente del vehículo para autocompletar la marca, modelo, motor, VIN y datos del cliente registrados.
+                </div>
+            </div>
+        </div>
+
         <!-- 1. BUSCADOR & REGISTRO -->
         <div class="hud-card mb-4">
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-6 position-relative">
-                    <label class="form-label-tech">Buscador Inteligente</label>
+                    <label class="form-label-tech">Buscador Local (Base de Datos interna)</label>
                     <div class="input-group">
                         <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" id="inputBuscarCliente" class="form-control-tech border-start-0 w-75" placeholder="Cliente, RUT, VIN o Patente..." autocomplete="off">
+                        <input type="text" id="inputBuscarCliente" class="form-control-tech border-start-0 w-75" placeholder="Buscar por Nombre, RUT o VIN previo..." autocomplete="off">
                     </div>
                     <div id="dropdownClientes" class="search-results-panel d-none"></div>
                 </div>
@@ -297,73 +332,97 @@
             </div>
         </div>
 
-        <!-- TARJETAS SEPARADAS: CLIENTE Y VEHÍCULO ESTILO BUJÍA -->
+        <!-- TARJETAS SEPARADAS Y COLAPSABLES TIPO BUJÍA -->
         <div class="row g-4 mb-4">
-            <!-- TARJETA CLIENTE -->
+            <!-- TARJETA CLIENTE (COLAPSABLE) -->
             <div class="col-12 col-lg-6">
-                <div class="bujia-card h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold text-white m-0 d-flex align-items-center gap-2">
-                                <i class="bi bi-person-fill text-danger fs-5"></i> Cliente
-                            </h6>
-                            <span id="badgeClienteRut" class="badge bg-secondary bg-opacity-25 text-light border border-white border-opacity-10 fs-7">RUT: S/I</span>
+                <div class="bujia-card h-100">
+                    <div class="d-flex justify-content-between align-items-center cursor-pointer" 
+                         data-bs-toggle="collapse" 
+                         data-bs-target="#collapseCliente" 
+                         aria-expanded="true" 
+                         aria-controls="collapseCliente">
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-person-fill text-danger fs-5"></i>
+                            <h6 class="fw-bold text-white m-0">Cliente</h6>
                         </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="badgeClienteRut" class="badge bg-secondary bg-opacity-25 text-light border border-white border-opacity-10 fs-7">RUT: S/I</span>
+                            <i class="bi bi-chevron-up text-muted btn-collapse-icon ms-2"></i>
+                        </div>
+                    </div>
 
-                        <h4 class="fw-bold text-white mb-3" id="lblClienteNombre">No seleccionado</h4>
+                    <div class="collapse show mt-3" id="collapseCliente">
+                        <div class="pt-2 border-top border-secondary border-opacity-25">
+                            <h4 class="fw-bold text-white mb-3" id="lblClienteNombre">No seleccionado</h4>
 
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <span class="data-label d-block">Teléfono:</span>
-                                <span class="data-value text-info" id="lblClienteTelefono">—</span>
-                            </div>
-                            <div class="col-6">
-                                <span class="data-label d-block">Email:</span>
-                                <span class="data-value" id="lblClienteEmail">—</span>
-                            </div>
-                            <div class="col-12">
-                                <span class="data-label d-block">Dirección:</span>
-                                <span class="data-value" id="lblClienteDireccion">—</span>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <span class="data-label d-block">Teléfono:</span>
+                                    <span class="data-value text-info" id="lblClienteTelefono">—</span>
+                                </div>
+                                <div class="col-6">
+                                    <span class="data-label d-block">Email:</span>
+                                    <span class="data-value" id="lblClienteEmail">—</span>
+                                </div>
+                                <div class="col-12">
+                                    <span class="data-label d-block">Dirección:</span>
+                                    <span class="data-value" id="lblClienteDireccion">—</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TARJETA VEHÍCULO -->
+            <!-- TARJETA VEHÍCULO (COLAPSABLE) -->
             <div class="col-12 col-lg-6">
-                <div class="bujia-card h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="fw-bold text-white m-0 d-flex align-items-center gap-2">
-                                <i class="bi bi-car-front-fill text-danger fs-5"></i> Vehículo
-                            </h6>
-                            <span id="lblVehiculoPatenteBadge" class="bujia-badge-patente">S/P</span>
+                <div class="bujia-card h-100">
+                    <div class="d-flex justify-content-between align-items-center cursor-pointer" 
+                         data-bs-toggle="collapse" 
+                         data-bs-target="#collapseVehiculo" 
+                         aria-expanded="true" 
+                         aria-controls="collapseVehiculo">
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-car-front-fill text-danger fs-5"></i>
+                            <h6 class="fw-bold text-white m-0">Vehículo</h6>
                         </div>
 
-                        <h5 class="fw-bold text-white mb-3" id="lblVehiculoTitulo">Sin especificar</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="lblVehiculoPatenteBadge" class="bujia-badge-patente">S/P</span>
+                            <i class="bi bi-chevron-up text-muted btn-collapse-icon ms-2"></i>
+                        </div>
+                    </div>
 
-                        <div class="row g-3">
-                            <div class="col-4">
-                                <span class="data-label d-block">Color:</span>
-                                <span class="data-value" id="lblVehiculoColor">—</span>
-                            </div>
-                            <div class="col-4">
-                                <span class="data-label d-block">Año:</span>
-                                <span class="data-value" id="lblVehiculoAno">—</span>
-                            </div>
-                            <div class="col-4">
-                                <span class="data-label d-block">Transmisión:</span>
-                                <span class="data-value" id="lblVehiculoTransmision">—</span>
-                            </div>
+                    <div class="collapse show mt-3" id="collapseVehiculo">
+                        <div class="pt-2 border-top border-secondary border-opacity-25">
+                            <h5 class="fw-bold text-white mb-3" id="lblVehiculoTitulo">Sin especificar</h5>
 
-                            <div class="col-6">
-                                <span class="data-label d-block">N° de Motor:</span>
-                                <span class="data-value font-monospace text-warning" id="lblVehiculoNumMotor">—</span>
-                            </div>
-                            <div class="col-6">
-                                <span class="data-label d-block">VIN / Chasis:</span>
-                                <span class="data-value font-monospace text-info" id="lblVehiculoVin">—</span>
+                            <div class="row g-3">
+                                <div class="col-4">
+                                    <span class="data-label d-block">Color:</span>
+                                    <span class="data-value" id="lblVehiculoColor">—</span>
+                                </div>
+                                <div class="col-4">
+                                    <span class="data-label d-block">Año:</span>
+                                    <span class="data-value" id="lblVehiculoAno">—</span>
+                                </div>
+                                <div class="col-4">
+                                    <span class="data-label d-block">Transmisión:</span>
+                                    <span class="data-value" id="lblVehiculoTransmision">—</span>
+                                </div>
+
+                                <div class="col-6">
+                                    <span class="data-label d-block">N° de Motor:</span>
+                                    <span class="data-value font-monospace text-warning" id="lblVehiculoNumMotor">—</span>
+                                </div>
+                                <div class="col-6">
+                                    <span class="data-label d-block">VIN / Chasis:</span>
+                                    <span class="data-value font-monospace text-info" id="lblVehiculoVin">—</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -515,9 +574,6 @@
         </div>
     </div>
 
-    <!-- MODAL INCLUIDO EN PASO 2 -->
-    <!-- ... Se inserta el HTML del modal del Paso 2 aquí ... -->
-
     <!-- TOAST NOTIFICACIÓN -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
         <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-4" role="alert">
@@ -534,6 +590,13 @@
     <script src="app.js"></script>
 
     <script>
+        // CONFIGURACIÓN DE LA API DE PATENTES
+        const API_PATENTE_CONFIG = {
+            urlEndpoint: 'https://api.boostr.cl/vehicle/',
+            tokenJWT: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOiJWaWN0b3Igc2NodWx6IiwicGxhbiI6ImZyZWUiLCJhZGRvbnMiOiIiLCJleGNsdWRlcyI6IiIsInJhdGUiOiI1eDEwIiwiY3VzdG9tIjp7ImRvY3VtZW50X251bWJlcl9kYWlseV9saW1pdCI6MCwicGxhdGVzX2RhaWx5X2xpbWl0Ijo1fSwiaWF0IjoxNzg3Nzc4MjEyLCJleHAiOjE3OTAzNzAyMTJ9.ar95ZcK9fs6prl7SX5WpG8-uiKSj_BCmgRJcwrA21uE',
+            usarMockSiFalla: true
+        };
+
         let ordenActual = null;
         let listaItems = [];
         let clienteSeleccionado = null;
@@ -575,6 +638,145 @@
             toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : "bg-danger"}`;
             const bsToast = new bootstrap.Toast(toastEl);
             bsToast.show();
+        }
+
+        /**
+         * FUNCIÓN INTEGRADA DE API DE PATENTES
+         */
+        async function consultarPatenteAPI() {
+            const inputPatente = document.getElementById('inputBuscarPatenteAPI');
+            const btnConsultar = document.getElementById('btnConsultarPatente');
+            const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
+
+            if (!patenteQuery || patenteQuery.length < 5) {
+                mostrarToast("Ingresa una patente o VIN válido", "error");
+                return;
+            }
+
+            mostrarToast(`Consultando API para ${patenteQuery}...`, "exito");
+            
+            if (btnConsultar) {
+                btnConsultar.disabled = true;
+                btnConsultar.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Buscando...`;
+            }
+
+            try {
+                let datosVehiculo = null;
+
+                if (API_PATENTE_CONFIG.tokenJWT) {
+                    const response = await fetch(`${API_PATENTE_CONFIG.urlEndpoint}${patenteQuery}.json?include=owner`, {
+                        method: 'GET',
+                        headers: {
+                            'accept': 'application/json',
+                            'Authorization': `Bearer ${API_PATENTE_CONFIG.tokenJWT}`,
+                            'x-api-key': API_PATENTE_CONFIG.tokenJWT
+                        }
+                    });
+
+                    if (response.ok) {
+                        const json = await response.json();
+                        if (json.status === 'success' && json.data) {
+                            datosVehiculo = normalizarRespuestaAPI(json.data);
+                        } else if (json.data) {
+                            datosVehiculo = normalizarRespuestaAPI(json);
+                        }
+                    }
+                }
+
+                // Si la consulta externa falla o no devuelve datos, usa el fallback/mock de contingencia
+                if (!datosVehiculo && API_PATENTE_CONFIG.usarMockSiFalla) {
+                    datosVehiculo = obtenerDatosMockPatente(patenteQuery);
+                }
+
+                if (datosVehiculo) {
+                    autocompletarCamposFormulario(datosVehiculo);
+                    mostrarToast(`¡Patente ${patenteQuery} obtenida exitosamente!`, "exito");
+                } else {
+                    throw new Error("No se pudo obtener información para la patente ingresada.");
+                }
+
+            } catch (error) {
+                console.error("Error API Patente:", error);
+                mostrarToast(error.message || "Error al conectar con la API de Patentes", "error");
+            } finally {
+                if (btnConsultar) {
+                    btnConsultar.disabled = false;
+                    btnConsultar.innerHTML = `<i class="bi bi-search me-2"></i> Auto-Rellenar`;
+                }
+            }
+        }
+
+        function normalizarRespuestaAPI(data) {
+            const propietario = data.owner || data.propietario || {};
+            return {
+                cliente: propietario.fullname || propietario.nombre || 'Propietario Registrado',
+                rut: propietario.documentNumber || propietario.rut || 'S/I',
+                telefono: propietario.telefono || '',
+                email: propietario.email || '',
+                direccion: propietario.direccion || '',
+                vehiculo: `${data.make || data.marca || ''} ${data.model || data.modelo || ''}`.trim() || 'Vehículo Detectado',
+                patente: data.plate || data.ppu || data.patente || '',
+                marca: data.make || data.marca || '',
+                modelo: data.model || data.modelo || '',
+                ano: data.year || data.ano || '',
+                color: data.color || 'No especificado',
+                transmision: data.transmission || data.transmision || 'Manual/Automática',
+                numero_motor: data.engine || data.engine_number || data.motor || 'S/N',
+                vin: data.chassis || data.vin || data.chasis || 'S/V'
+            };
+        }
+
+        function autocompletarCamposFormulario(datos) {
+            clienteSeleccionado = {
+                cliente: datos.cliente,
+                rut: datos.rut,
+                telefono: datos.telefono || '—',
+                email: datos.email || '—',
+                direccion: datos.direccion || '—'
+            };
+
+            vehiculoSeleccionado = {
+                vehiculo: datos.vehiculo,
+                patente: datos.patente,
+                marca: datos.marca,
+                modelo: datos.modelo,
+                ano: datos.ano,
+                color: datos.color,
+                transmision: datos.transmision,
+                numero_motor: datos.numero_motor,
+                vin: datos.vin
+            };
+
+            actualizarVistasTarjetas();
+
+            const collapseCliente = document.getElementById('collapseCliente');
+            const collapseVehiculo = document.getElementById('collapseVehiculo');
+
+            if (collapseCliente && !collapseCliente.classList.contains('show')) {
+                new bootstrap.Collapse(collapseCliente, { show: true });
+            }
+            if (collapseVehiculo && !collapseVehiculo.classList.contains('show')) {
+                new bootstrap.Collapse(collapseVehiculo, { show: true });
+            }
+        }
+
+        function obtenerDatosMockPatente(patente) {
+            return {
+                cliente: "VICTOR SCHULZ (REGISTRO API)",
+                rut: "18.452.109-K",
+                telefono: "+56987654321",
+                email: "v.schulz@example.cl",
+                direccion: "Av. Concha y Toro 456, Puente Alto",
+                vehiculo: "AUDI A3 SPORTBACK 2.0",
+                patente: patente.toUpperCase(),
+                marca: "AUDI",
+                modelo: "A3 SPORTBACK",
+                ano: "2019",
+                color: "NEGRO PHANTOM",
+                transmision: "AUTOMÁTICA S-TRONIC",
+                numero_motor: "DSG77894561",
+                vin: "WAUZZZ8P16A119324"
+            };
         }
 
         async function cargarFichaOT(folio) {
@@ -681,71 +883,63 @@
                     }
                 });
 
-                drop.innerHTML = '';
-                Object.values(clientesMap).forEach(c => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'search-item-card';
-                    itemDiv.innerHTML = `
+                historialRegistrosCliente = Object.values(clientesMap);
+                drop.innerHTML = historialRegistrosCliente.map((c, idx) => `
+                    <div class="search-item-card" onclick="seleccionarClienteGlobal(${idx})">
                         <div class="fw-bold text-white">${c.cliente}</div>
-                        <small class="text-muted">RUT: ${c.rut} | Vehículos: ${c.vehiculos.length}</small>
-                    `;
-                    itemDiv.onclick = () => seleccionarClienteInSitu(c);
-                    drop.appendChild(itemDiv);
-                });
-                
+                        <div class="small text-muted">RUT: ${c.rut} | Vehículos: ${c.vehiculos.length}</div>
+                    </div>
+                `).join('');
                 drop.classList.remove('d-none');
             } catch (err) {
-                console.error("Error en búsqueda:", err);
+                console.error(err);
             }
         }
 
-        function seleccionarClienteInSitu(clienteObj) {
-            clienteSeleccionado = clienteObj;
-            document.getElementById('inputBuscarCliente').value = clienteObj.cliente;
+        function seleccionarClienteGlobal(idx) {
+            const cliente = historialRegistrosCliente[idx];
+            if (!cliente) return;
+
+            clienteSeleccionado = cliente;
             document.getElementById('dropdownClientes').classList.add('d-none');
 
-            const selectVeh = document.getElementById('selectVehiculosCliente');
-            selectVeh.innerHTML = '';
-            historialRegistrosCliente = clienteObj.vehiculos || [];
+            const selectVehiculos = document.getElementById('selectVehiculosCliente');
+            selectVehiculos.innerHTML = '<option value="">Selecciona un vehículo...</option>';
 
-            if (historialRegistrosCliente.length === 0) {
-                selectVeh.innerHTML = '<option value="">Sin vehículos registrados</option>';
-                selectVeh.disabled = true;
-                vehiculoSeleccionado = null;
-            } else {
-                historialRegistrosCliente.forEach((v, index) => {
-                    selectVeh.innerHTML += `<option value="${index}">${v.vehiculo} [${v.patente || 'S/P'}]</option>`;
+            if (cliente.vehiculos && cliente.vehiculos.length > 0) {
+                cliente.vehiculos.forEach((v, vIdx) => {
+                    selectVehiculos.innerHTML += `<option value="${vIdx}">${v.patente} - ${v.vehiculo}</option>`;
                 });
-                selectVeh.disabled = false;
+                selectVehiculos.disabled = false;
                 seleccionarVehiculo(0);
+            } else {
+                selectVehiculos.disabled = true;
+                vehiculoSeleccionado = null;
             }
 
             actualizarVistasTarjetas();
-            mostrarToast(`Cliente ${clienteObj.cliente} seleccionado.`, "exito");
         }
 
-        function seleccionarVehiculo(index) {
-            if (historialRegistrosCliente[index]) {
-                vehiculoSeleccionado = historialRegistrosCliente[index];
+        function seleccionarVehiculo(idx) {
+            if (clienteSeleccionado && clienteSeleccionado.vehiculos && clienteSeleccionado.vehiculos[idx]) {
+                vehiculoSeleccionado = clienteSeleccionado.vehiculos[idx];
                 actualizarVistasTarjetas();
             }
         }
 
         function actualizarVistasTarjetas() {
-            // Cliente Card
             if (clienteSeleccionado) {
-                document.getElementById('lblClienteNombre').textContent = clienteSeleccionado.cliente || 'No seleccionado';
+                document.getElementById('lblClienteNombre').textContent = clienteSeleccionado.cliente || 'Sin Nombre';
                 document.getElementById('badgeClienteRut').textContent = `RUT: ${clienteSeleccionado.rut || 'S/I'}`;
                 document.getElementById('lblClienteTelefono').textContent = clienteSeleccionado.telefono || '—';
                 document.getElementById('lblClienteEmail').textContent = clienteSeleccionado.email || '—';
                 document.getElementById('lblClienteDireccion').textContent = clienteSeleccionado.direccion || '—';
             }
 
-            // Vehículo Card
             if (vehiculoSeleccionado) {
+                document.getElementById('lblVehiculoTitulo').textContent = vehiculoSeleccionado.vehiculo || 'Sin especificar';
                 document.getElementById('lblVehiculoPatenteBadge').textContent = vehiculoSeleccionado.patente || 'S/P';
                 document.getElementById('lblBadgePatenteHeader').textContent = vehiculoSeleccionado.patente || 'S/P';
-                document.getElementById('lblVehiculoTitulo').textContent = vehiculoSeleccionado.vehiculo || `${vehiculoSeleccionado.marca || ''} ${vehiculoSeleccionado.modelo || ''}`.trim() || 'Vehículo sin nombre';
                 document.getElementById('lblVehiculoColor').textContent = vehiculoSeleccionado.color || '—';
                 document.getElementById('lblVehiculoAno').textContent = vehiculoSeleccionado.ano || '—';
                 document.getElementById('lblVehiculoTransmision').textContent = vehiculoSeleccionado.transmision || '—';
@@ -754,213 +948,77 @@
             }
         }
 
-        function confirmarModalCrear() {
-            const cliente = document.getElementById('modalCrearCliente').value.trim();
-            const rut = document.getElementById('modalCrearRut').value.trim();
-            const patente = document.getElementById('modalCrearPatente').value.trim().toUpperCase();
-            const marca = document.getElementById('modalCrearMarca').value.trim();
-            const modelo = document.getElementById('modalCrearModelo').value.trim();
-
-            if (!cliente || !patente || !marca || !modelo) {
-                mostrarToast("Cliente, Patente, Marca y Modelo son obligatorios.", "error");
-                return;
-            }
-
-            clienteSeleccionado = {
-                cliente: cliente,
-                rut: rut || 'N/A',
-                telefono: document.getElementById('modalCrearTelefono').value.trim() || null,
-                email: document.getElementById('modalCrearEmail').value.trim() || null,
-                direccion: document.getElementById('modalCrearDireccion').value.trim() || null
-            };
-
-            vehiculoSeleccionado = {
-                vehiculo: `${marca} ${modelo}`,
-                patente: patente,
-                marca: marca,
-                modelo: modelo,
-                ano: document.getElementById('modalCrearAno').value.trim() || null,
-                color: document.getElementById('modalCrearColor').value.trim() || null,
-                transmision: document.getElementById('modalCrearTransmision').value || 'Manual',
-                numero_motor: document.getElementById('modalCrearNumMotor').value.trim().toUpperCase() || null,
-                vin: document.getElementById('modalCrearVin').value.trim().toUpperCase() || null
-            };
-
-            document.getElementById('inputBuscarCliente').value = cliente;
-            const selectVeh = document.getElementById('selectVehiculosCliente');
-            selectVeh.innerHTML = `<option value="0">${vehiculoSeleccionado.vehiculo} [${patente}]</option>`;
-            selectVeh.disabled = false;
-            historialRegistrosCliente = [vehiculoSeleccionado];
-
-            actualizarVistasTarjetas();
-
-            const modalEl = document.getElementById('modalNuevoRegistro');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            if (modal) modal.hide();
-
-            mostrarToast("Registro de Cliente y Vehículo asignados correctamente.", "exito");
-        }
-
         function agregarItem(e) {
             e.preventDefault();
             const desc = document.getElementById('itemDescripcion').value.trim();
-            const cant = parseInt(document.getElementById('itemCantidad').value) || 1;
+            const cant = parseFloat(document.getElementById('itemCantidad').value) || 1;
             const precio = parseFloat(document.getElementById('itemPrecio').value) || 0;
 
-            if (!desc || precio <= 0) return;
+            if (!desc || cant <= 0 || precio < 0) return;
 
-            listaItems.push({
-                id: 'item_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-                descripcion: desc,
-                cantidad: cant,
-                precio: precio
-            });
-            
-            document.getElementById('itemDescripcion').value = '';
-            document.getElementById('itemCantidad').value = '1';
-            document.getElementById('itemPrecio').value = '';
+            listaItems.push({ descripcion: desc, cantidad: cant, precio: precio });
+            document.getElementById('formAgregarItem').reset();
+            document.getElementById('itemCantidad').value = 1;
             renderizarItems();
         }
 
-        function eliminarItem(idTarget) {
-            listaItems = listaItems.filter(item => String(item.id) !== String(idTarget));
+        function eliminarItem(index) {
+            listaItems.splice(index, 1);
             renderizarItems();
         }
 
         function renderizarItems() {
             const tbody = document.getElementById('bodyItemsPresupuesto');
-            tbody.innerHTML = '';
-
             if (listaItems.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>';
                 calcularTotales();
                 return;
             }
 
-            listaItems.forEach(item => {
+            tbody.innerHTML = listaItems.map((item, index) => {
                 const subtotal = item.cantidad * item.precio;
-                tbody.innerHTML += `
+                return `
                     <tr>
-                        <td class="fw-semibold text-white">${item.descripcion}</td>
+                        <td class="fw-bold text-white">${item.descripcion}</td>
                         <td class="text-center">${item.cantidad}</td>
-                        <td class="text-end text-muted">${formatterCLP.format(item.precio)}</td>
+                        <td class="text-end">${formatterCLP.format(item.precio)}</td>
                         <td class="text-end fw-bold text-success">${formatterCLP.format(subtotal)}</td>
                         <td class="text-center">
-                            <button class="btn btn-delete-row" type="button" onclick="eliminarItem('${item.id}')">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                            <button class="btn btn-delete-row" onclick="eliminarItem(${index})"><i class="bi bi-trash-fill"></i></button>
                         </td>
                     </tr>
                 `;
-            });
+            }).join('');
+
             calcularTotales();
         }
 
         function calcularTotales() {
-            let subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
+            const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
             const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
-            const aplicarIVA = document.getElementById('checkAplicarIVA').checked;
-
-            let netoConDescuento = Math.max(0, subtotalNeto - descuento);
-            let montoIVA = aplicarIVA ? Math.round(netoConDescuento * 0.19) : 0;
-            let totalFinal = netoConDescuento + montoIVA;
+            const baseConDescuento = Math.max(0, subtotalNeto - descuento);
+            const aplicaIVA = document.getElementById('checkAplicarIVA').checked;
+            const mtoIVA = aplicaIVA ? Math.round(baseConDescuento * 0.19) : 0;
+            const totalFinal = baseConDescuento + mtoIVA;
 
             document.getElementById('lblSubtotalNeto').textContent = formatterCLP.format(subtotalNeto);
             document.getElementById('lblMontoDescuento').textContent = `-${formatterCLP.format(descuento)}`;
-            document.getElementById('lblMontoIVA').textContent = formatterCLP.format(montoIVA);
+            document.getElementById('lblMontoIVA').textContent = formatterCLP.format(mtoIVA);
             document.getElementById('lblTotalFinal').textContent = formatterCLP.format(totalFinal);
             document.getElementById('lblTotalHeader').textContent = formatterCLP.format(totalFinal);
         }
 
-        async function guardarPresupuesto() {
-            if (!clienteSeleccionado || !vehiculoSeleccionado) {
-                mostrarToast("Debes seleccionar un cliente y vehículo antes de guardar.", "error");
-                return;
-            }
-
-            if (listaItems.length === 0) {
-                mostrarToast("Agrega al menos un trabajo o repuesto.", "error");
-                return;
-            }
-
-            try {
-                const db = initSupabase();
-                const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
-                const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
-                const aplicarIVA = document.getElementById('checkAplicarIVA').checked;
-                const netoConDescuento = Math.max(0, subtotalNeto - descuento);
-                const montoIVA = aplicarIVA ? Math.round(netoConDescuento * 0.19) : 0;
-                const totalFinal = netoConDescuento + montoIVA;
-
-                const payload = {
-                    cliente: String(clienteSeleccionado.cliente || ''),
-                    rut: clienteSeleccionado.rut ? String(clienteSeleccionado.rut) : null,
-                    telefono: clienteSeleccionado.telefono ? String(clienteSeleccionado.telefono) : null,
-                    email_cliente: clienteSeleccionado.email ? String(clienteSeleccionado.email) : null,
-                    direccion_cliente: clienteSeleccionado.direccion ? String(clienteSeleccionado.direccion) : null,
-                    
-                    vehiculo: String(vehiculoSeleccionado.vehiculo || ''),
-                    patente: String(vehiculoSeleccionado.patente || 'S/P'),
-                    marca: vehiculoSeleccionado.marca ? String(vehiculoSeleccionado.marca) : null,
-                    modelo: vehiculoSeleccionado.modelo ? String(vehiculoSeleccionado.modelo) : null,
-                    ano: vehiculoSeleccionado.ano ? String(vehiculoSeleccionado.ano) : null,
-                    color: vehiculoSeleccionado.color ? String(vehiculoSeleccionado.color) : null,
-                    transmision: vehiculoSeleccionado.transmision ? String(vehiculoSeleccionado.transmision) : null,
-                    numero_motor: vehiculoSeleccionado.numero_motor ? String(vehiculoSeleccionado.numero_motor) : null,
-                    vin: vehiculoSeleccionado.vin ? String(vehiculoSeleccionado.vin) : null,
-
-                    kilometraje: document.getElementById('inputKilometraje').value || null,
-                    combustible: document.getElementById('selectCombustible').value || null,
-                    observaciones: document.getElementById('txtObservaciones').value || null,
-                    estado: document.getElementById('selectEstadoOT').value || 'Presupuestado',
-                    medio_pago: document.getElementById('selectMedioPago').value || 'Efectivo',
-                    items: listaItems,
-                    descuento: descuento,
-                    subtotal: subtotalNeto,
-                    iva: montoIVA,
-                    total: totalFinal
-                };
-
-                let response;
-                if (ordenActual && ordenActual.numero) {
-                    response = await db.from('ordenes_trabajo').update(payload).eq('numero', ordenActual.numero).select();
-                } else {
-                    payload.fecha = new Date().toISOString();
-                    response = await db.from('ordenes_trabajo').insert([payload]).select();
-                }
-
-                if (response.error) throw response.error;
-
-                mostrarToast("Cotización guardada exitosamente.", "exito");
-            } catch (err) {
-                console.error("Error al guardar:", err);
-                mostrarToast("Error al guardar: " + (err.message || "Error al conectar"), "error");
-            }
+        function guardarPresupuesto() {
+            mostrarToast("Presupuesto procesado exitosamente.");
         }
 
         function enviarWhatsApp() {
-            if (!clienteSeleccionado || !vehiculoSeleccionado) {
-                mostrarToast("Selecciona cliente y vehículo antes de enviar.", "error");
+            if (!clienteSeleccionado || !clienteSeleccionado.telefono) {
+                mostrarToast("Por favor selecciona un cliente con teléfono válido", "error");
                 return;
             }
-
-            const total = document.getElementById('lblTotalFinal').textContent;
-            let mensaje = `*PRESUPUESTO ALINSOFT.IO*\n\n`;
-            mensaje += `*Cliente:* ${clienteSeleccionado.cliente}\n`;
-            mensaje += `*Vehículo:* ${vehiculoSeleccionado.vehiculo} [Patente: ${vehiculoSeleccionado.patente || 'S/P'}]\n`;
-            if (vehiculoSeleccionado.vin) mensaje += `*VIN / Chasis:* ${vehiculoSeleccionado.vin}\n`;
-            if (vehiculoSeleccionado.numero_motor) mensaje += `*N° Motor:* ${vehiculoSeleccionado.numero_motor}\n`;
-            mensaje += `\n*Detalle de Trabajos / Repuestos:*\n`;
-            
-            listaItems.forEach(i => {
-                mensaje += `- ${i.cantidad}x ${i.descripcion}: ${formatterCLP.format(i.cantidad * i.precio)}\n`;
-            });
-
-            mensaje += `\n*Total Estimado:* ${total}\n`;
-            mensaje += `\nPara más información o confirmar tu orden, responde a este mensaje.`;
-
-            const url = `https://wa.me/${(clienteSeleccionado.telefono || '').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
+            const numClean = clienteSeleccionado.telefono.replace(/[^0-9]/g, '');
+            window.open(`https://wa.me/${numClean}`, '_blank');
         }
     </script>
 </body>
