@@ -1,41 +1,50 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 serve(async (req) => {
-  // 1. Validar que la petición incluya el encabezado de autorización del usuario
-  const authHeader = req.headers.get('Authorization')
-  if (!authHeader) {
-    return new Response(JSON.stringify({ error: 'No autorizado. Inicia sesión para continuar.' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
+  // Manejo de CORS para permitir peticiones desde tu frontend en GitHub Pages
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+      },
     })
   }
 
   try {
-    // 2. Opcional: Validar el usuario con el cliente de Supabase usando su propio token
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
-    )
-
-    // Verificar que el usuario esté autenticado en el sistema
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser()
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: 'Sesión inválida o expirada.' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      })
+    const { patente } = await req.json()
+    if (!patente) {
+      throw new Error("No se proporcionó ninguna patente.")
     }
 
-    // 3. Procesar la petición de la patente con seguridad
-    const { patente } = await req.json()
-    // ... tu lógica de consulta a la API externa ...
+    const patenteLimpia = patente.trim().toUpperCase()
+    const urlBoostr = `https://api.boostr.cl/vehicle/${patenteLimpia}.json`
+
+    // Realizar la petición a la API de Boostr
+    const apiResponse = await fetch(urlBoostr, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+        'X-API-KEY': Deno.env.get('BOOSTR_API_KEY') ?? '' // Asegúrate de guardar tu clave en los secrets de Supabase
+      }
+    })
+
+    const data = await apiResponse.json()
+
+    return new Response(JSON.stringify(data), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
 
   } catch (err) {
     return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
     })
   }
 })
