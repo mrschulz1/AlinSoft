@@ -3,145 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presupuesto y Estado - AlinSoft</title>
+    <title>Presupuesto & Cotizador - AlinSoft Studio</title>
+    <!-- Google Fonts: Outfits & Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
     <style>
         :root { 
-            --bg-body: #090d16; 
-            --bg-card: #131c2e; 
-            --border-color: #24344d; 
-            --accent-red: #e63946; 
+            --bg-dark: #07090e; 
+            --panel-bg: rgba(15, 22, 36, 0.65); 
+            --panel-border: rgba(255, 255, 255, 0.07); 
+            --accent-red: #ff2a4b; 
+            --accent-glow: rgba(255, 42, 75, 0.4);
+            --accent-cyan: #00f2fe;
+            --accent-green: #10b981;
+            --text-main: #f8fafc;
+            --text-sub: #64748b;
         }
-        body { background-color: var(--bg-body); color: #e2e8f0; font-family: system-ui, -apple-system, sans-serif; }
-        .sidebar { width: 240px; height: 100vh; background-color: #0b111e; border-right: 1px solid var(--border-color); position: fixed; top: 0; left: 0; z-index: 1000; }
-        .main-content { margin-left: 240px; padding: 30px; }
-        @media (max-width: 768px) { .sidebar { margin-left: -240px; } .main-content { margin-left: 0; padding: 15px; } }
-        .nav-link { color: #94a3b8; padding: 12px 18px; font-size: 0.9rem; font-weight: 500; border-radius: 8px; margin: 4px 12px; }
-        .nav-link:hover, .nav-link.active { color: #fff; background-color: #1a263d; border-left: 4px solid var(--accent-red); }
-        
-        .card-panel { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; position: relative; }
-        .table-dark { --bs-table-bg: var(--bg-card); --bs-table-border-color: var(--border-color); }
-        .form-control, .form-select { background-color: #0d1424; border-color: var(--border-color); color: #fff; }
-        .form-control:focus, .form-select:focus { background-color: #0d1424; border-color: var(--accent-red); color: #fff; box-shadow: 0 0 0 0.25rem rgba(230, 57, 70, 0.25); }
 
-        /* Autocomplete desplegable in-situ */
-        .search-results-dropdown {
+        body { 
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255, 42, 75, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main); 
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR HUD MODERNO */
+        .sidebar { 
+            width: 260px; 
+            height: calc(100vh - 30px); 
+            background: rgba(10, 15, 26, 0.8); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--panel-border);
+            border-radius: 24px;
+            position: fixed; 
+            top: 15px; 
+            left: 15px; 
+            z-index: 1000; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        
+        .main-content { 
+            margin-left: 290px; 
+            padding: 20px 30px 40px 10px; 
+        }
+
+        @media (max-width: 992px) { 
+            .sidebar { margin-left: -300px; } 
+            .main-content { margin-left: 0; padding: 15px; } 
+        }
+
+        /* BRANDING */
+        .brand-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent-red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* LINKS NAV */
+        .nav-link { 
+            color: #8a99ad; 
+            padding: 12px 18px; 
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            border-radius: 14px; 
+            margin-bottom: 6px; 
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link:hover { 
+            color: #fff; 
+            background: rgba(255, 255, 255, 0.04); 
+            transform: translateX(4px);
+        }
+
+        .nav-link.active { 
+            color: #fff; 
+            background: linear-gradient(135deg, rgba(255, 42, 75, 0.25) 0%, rgba(255, 42, 75, 0.05) 100%);
+            border: 1px solid rgba(255, 42, 75, 0.3);
+            box-shadow: 0 8px 20px var(--accent-glow);
+        }
+
+        /* TARJETAS GLASS HUD */
+        .hud-card { 
+            background: var(--panel-bg); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--panel-border); 
+            border-radius: 24px; 
+            padding: 24px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .hud-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .hud-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-hud {
+            background: rgba(255, 42, 75, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(255, 42, 75, 0.3);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        /* CONTROLES E INPUTS FUTURISTAS */
+        .form-label-tech {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control-tech, .form-select-tech { 
+            background: rgba(8, 12, 20, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: #fff; 
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        .form-control-tech:focus, .form-select-tech:focus { 
+            background: rgba(12, 18, 30, 0.95); 
+            border-color: var(--accent-red); 
+            color: #fff; 
+            box-shadow: 0 0 20px var(--accent-glow); 
+            outline: none;
+        }
+
+        /* BUSCADOR DE CLIENTES DROPDOWN */
+        .search-results-panel {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
             z-index: 1050;
-            background-color: #0d1424;
-            border: 1px solid var(--border-color);
-            border-radius: 0 0 8px 8px;
-            max-height: 220px;
+            background: rgba(11, 16, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            margin-top: 8px;
+            max-height: 280px;
             overflow-y: auto;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
         }
-        .search-item {
-            padding: 10px 14px;
+        
+        .search-item-card {
+            padding: 14px 18px;
             cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: background 0.15s;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: all 0.2s ease;
         }
-        .search-item:hover { background-color: #1a263d; }
 
-        .btn-accent { background-color: var(--accent-red); border-color: var(--accent-red); color: #fff; font-weight: 600; }
-        .btn-accent:hover { background-color: #c92a37; border-color: #c92a37; color: #fff; }
-        .btn-delete-row { background: rgba(230, 57, 70, 0.12); color: var(--accent-red); border: 1px solid rgba(230, 57, 70, 0.25); }
-        .btn-delete-row:hover { background: var(--accent-red); color: #fff; }
+        .search-item-card:hover { 
+            background: rgba(255, 42, 75, 0.15); 
+            padding-left: 22px;
+        }
+
+        /* BOTONES INTERACTIVOS */
+        .btn-glow-danger { 
+            background: linear-gradient(135deg, #ff2a4b 0%, #b91c1c 100%);
+            border: none;
+            color: #fff; 
+            font-weight: 700; 
+            border-radius: 14px;
+            padding: 12px 24px;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            transition: all 0.25s ease;
+        }
+
+        .btn-glow-danger:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 42, 75, 0.6);
+            color: #fff;
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-radius: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* TABLA DINÁMICA DE ÍTEMS */
+        .tech-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .tech-table th {
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-sub);
+            padding: 12px 16px;
+            border: none;
+        }
+
+        .tech-table tbody tr {
+            background: rgba(10, 15, 26, 0.5);
+            border-radius: 14px;
+            transition: all 0.25s ease;
+        }
+
+        .tech-table tbody tr:hover {
+            background: rgba(20, 30, 48, 0.7);
+            transform: scale(1.005);
+        }
+
+        .tech-table td {
+            padding: 16px;
+            border-top: 1px solid var(--panel-border);
+            border-bottom: 1px solid var(--panel-border);
+        }
+
+        .tech-table td:first-child {
+            border-left: 1px solid var(--panel-border);
+            border-top-left-radius: 14px;
+            border-bottom-left-radius: 14px;
+        }
+
+        .tech-table td:last-child {
+            border-right: 1px solid var(--panel-border);
+            border-top-right-radius: 14px;
+            border-bottom-right-radius: 14px;
+        }
+
+        /* TICKET RESUMEN FINANCIERO */
+        .ticket-panel {
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, rgba(10, 15, 26, 0.95) 100%);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 24px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar d-flex flex-column justify-content-between p-2">
+    <!-- SIDEBAR FLOTANTE -->
+    <div class="sidebar d-flex flex-column justify-content-between p-3">
         <div>
-            <div class="d-flex align-items-center px-3 py-3 mb-2">
-                <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
-                <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
+            <div class="d-flex align-items-center px-2 py-3 mb-4">
+                <i class="bi bi-cpu-fill text-danger fs-3 me-3"></i>
+                <span class="fs-4 brand-logo">AlinSoft<span class="text-danger">.io</span></span>
             </div>
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
-                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
-                <li class="nav-item"><a href="presupuesto.html" class="nav-link active"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
-                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de Datos</a></li>
+                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-grid-1x2-fill me-3"></i> Dashboard</a></li>
+                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-receipt-cutoff me-3"></i> Órdenes</a></li>
+                <li class="nav-item"><a href="presupuesto.html" class="nav-link active"><i class="bi bi-calculator-fill me-3"></i> Cotizador UI</a></li>
+                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-plus-square-fill me-3"></i> Nueva OT</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-database-fill me-3"></i> Base Datos</a></li>
             </ul>
         </div>
-        <div class="px-3 py-2 border-top border-secondary">
-            <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
+        <div class="px-2 py-2 border-top border-secondary border-opacity-25">
+            <a href="#" onclick="logout()" class="nav-link text-danger p-2"><i class="bi bi-power me-3"></i> Cerrar Sesión</a>
         </div>
     </div>
 
-    <!-- CONTENIDO PRINCIPAL -->
+    <!-- MAIN CONTENT -->
     <div class="main-content">
-        <!-- HEADER -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-            <div>
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <h3 class="fw-bold m-0" id="lblFolioOT">NUEVA COTIZACIÓN</h3>
-                    <span class="badge bg-danger fs-6" id="lblBadgePatente">S/P</span>
+
+        <!-- HEADER HUD -->
+        <div class="hud-card mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-4">
+                        <i class="bi bi-file-earmark-spreadsheet-fill fs-2 text-danger"></i>
+                    </div>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <h3 class="fw-bold m-0" id="lblFolioOT">NUEVO PRESUPUESTO</h3>
+                            <span class="badge-hud" id="lblBadgePatente">SIN PATENTE</span>
+                        </div>
+                        <p class="text-muted small m-0 mt-1">Configura ítems, repuestos y ajustes de facturación dinámica</p>
+                    </div>
                 </div>
-                <p class="text-secondary small m-0">Gestión integral de trabajos, costos y ficha del vehículo</p>
-            </div>
-            
-            <div class="d-flex align-items-center gap-3">
-                <div class="bg-dark p-2 px-3 rounded border border-secondary text-center">
-                    <span class="text-secondary small d-block" style="font-size:0.75rem;">Estado del Servicio</span>
-                    <select id="selectEstadoOT" class="form-select form-select-sm border-0 bg-transparent text-info fw-bold p-0 shadow-none cursor-pointer" style="width: auto;">
-                        <option value="Recepción" class="text-white">Recepción</option>
-                        <option value="Presupuestado" class="text-white">Presupuestado</option>
-                        <option value="En Proceso" class="text-white">En Proceso</option>
-                        <option value="Listo para Retiro" class="text-white">Listo para Retiro</option>
-                        <option value="Finalizado" class="text-white">Finalizado</option>
-                    </select>
-                </div>
-                
-                <div class="bg-dark p-2 px-3 rounded border border-secondary text-end">
-                    <span class="text-secondary small d-block" style="font-size:0.75rem;">Total a Cobrar</span>
-                    <span id="lblTotalHeader" class="fs-5 fw-bold text-success">$0</span>
+
+                <div class="d-flex align-items-center gap-4">
+                    <div class="text-end">
+                        <span class="form-label-tech mb-1">Estado de Orden</span>
+                        <select id="selectEstadoOT" class="form-select-tech form-select-sm py-1 border-danger text-danger fw-bold">
+                            <option value="Recepción">Recepción</option>
+                            <option value="Presupuestado" selected>Presupuestado</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Listo para Retiro">Listo para Retiro</option>
+                            <option value="Finalizado">Finalizado</option>
+                        </select>
+                    </div>
+                    <div class="text-end border-start border-white border-opacity-10 ps-4">
+                        <span class="form-label-tech mb-0">Total Estimado</span>
+                        <span id="lblTotalHeader" class="fs-2 fw-bold text-success" style="font-family:'Space Grotesk';">$0</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 1. BÚSQUEDA Y ASIGNACIÓN IN-SITU -->
-        <div class="card-panel mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-person-vcard text-danger fs-4 me-2"></i>
-                    <h5 class="fw-bold m-0">Información del Cliente y Vehículo</h5>
+        <!-- 1. SECCIÓN CLIENTE Y VEHÍCULO -->
+        <div class="hud-card mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge-hud">01</span>
+                    <h5 class="hud-title m-0">Ficha del Cliente & Vehículo</h5>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-danger fw-semibold" data-bs-toggle="modal" data-bs-target="#modalNuevoRegistro">
-                    <i class="bi bi-plus-lg me-1"></i> Crear Nuevo Cliente / Vehículo
+                <button type="button" class="btn btn-glass btn-sm px-3" data-bs-toggle="modal" data-bs-target="#modalNuevoRegistro">
+                    <i class="bi bi-person-plus-fill me-1 text-danger"></i> Registro Rápido
                 </button>
             </div>
 
             <div class="row g-3 mb-3">
-                <!-- BUSCADOR CLIENTE IN-SITU -->
+                <!-- BUSCADOR AUTOCOMPLETE -->
                 <div class="col-12 col-md-4 position-relative">
-                    <label class="form-label text-secondary small mb-1">Buscar Cliente (Nombre o RUT)</label>
-                    <input type="text" id="inputBuscarCliente" class="form-control" placeholder="Escribe para buscar..." autocomplete="off">
-                    <div id="dropdownClientes" class="search-results-dropdown d-none"></div>
+                    <label class="form-label-tech">Buscador Inteligente</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" id="inputBuscarCliente" class="form-control-tech border-start-0 w-75" placeholder="Cliente, RUT o Patente..." autocomplete="off">
+                    </div>
+                    <div id="dropdownClientes" class="search-results-panel d-none"></div>
                 </div>
 
-                <!-- SELECCIÓN DE VEHÍCULO -->
+                <!-- SELECTOR VEHÍCULOS -->
                 <div class="col-12 col-md-4">
-                    <label class="form-label text-secondary small mb-1">Vehículos Asociados</label>
-                    <select id="selectVehiculosCliente" class="form-select" onchange="seleccionarVehiculo(this.value)" disabled>
+                    <label class="form-label-tech">Vehículo Seleccionado</label>
+                    <select id="selectVehiculosCliente" class="form-select-tech" onchange="seleccionarVehiculo(this.value)" disabled>
                         <option value="">Selecciona un cliente primero...</option>
                     </select>
                 </div>
 
-                <div class="col-12 col-md-2">
-                    <label class="form-label text-secondary small mb-1">Kilometraje</label>
-                    <input type="text" id="inputKilometraje" class="form-control" placeholder="Ej: 120.000 KM">
+                <div class="col-6 col-md-2">
+                    <label class="form-label-tech">Kilometraje</label>
+                    <input type="text" id="inputKilometraje" class="form-control-tech" placeholder="100.000 KM">
                 </div>
-                
-                <div class="col-12 col-md-2">
-                    <label class="form-label text-secondary small mb-1">Combustible</label>
-                    <select id="selectCombustible" class="form-select">
+
+                <div class="col-6 col-md-2">
+                    <label class="form-label-tech">Combustible</label>
+                    <select id="selectCombustible" class="form-select-tech">
                         <option value="No Registra">No Registra</option>
                         <option value="Reserva">Reserva</option>
                         <option value="1/4 Tanque">1/4 Tanque</option>
@@ -153,38 +388,40 @@
             </div>
 
             <div>
-                <label class="form-label text-secondary small mb-1">Observaciones / Motivo de Cotización</label>
-                <textarea id="txtObservaciones" class="form-control" rows="2" placeholder="Detalles de fallas reportadas, hallazgos técnicos o notas..."></textarea>
+                <label class="form-label-tech">Observaciones Diagnósticas / Requerimientos</label>
+                <textarea id="txtObservaciones" class="form-control-tech" rows="2" placeholder="Describe los síntomas, fallas encontradas o requerimientos especiales..."></textarea>
             </div>
         </div>
 
-        <!-- 2. DETALLE DE TRABAJOS Y REPUESTOS -->
-        <div class="card-panel mb-4">
-            <div class="d-flex align-items-center mb-3">
-                <i class="bi bi-tools text-danger fs-4 me-2"></i>
-                <h5 class="fw-bold m-0">Detalle de Trabajos y Repuestos</h5>
+        <!-- 2. TRABAJOS Y ÍTEMS -->
+        <div class="hud-card mb-4">
+            <div class="d-flex align-items-center gap-2 mb-4">
+                <span class="badge-hud">02</span>
+                <h5 class="hud-title m-0">Detalle de Servicios & Repuestos</h5>
             </div>
 
             <form id="formAgregarItem" onsubmit="agregarItem(event)" class="row g-2 mb-4">
                 <div class="col-12 col-md-6">
-                    <input type="text" id="itemDescripcion" class="form-control" placeholder="Descripción del trabajo o repuesto..." required>
+                    <input type="text" id="itemDescripcion" class="form-control-tech" placeholder="Descripción del trabajo o repuesto..." required>
                 </div>
-                <div class="col-6 col-md-2">
-                    <input type="number" id="itemCantidad" class="form-control" placeholder="Cant." min="1" value="1" required>
+                <div class="col-4 col-md-2">
+                    <input type="number" id="itemCantidad" class="form-control-tech text-center" placeholder="Cant." min="1" value="1" required>
                 </div>
-                <div class="col-6 col-md-2">
-                    <input type="number" id="itemPrecio" class="form-control" placeholder="Precio Unit. ($)" min="0" step="100" required>
+                <div class="col-8 col-md-2">
+                    <input type="number" id="itemPrecio" class="form-control-tech text-end" placeholder="Precio ($)" min="0" step="100" required>
                 </div>
                 <div class="col-12 col-md-2">
-                    <button type="submit" class="btn btn-accent w-100"><i class="bi bi-plus-lg me-1"></i> Añadir</button>
+                    <button type="submit" class="btn btn-glow-danger w-100 h-100 d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-plus-lg"></i> Agregar
+                    </button>
                 </div>
             </form>
 
             <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle mb-0">
+                <table class="tech-table align-middle">
                     <thead>
-                        <tr class="text-secondary small">
-                            <th style="width: 45%;">DESCRIPCIÓN</th>
+                        <tr>
+                            <th style="width: 45%;">DESCRIPCIÓN DE SERVICIO / REPUESTO</th>
                             <th class="text-center" style="width: 15%;">CANT.</th>
                             <th class="text-end" style="width: 15%;">P. UNITARIO</th>
                             <th class="text-end" style="width: 15%;">SUBTOTAL</th>
@@ -192,71 +429,82 @@
                         </tr>
                     </thead>
                     <tbody id="bodyItemsPresupuesto">
-                        <tr><td colspan="5" class="text-center text-secondary py-4">No hay ítems registrados en esta orden.</td></tr>
+                        <tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 3. RESUMEN FINANCIERO -->
+        <!-- 3. CONFIGURACIÓN FINANCIERA -->
         <div class="row g-4">
             <div class="col-12 col-lg-6">
-                <div class="card-panel h-100">
-                    <div class="d-flex align-items-center mb-3">
-                        <i class="bi bi-sliders text-danger fs-4 me-2"></i>
-                        <h5 class="fw-bold m-0">Ajustes de Facturación</h5>
+                <div class="hud-card h-100">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <span class="badge-hud">03</span>
+                        <h5 class="hud-title m-0">Ajustes & Método de Pago</h5>
                     </div>
+
                     <div class="mb-3">
-                        <label class="form-label text-secondary small">Descuento ($)</label>
-                        <input type="number" id="inputDescuento" class="form-control" value="0" min="0" oninput="calcularTotales()">
+                        <label class="form-label-tech">Aplicar Descuento Directo ($)</label>
+                        <input type="number" id="inputDescuento" class="form-control-tech" value="0" min="0" oninput="calcularTotales()">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label text-secondary small">Medio de Pago Estimado</label>
-                        <select id="selectMedioPago" class="form-select">
+                    
+                    <div class="mb-4">
+                        <label class="form-label-tech">Medio de Pago Principal</label>
+                        <select id="selectMedioPago" class="form-select-tech">
                             <option value="Efectivo">Efectivo</option>
                             <option value="Transferencia">Transferencia Bancaria</option>
-                            <option value="Débito">Tarjeta de Débito</option>
-                            <option value="Crédito">Tarjeta de Crédito</option>
+                            <option value="Débito">Tarjeta Débito</option>
+                            <option value="Crédito">Tarjeta Crédito</option>
                         </select>
                     </div>
-                    <div class="form-check form-switch mt-3">
-                        <input class="form-check-input" type="checkbox" id="checkAplicarIVA" checked onchange="calcularTotales()">
-                        <label class="form-check-input-label text-white" for="checkAplicarIVA">Aplicar IVA (+19%)</label>
+
+                    <div class="p-3 border border-white border-opacity-10 rounded-4 d-flex align-items-center justify-content-between bg-dark bg-opacity-50">
+                        <div>
+                            <span class="fw-bold d-block text-white">Recargo IVA (19%)</span>
+                            <span class="text-muted small">Aplica cálculo de impuesto al subtotal</span>
+                        </div>
+                        <div class="form-check form-switch m-0 fs-4">
+                            <input class="form-check-input cursor-pointer" type="checkbox" id="checkAplicarIVA" checked onchange="calcularTotales()">
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- TICKET CALCULADORA DINÁMICA -->
             <div class="col-12 col-lg-6">
-                <div class="card-panel h-100 d-flex flex-column justify-content-between">
-                    <div>
-                        <h5 class="fw-bold mb-3 border-bottom border-secondary pb-2">Resumen General</h5>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-secondary">Subtotal Neto:</span>
-                            <span id="lblSubtotalNeto" class="fw-bold">$0</span>
+                <div class="hud-card h-100 d-flex flex-column justify-content-between">
+                    <div class="ticket-panel">
+                        <h5 class="hud-title text-center text-muted mb-4 pb-2 border-bottom border-secondary border-opacity-25">Resumen del Cálculo</h5>
+                        
+                        <div class="d-flex justify-content-between mb-3 fs-6">
+                            <span class="text-muted">Subtotal Neto:</span>
+                            <span id="lblSubtotalNeto" class="fw-bold text-white">$0</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-secondary">Descuento:</span>
+                        <div class="d-flex justify-content-between mb-3 fs-6">
+                            <span class="text-muted">Descuento Aplicado:</span>
                             <span id="lblMontoDescuento" class="text-danger fw-bold">-$0</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="text-secondary">IVA (19%):</span>
+                        <div class="d-flex justify-content-between mb-3 fs-6">
+                            <span class="text-muted">Impuestos (IVA 19%):</span>
                             <span id="lblMontoIVA" class="text-info fw-bold">$0</span>
                         </div>
-                        <div class="d-flex justify-content-between pt-2 border-top border-secondary">
-                            <span class="fs-5 fw-bold">Total Final:</span>
-                            <span id="lblTotalFinal" class="fs-4 fw-bold text-success">$0</span>
+                        
+                        <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top border-secondary border-opacity-25">
+                            <span class="fs-5 fw-bold text-white">Total a Cobrar:</span>
+                            <span id="lblTotalFinal" class="fs-2 fw-bold text-success" style="font-family:'Space Grotesk';">$0</span>
                         </div>
                     </div>
 
-                    <div class="row g-2 mt-4">
+                    <div class="row g-3 mt-3">
                         <div class="col-6">
-                            <button class="btn btn-outline-success w-100 fw-semibold" onclick="enviarWhatsApp()">
-                                <i class="bi bi-whatsapp me-1"></i> WhatsApp
+                            <button class="btn btn-glass w-100 py-3 fw-bold" onclick="enviarWhatsApp()">
+                                <i class="bi bi-whatsapp me-2 text-success"></i> WhatsApp
                             </button>
                         </div>
                         <div class="col-6">
-                            <button class="btn btn-accent w-100" onclick="guardarPresupuesto()">
-                                <i class="bi bi-floppy me-1"></i> Guardar Todo
+                            <button class="btn btn-glow-danger w-100 py-3" onclick="guardarPresupuesto()">
+                                <i class="bi bi-cloud-arrow-up-fill me-2"></i> Guardar Todo
                             </button>
                         </div>
                     </div>
@@ -265,63 +513,62 @@
         </div>
     </div>
 
-    <!-- MODAL POP-UP CREACIÓN RÁPIDA -->
+    <!-- MODAL REGISTRO RÁPIDO -->
     <div class="modal fade" id="modalNuevoRegistro" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white border-secondary">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold"><i class="bi bi-person-plus text-danger me-2"></i> Crear Cliente / Vehículo</h5>
+            <div class="modal-content hud-card border-secondary">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title hud-title text-danger"><i class="bi bi-person-plus-fill me-2"></i> Nuevo Cliente / Vehículo</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label text-secondary small">Nombre del Cliente *</label>
-                            <input type="text" id="modalCrearCliente" class="form-control" placeholder="Ej: Juan Pérez">
+                            <label class="form-label-tech">Nombre Completo *</label>
+                            <input type="text" id="modalCrearCliente" class="form-control-tech w-100" placeholder="Ej: Mario Rossi">
                         </div>
                         <div class="col-6">
-                            <label class="form-label text-secondary small">RUT / Identificación</label>
-                            <input type="text" id="modalCrearRut" class="form-control" placeholder="Ej: 15.668.911-0">
+                            <label class="form-label-tech">RUT / DNI</label>
+                            <input type="text" id="modalCrearRut" class="form-control-tech w-100" placeholder="12.345.678-9">
                         </div>
                         <div class="col-6">
-                            <label class="form-label text-secondary small">Teléfono</label>
-                            <input type="text" id="modalCrearTelefono" class="form-control" placeholder="Ej: +56912345678">
+                            <label class="form-label-tech">Teléfono Contacto</label>
+                            <input type="text" id="modalCrearTelefono" class="form-control-tech w-100" placeholder="+56912345678">
                         </div>
                         <div class="col-7">
-                            <label class="form-label text-secondary small">Modelo / Vehículo *</label>
-                            <input type="text" id="modalCrearVehiculo" class="form-control" placeholder="Ej: Peugeot 208">
+                            <label class="form-label-tech">Modelo Vehículo *</label>
+                            <input type="text" id="modalCrearVehiculo" class="form-control-tech w-100" placeholder="Ej: Audi A3 2.0 TFSI">
                         </div>
                         <div class="col-5">
-                            <label class="form-label text-secondary small">Patente *</label>
-                            <input type="text" id="modalCrearPatente" class="form-control text-uppercase" placeholder="Ej: BBCC10" maxlength="6">
+                            <label class="form-label-tech">Patente *</label>
+                            <input type="text" id="modalCrearPatente" class="form-control-tech w-100 text-uppercase" placeholder="BBCC10" maxlength="6">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-accent" onclick="confirmarModalCrear()">Guardar y Seleccionar</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-glass" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-glow-danger" onclick="confirmarModalCrear()">Guardar & Seleccionar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICACIONES -->
+    <!-- TOAST NOTIFICACIÓN HUD -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
-        <div id="toastNotificacion" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-4" role="alert">
             <div class="d-flex">
-                <div class="toast-body d-flex align-items-center fs-6" id="toastMensaje"></div>
+                <div class="toast-body d-flex align-items-center fs-6 fw-bold" id="toastMensaje"></div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPTS CORE -->
+    <!-- SCRIPTS CORE (MANTENIENDO LÓGICA SUPABASE) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="app.js"></script>
 
-    <!-- LOGICA SCRIPT CORREGIDA -->
     <script>
         let ordenActual = null;
         let listaItems = [];
@@ -339,7 +586,6 @@
                 cargarFichaOT(folioOT);
             }
 
-            // Event listener con debounce para búsqueda fluida sin saturate la BD
             const inputBusqueda = document.getElementById('inputBuscarCliente');
             if (inputBusqueda) {
                 inputBusqueda.addEventListener('input', () => {
@@ -350,7 +596,6 @@
                 });
             }
 
-            // Ocultar dropdown al hacer clic fuera
             document.addEventListener("click", (e) => {
                 const drop = document.getElementById('dropdownClientes');
                 if (drop && !e.target.closest('#inputBuscarCliente') && !e.target.closest('#dropdownClientes')) {
@@ -365,7 +610,7 @@
             if (!toastEl || !toastMsg) return;
 
             toastMsg.textContent = mensaje;
-            toastEl.className = `toast align-items-center text-white border-0 shadow-lg bg-${tipo === "exito" ? "success" : "danger"}`;
+            toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : "bg-danger"}`;
             const bsToast = new bootstrap.Toast(toastEl);
             bsToast.show();
         }
@@ -378,7 +623,7 @@
                 if (error || !data) throw new Error("No se encontró la orden especificada.");
 
                 ordenActual = data;
-                document.getElementById('lblFolioOT').textContent = `Folio ${data.numero}`;
+                document.getElementById('lblFolioOT').textContent = `OT #${data.numero}`;
                 document.getElementById('lblBadgePatente').textContent = data.patente || 'S/P';
                 document.getElementById('selectEstadoOT').value = data.estado || 'Recepción';
                 document.getElementById('inputKilometraje').value = data.kilometraje || '';
@@ -401,85 +646,76 @@
             }
         }
 
-                    // BÚSQUEDA ROBUSTA E IN-SITU CON DROPDOWN (CORREGIDA)
-            async function buscarClienteInSitu() {
-                const input = document.getElementById('inputBuscarCliente');
-                const query = input.value.trim();
-                const drop = document.getElementById('dropdownClientes');
+        async function buscarClienteInSitu() {
+            const input = document.getElementById('inputBuscarCliente');
+            const query = input.value.trim();
+            const drop = document.getElementById('dropdownClientes');
 
-                if (query.length < 2) {
-                    drop.classList.add('d-none');
+            if (query.length < 2) {
+                drop.classList.add('d-none');
+                return;
+            }
+
+            try {
+                const db = initSupabase();
+                const cleanQuery = query.replace(/[%_\\]/g, '\\$&');
+                const filterPattern = `*${cleanQuery}*`;
+                const searchFilter = `cliente.ilike.${filterPattern},rut.ilike.${filterPattern},patente.ilike.${filterPattern}`;
+
+                const { data, error } = await db.from('ordenes_trabajo')
+                    .select('cliente, rut, vehiculo, patente')
+                    .or(searchFilter)
+                    .limit(20);
+
+                if (error) return;
+
+                const registrosValidos = (data || []).filter(item => item && item.cliente);
+
+                if (registrosValidos.length === 0) {
+                    drop.innerHTML = '<div class="search-item-card text-muted small">Sin resultados encontrados...</div>';
+                    drop.classList.remove('d-none');
                     return;
                 }
 
-                try {
-                    const db = initSupabase();
-
-                    // Limpiamos la cadena para evitar que caracteres especiales o espacios rompan la sintaxis de PostgREST
-                    const cleanQuery = query.replace(/[%_\\]/g, '\\$&');
-                    
-                    // Construimos el filtro .or() escapando las comillas adecuadamente
-                    const filterPattern = `*${cleanQuery}*`;
-                    const searchFilter = `cliente.ilike.${filterPattern},rut.ilike.${filterPattern},patente.ilike.${filterPattern}`;
-
-                    const { data, error } = await db.from('ordenes_trabajo')
-                        .select('cliente, rut, telefono, vehiculo, patente')
-                        .or(searchFilter)
-                        .limit(20);
-
-                    if (error) {
-                        console.error("Error devuelto por Supabase:", error.message, error.details, error.hint);
-                        return;
+                const clientesMap = {};
+                registrosValidos.forEach(item => {
+                    const key = item.cliente.trim().toLowerCase();
+                    if (!clientesMap[key]) {
+                        clientesMap[key] = {
+                            cliente: item.cliente,
+                            rut: item.rut || 'N/A',
+                            telefono: '', 
+                            vehiculos: []
+                        };
                     }
-
-                    const registrosValidos = (data || []).filter(item => item && item.cliente);
-
-                    if (registrosValidos.length === 0) {
-                        drop.innerHTML = '<div class="search-item text-secondary">No se encontraron coincidencias...</div>';
-                        drop.classList.remove('d-none');
-                        return;
+                    if (item.vehiculo) {
+                        const existe = clientesMap[key].vehiculos.some(v => v.patente === item.patente);
+                        if (!existe) {
+                            clientesMap[key].vehiculos.push({ 
+                                vehiculo: item.vehiculo, 
+                                patente: item.patente || 'S/P' 
+                            });
+                        }
                     }
+                });
 
-                    // Agrupamiento por cliente para soportar múltiples vehículos
-                    const clientesMap = {};
-                    registrosValidos.forEach(item => {
-                        const key = item.cliente.trim().toLowerCase();
-                        if (!clientesMap[key]) {
-                            clientesMap[key] = {
-                                cliente: item.cliente,
-                                rut: item.rut || 'N/A',
-                                telefono: item.telefono || '',
-                                vehiculos: []
-                            };
-                        }
-                        if (item.vehiculo) {
-                            const existe = clientesMap[key].vehiculos.some(v => v.patente === item.patente);
-                            if (!existe) {
-                                clientesMap[key].vehiculos.push({ 
-                                    vehiculo: item.vehiculo, 
-                                    patente: item.patente || 'S/P' 
-                                });
-                            }
-                        }
-                    });
-
-                    drop.innerHTML = '';
-                    Object.values(clientesMap).forEach(c => {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'search-item';
-                        itemDiv.innerHTML = `
-                            <div class="fw-bold text-white">${c.cliente}</div>
-                            <small class="text-secondary">RUT: ${c.rut} | Autos registrados: ${c.vehiculos.length}</small>
-                        `;
-                        itemDiv.onclick = () => seleccionarClienteInSitu(c);
-                        drop.appendChild(itemDiv);
-                    });
-                    
-                    drop.classList.remove('d-none');
-                } catch (err) {
-                    console.error("Excepción en búsqueda:", err);
-                }
+                drop.innerHTML = '';
+                Object.values(clientesMap).forEach(c => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'search-item-card';
+                    itemDiv.innerHTML = `
+                        <div class="fw-bold text-white">${c.cliente}</div>
+                        <div class="text-muted small">RUT: ${c.rut} | Vehículos: ${c.vehiculos.map(v => v.patente).join(', ')}</div>
+                    `;
+                    itemDiv.onclick = () => seleccionarClienteInSitu(c);
+                    drop.appendChild(itemDiv);
+                });
+                
+                drop.classList.remove('d-none');
+            } catch (err) {
+                console.error("Excepción:", err);
             }
+        }
 
         function seleccionarClienteInSitu(clienteObj) {
             clienteSeleccionado = clienteObj;
@@ -502,7 +738,7 @@
                 seleccionarVehiculo(0);
             }
 
-            mostrarToast(`Cliente ${clienteObj.cliente} seleccionado.`, "exito");
+            mostrarToast(`Cliente ${clienteObj.cliente} cargado.`, "exito");
         }
 
         function seleccionarVehiculo(index) {
@@ -518,7 +754,7 @@
             const patente = document.getElementById('modalCrearPatente').value.trim().toUpperCase();
 
             if (!cliente || !vehiculo) {
-                mostrarToast("Nombre de cliente y vehículo son obligatorios.", "error");
+                mostrarToast("Nombre y vehículo son requeridos.", "error");
                 return;
             }
 
@@ -546,7 +782,7 @@
             const modal = bootstrap.Modal.getInstance(modalEl);
             if (modal) modal.hide();
 
-            mostrarToast("Nuevo registro asignado correctamente.", "exito");
+            mostrarToast("Ficha rápida vinculada.", "exito");
         }
 
         function agregarItem(e) {
@@ -580,7 +816,7 @@
             tbody.innerHTML = '';
 
             if (listaItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary py-4">No hay ítems registrados en esta orden.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>';
                 calcularTotales();
                 return;
             }
@@ -590,12 +826,12 @@
                 tbody.innerHTML += `
                     <tr>
                         <td class="fw-semibold text-white">${item.descripcion}</td>
-                        <td class="text-center">${item.cantidad}</td>
-                        <td class="text-end text-secondary">${formatterCLP.format(item.precio)}</td>
+                        <td class="text-center"><span class="badge bg-dark border border-secondary px-3 py-2">${item.cantidad}</span></td>
+                        <td class="text-end text-muted">${formatterCLP.format(item.precio)}</td>
                         <td class="text-end fw-bold text-success">${formatterCLP.format(subtotal)}</td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-delete-row rounded-circle" type="button" onclick="eliminarItem('${item.id}')">
-                                <i class="bi bi-trash"></i>
+                            <button class="btn btn-sm btn-glass text-danger p-2" type="button" onclick="eliminarItem('${item.id}')">
+                                <i class="bi bi-trash-fill"></i>
                             </button>
                         </td>
                     </tr>
@@ -622,7 +858,7 @@
 
         async function guardarPresupuesto() {
             if (!clienteSeleccionado || !vehiculoSeleccionado) {
-                mostrarToast("Selecciona un cliente y un vehículo para la cotización.", "error");
+                mostrarToast("Vincula un cliente y vehículo para guardar.", "error");
                 return;
             }
 
@@ -637,7 +873,6 @@
                 const payload = {
                     cliente: clienteSeleccionado.cliente,
                     rut: clienteSeleccionado.rut || null,
-                    telefono: clienteSeleccionado.telefono || null,
                     vehiculo: vehiculoSeleccionado.vehiculo,
                     patente: vehiculoSeleccionado.patente || 'S/P',
                     estado: document.getElementById('selectEstadoOT').value,
@@ -661,22 +896,22 @@
 
                 if (response.error) throw response.error;
 
-                mostrarToast("Presupuesto guardado exitosamente.", "exito");
+                mostrarToast("Cotización guardada exitosamente.", "exito");
             } catch (err) {
                 console.error("Error al guardar:", err);
-                mostrarToast("Error al guardar presupuesto: " + err.message, "error");
+                mostrarToast("Error al procesar: " + err.message, "error");
             }
         }
 
         function enviarWhatsApp() {
             if (!clienteSeleccionado || !clienteSeleccionado.telefono) {
-                mostrarToast("El cliente seleccionado no posee teléfono registrado.", "error");
+                mostrarToast("Ingresa un cliente con teléfono válido.", "error");
                 return;
             }
 
             const total = document.getElementById('lblTotalFinal').textContent;
             const folio = ordenActual ? ordenActual.numero : 'NUEVA';
-            const msg = `Hola ${clienteSeleccionado.cliente}, adjuntamos el detalle del presupuesto Folio #${folio} para el vehículo ${vehiculoSeleccionado.vehiculo} [${vehiculoSeleccionado.patente}]. Total: ${total}.`;
+            const msg = `Estimado(a) ${clienteSeleccionado.cliente}, adjuntamos cotización Folio #${folio} para su vehículo ${vehiculoSeleccionado.vehiculo} [${vehiculoSeleccionado.patente}]. Total a pagar: ${total}.`;
             
             const numLimpio = clienteSeleccionado.telefono.replace(/\D/g, '');
             window.open(`https://api.whatsapp.com/send?phone=${numLimpio}&text=${encodeURIComponent(msg)}`, '_blank');
