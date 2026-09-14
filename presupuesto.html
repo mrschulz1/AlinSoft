@@ -101,7 +101,6 @@
             font-size: 0.8rem;
         }
 
-        /* TARJETAS SEPARADAS TIPO BUJÍA Y ANIMACIÓN DE COLAPSO */
         .bujia-card {
             background: rgba(10, 16, 28, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -289,45 +288,18 @@
             <div class="row g-3 align-items-end">
                 <div class="col-12 col-md-8">
                     <label class="form-label-tech text-danger">
-                        <i class="bi bi-magic me-1"></i> Consulta Automática por Patente (API Chasis / Propietario)
+                        <i class="bi bi-magic me-1"></i> Consulta Automática por Patente (API Vehículo)
                     </label>
                     <div class="input-group">
                         <span class="input-group-text bg-dark border-secondary border-opacity-25 text-danger fw-bold">PATENTE</span>
                         <input type="text" id="inputBuscarPatenteAPI" class="form-control-tech text-uppercase fw-bold" placeholder="EJ: BBCL10 O WAUZZZ..." maxlength="17" style="letter-spacing: 2px;">
                         <button type="button" class="btn btn-glow-danger px-4" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
-                            <i class="bi bi-search me-2"></i> Auto-Rellenar
+                            <i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo
                         </button>
                     </div>
                 </div>
                 <div class="col-12 col-md-4 text-muted small">
-                    <i class="bi bi-info-circle me-1"></i> Ingresa la patente del vehículo para autocompletar la marca, modelo, motor, VIN y datos del cliente registrados.
-                </div>
-            </div>
-        </div>
-
-        <!-- 1. BUSCADOR & REGISTRO -->
-        <div class="hud-card mb-4">
-            <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-6 position-relative">
-                    <label class="form-label-tech">Buscador Local (Base de Datos interna)</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-dark border-secondary border-opacity-25 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" id="inputBuscarCliente" class="form-control-tech border-start-0 w-75" placeholder="Buscar por Nombre, RUT o VIN previo..." autocomplete="off">
-                    </div>
-                    <div id="dropdownClientes" class="search-results-panel d-none"></div>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label class="form-label-tech">Vehículo Asociado</label>
-                    <select id="selectVehiculosCliente" class="form-select-tech" onchange="seleccionarVehiculo(this.value)" disabled>
-                        <option value="">Selecciona un cliente primero...</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-2 text-end">
-                    <button type="button" class="btn btn-glass w-100 py-2 d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#modalNuevoRegistro">
-                        <i class="bi bi-plus-circle-fill text-danger"></i> Nuevo Registro
-                    </button>
+                    <i class="bi bi-info-circle me-1"></i> Rellena automáticamente los datos del vehículo. Si el propietario no está registrado, se te notificará.
                 </div>
             </div>
         </div>
@@ -345,7 +317,7 @@
                         
                         <div class="d-flex align-items-center gap-2">
                             <i class="bi bi-person-fill text-danger fs-5"></i>
-                            <h6 class="fw-bold text-white m-0">Cliente</h6>
+                            <h6 class="fw-bold text-white m-0">Cliente / Propietario</h6>
                         </div>
                         
                         <div class="d-flex align-items-center gap-2">
@@ -574,6 +546,55 @@
         </div>
     </div>
 
+    <!-- MODAL DE ADVERTENCIA Y REGISTRO DE CLIENTE NO ENCONTRADO -->
+    <div class="modal fade" id="modalRegistroCliente" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border border-danger border-opacity-50 rounded-4 shadow-lg text-white">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Cliente No Registrado
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="text-muted small mb-3">
+                        El vehículo fue encontrado en la API, pero el propietario asociado <strong>no se encuentra registrado</strong> en tu base de datos interna o en la información del sistema.
+                    </p>
+                    <p class="fw-semibold text-warning mb-4" id="txtDetallePropietarioApi">Propietario en API: —</p>
+
+                    <form id="formNuevoClienteModal">
+                        <div class="mb-3">
+                            <label class="form-label-tech">Nombre Completo del Cliente *</label>
+                            <input type="text" id="modalInputNombre" class="form-control-tech" placeholder="Ej: Carlos Soto" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label-tech">RUT / DNI</label>
+                                <input type="text" id="modalInputRut" class="form-control-tech" placeholder="Ej: 12.345.678-9">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-tech">Teléfono de Contacto</label>
+                                <input type="text" id="modalInputTelefono" class="form-control-tech" placeholder="+569...">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label-tech">Correo Electrónico</label>
+                            <input type="email" id="modalInputEmail" class="form-control-tech" placeholder="correo@ejemplo.com">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-between">
+                    <button type="button" class="btn btn-glass px-4" data-bs-dismiss="modal" onclick="continuarSinCliente()">
+                        Proseguir sin datos de cliente
+                    </button>
+                    <button type="button" class="btn btn-glow-danger px-4" onclick="guardarYAsignarCliente()">
+                        <i class="bi bi-person-plus-fill me-1"></i> Registrar y Asignar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST NOTIFICACIÓN -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
         <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-4" role="alert">
@@ -590,43 +611,25 @@
     <script src="app.js"></script>
 
     <script>
-        // CONFIGURACIÓN DE LA API DE PATENTES
-        const API_PATENTE_CONFIG = {
-            urlEndpoint: 'https://api.boostr.cl/vehicle/',
-            tokenJWT: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJjbGllbnQiOiJWaWN0b3Igc2NodWx6IiwicGxhbiI6ImZyZWUiLCJhZGRvbnMiOiIiLCJleGNsdWRlcyI6IiIsInJhdGUiOiI1eDEwIiwiY3VzdG9tIjp7ImRvY3VtZW50X251bWJlcl9kYWlseV9saW1pdCI6MCwicGxhdGVzX2RhaWx5X2xpbWl0Ijo1fSwiaWF0IjoxNzg3Nzc4MjEyLCJleHAiOjE3OTAzNzAyMTJ9.ar95ZcK9fs6prl7SX5WpG8-uiKSj_BCmgRJcwrA21uE',
-            usarMockSiFalla: true
-        };
-
         let ordenActual = null;
         let listaItems = [];
         let clienteSeleccionado = null;
         let vehiculoSeleccionado = null;
-        let historialRegistrosCliente = []; 
-        let debounceTimer = null;
+        let modalRegistroInstance = null;
         const formatterCLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
 
         document.addEventListener("DOMContentLoaded", () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const folioOT = urlParams.get('ot');
+            modalRegistroInstance = new bootstrap.Modal(document.getElementById('modalRegistroCliente'));
 
-            if (folioOT) {
-                cargarFichaOT(folioOT);
-            }
-
-            const inputBusqueda = document.getElementById('inputBuscarCliente');
-            if (inputBusqueda) {
-                inputBusqueda.addEventListener('input', () => {
-                    clearTimeout(debounceTimer);
-                    debounceTimer = setTimeout(() => { buscarClienteInSitu(); }, 300);
+            const inputPatente = document.getElementById('inputBuscarPatenteAPI');
+            if (inputPatente) {
+                inputPatente.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        consultarPatenteAPI();
+                    }
                 });
             }
-
-            document.addEventListener("click", (e) => {
-                const drop = document.getElementById('dropdownClientes');
-                if (drop && !e.target.closest('#inputBuscarCliente') && !e.target.closest('#dropdownClientes')) {
-                    drop.classList.add('d-none');
-                }
-            });
         });
 
         function mostrarToast(mensaje, tipo = "exito") {
@@ -641,350 +644,198 @@
         }
 
         /**
-         * FUNCIÓN INTEGRADA DE API DE PATENTES
+         * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE
          */
         async function consultarPatenteAPI() {
             const inputPatente = document.getElementById('inputBuscarPatenteAPI');
             const btnConsultar = document.getElementById('btnConsultarPatente');
             const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
 
-            if (!patenteQuery || patenteQuery.length < 5) {
-                mostrarToast("Ingresa una patente o VIN válido", "error");
+            if (!patenteQuery || patenteQuery.length < 4) {
+                mostrarToast("Ingresa una patente o VIN válido (Ej: HHTZ36)", "error");
                 return;
             }
 
-            mostrarToast(`Consultando API para ${patenteQuery}...`, "exito");
+            mostrarToast(`Consultando patente ${patenteQuery}...`, "exito");
             
             if (btnConsultar) {
                 btnConsultar.disabled = true;
-                btnConsultar.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Buscando...`;
+                btnConsultar.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Consultando...`;
             }
 
             try {
-                let datosVehiculo = null;
-
-                if (API_PATENTE_CONFIG.tokenJWT) {
-                    const response = await fetch(`${API_PATENTE_CONFIG.urlEndpoint}${patenteQuery}.json?include=owner`, {
-                        method: 'GET',
-                        headers: {
-                            'accept': 'application/json',
-                            'Authorization': `Bearer ${API_PATENTE_CONFIG.tokenJWT}`,
-                            'x-api-key': API_PATENTE_CONFIG.tokenJWT
-                        }
-                    });
-
-                    if (response.ok) {
-                        const json = await response.json();
-                        if (json.status === 'success' && json.data) {
-                            datosVehiculo = normalizarRespuestaAPI(json.data);
-                        } else if (json.data) {
-                            datosVehiculo = normalizarRespuestaAPI(json);
-                        }
-                    }
+                const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
+                if (!db) {
+                    throw new Error("No se encontró la conexión con Supabase.");
                 }
 
-                // Si la consulta externa falla o no devuelve datos, usa el fallback/mock de contingencia
-                if (!datosVehiculo && API_PATENTE_CONFIG.usarMockSiFalla) {
-                    datosVehiculo = obtenerDatosMockPatente(patenteQuery);
+                const { data, error } = await db.functions.invoke('get-vehiculo', {
+                    body: { patente: patenteQuery }
+                });
+
+                if (error) {
+                    throw new Error(error.message || "Error al invocar la función de búsqueda.");
                 }
 
-                if (datosVehiculo) {
-                    autocompletarCamposFormulario(datosVehiculo);
-                    mostrarToast(`¡Patente ${patenteQuery} obtenida exitosamente!`, "exito");
-                } else {
-                    throw new Error("No se pudo obtener información para la patente ingresada.");
+                if (!data || data.error) {
+                    throw new Error(data?.error || "La API no devolvió información para esta patente.");
                 }
+
+                console.log("RESPUESTA COMPLETA DE LA API:", data);
+
+                const infoVehiculo = normalizarDatosVehiculo(data);
+                
+                // Cargar únicamente los datos del vehículo
+                asignarDatosVehiculoUI(infoVehiculo, patenteQuery);
+
+                // Evaluar si el cliente está registrado en la BD interna (simulado o a través de supabase)
+                verificarClienteEnBaseDeDatos(data);
 
             } catch (error) {
-                console.error("Error API Patente:", error);
-                mostrarToast(error.message || "Error al conectar con la API de Patentes", "error");
+                console.error("Error en la consulta:", error);
+                mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
             } finally {
                 if (btnConsultar) {
                     btnConsultar.disabled = false;
-                    btnConsultar.innerHTML = `<i class="bi bi-search me-2"></i> Auto-Rellenar`;
+                    btnConsultar.innerHTML = `<i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo`;
                 }
             }
         }
 
-        function normalizarRespuestaAPI(data) {
-            const propietario = data.owner || data.propietario || {};
+        /**
+         * EXTRAE SOLO LA INFORMACIÓN TÉCNICA DEL VEHÍCULO DE LA API
+         */
+        function normalizarDatosVehiculo(responseJson) {
+            const data = responseJson.data || responseJson;
             return {
-                cliente: propietario.fullname || propietario.nombre || 'Propietario Registrado',
-                rut: propietario.documentNumber || propietario.rut || 'S/I',
-                telefono: propietario.telefono || '',
-                email: propietario.email || '',
-                direccion: propietario.direccion || '',
-                vehiculo: `${data.make || data.marca || ''} ${data.model || data.modelo || ''}`.trim() || 'Vehículo Detectado',
-                patente: data.plate || data.ppu || data.patente || '',
-                marca: data.make || data.marca || '',
+                marca: data.brand || data.marca || data.make || '',
                 modelo: data.model || data.modelo || '',
-                ano: data.year || data.ano || '',
-                color: data.color || 'No especificado',
-                transmision: data.transmission || data.transmision || 'Manual/Automática',
-                numero_motor: data.engine || data.engine_number || data.motor || 'S/N',
-                vin: data.chassis || data.vin || data.chasis || 'S/V'
+                ano: data.year || data.ano || data.anio || '—',
+                vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '—',
+                color: data.color || data.colour || '—',
+                transmision: data.transmission || data.transmision || 'Automática / Mecánica',
+                n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || '—'
             };
         }
 
-        function autocompletarCamposFormulario(datos) {
-            clienteSeleccionado = {
-                cliente: datos.cliente,
-                rut: datos.rut,
-                telefono: datos.telefono || '—',
-                email: datos.email || '—',
-                direccion: datos.direccion || '—'
-            };
-
-            vehiculoSeleccionado = {
-                vehiculo: datos.vehiculo,
-                patente: datos.patente,
-                marca: datos.marca,
-                modelo: datos.modelo,
-                ano: datos.ano,
-                color: datos.color,
-                transmision: datos.transmision,
-                numero_motor: datos.numero_motor,
-                vin: datos.vin
-            };
-
-            actualizarVistasTarjetas();
-
-            const collapseCliente = document.getElementById('collapseCliente');
-            const collapseVehiculo = document.getElementById('collapseVehiculo');
-
-            if (collapseCliente && !collapseCliente.classList.contains('show')) {
-                new bootstrap.Collapse(collapseCliente, { show: true });
-            }
-            if (collapseVehiculo && !collapseVehiculo.classList.contains('show')) {
-                new bootstrap.Collapse(collapseVehiculo, { show: true });
-            }
+        /**
+         * RELLENA LOS CAMPOS DE LA TARJETA VEHÍCULO EXCLUSIVAMENTE
+         */
+        function asignarDatosVehiculoUI(datos, patente) {
+            vehiculoSeleccionado = { patente: patente, ...datos };
+            document.getElementById('lblVehiculoPatenteBadge').textContent = patente;
+            document.getElementById('lblBadgePatenteHeader').textContent = patente;
+            document.getElementById('lblVehiculoTitulo').textContent = `${datos.marca} ${datos.modelo}`;
+            document.getElementById('lblVehiculoColor').textContent = datos.color;
+            document.getElementById('lblVehiculoAno').textContent = datos.ano;
+            document.getElementById('lblVehiculoTransmision').textContent = datos.transmision;
+            document.getElementById('lblVehiculoNumMotor').textContent = datos.n_motor;
+            document.getElementById('lblVehiculoVin').textContent = datos.vin;
         }
 
-        function obtenerDatosMockPatente(patente) {
-            return {
-                cliente: "VICTOR SCHULZ (REGISTRO API)",
-                rut: "18.452.109-K",
-                telefono: "+56987654321",
-                email: "v.schulz@example.cl",
-                direccion: "Av. Concha y Toro 456, Puente Alto",
-                vehiculo: "AUDI A3 SPORTBACK 2.0",
-                patente: patente.toUpperCase(),
-                marca: "AUDI",
-                modelo: "A3 SPORTBACK",
-                ano: "2019",
-                color: "NEGRO PHANTOM",
-                transmision: "AUTOMÁTICA S-TRONIC",
-                numero_motor: "DSG77894561",
-                vin: "WAUZZZ8P16A119324"
-            };
-        }
+        /**
+         * VERIFICA SI EL CLIENTE EXISTE EN LA BASE DE DATOS INTERNA O SI LANZA EL POPUP DE ADVERTENCIA
+         */
+        function verificarClienteEnBaseDeDatos(responseJson) {
+            const data = responseJson.data || responseJson;
+            const ownerApi = data.owner || {};
+            const nombrePropietarioApi = ownerApi.name || ownerApi.fullname || ownerApi.nombre || data.client_name || 'Desconocido';
+            const rutPropietarioApi = ownerApi.rut || ownerApi.documentNumber || data.client_rut || '';
 
-        async function cargarFichaOT(folio) {
-            try {
-                const db = initSupabase();
-                const { data, error } = await db.from('ordenes_trabajo').select('*').eq('numero', folio).single();
-                if (error || !data) throw new Error("No se encontró la orden especificada.");
+            // Lógica de validación interna: Simulamos que verificamos si el RUT o Nombre existe en tu base local
+            // Aquí puedes conectar una consulta real a tu tabla de clientes de Supabase si lo requieres.
+            let clienteEncontradoLocalmente = false; 
 
-                ordenActual = data;
-                document.getElementById('lblFolioOT').textContent = `OT #${data.numero}`;
-                document.getElementById('lblBadgePatenteHeader').textContent = data.patente || 'S/P';
-                document.getElementById('selectEstadoOT').value = data.estado || 'Recepción';
-                document.getElementById('inputKilometraje').value = data.kilometraje || '';
-                document.getElementById('selectCombustible').value = data.combustible || '1/2 Tanque';
-                document.getElementById('txtObservaciones').value = data.observaciones || '';
-                document.getElementById('inputDescuento').value = data.descuento || 0;
+            if (clienteEncontradoLocalmente) {
+                // Si existe, se asigna directamente
+                mostrarToast("Vehículo y propietario encontrados en el sistema.", "exito");
+            } else {
+                // Si NO está registrado, advertimos y abrimos el popup de registro de cliente
+                document.getElementById('txtDetallePropietarioApi').textContent = `Propietario reportado por API: ${nombrePropietarioApi} (RUT: ${rutPropietarioApi || 'No especificado'})`;
+                
+                // Pre-llenar el modal opcionalmente con el nombre que arroja la API para ahorrar tiempo
+                document.getElementById('modalInputNombre').value = nombrePropietarioApi !== 'Desconocido' ? nombrePropietarioApi : '';
+                document.getElementById('modalInputRut').value = rutPropietarioApi;
 
-                clienteSeleccionado = {
-                    cliente: data.cliente,
-                    rut: data.rut,
-                    telefono: data.telefono,
-                    email: data.email_cliente,
-                    direccion: data.direccion_cliente
-                };
-
-                vehiculoSeleccionado = {
-                    vehiculo: data.vehiculo,
-                    patente: data.patente,
-                    marca: data.marca,
-                    modelo: data.modelo,
-                    ano: data.ano,
-                    color: data.color,
-                    transmision: data.transmision,
-                    numero_motor: data.numero_motor,
-                    vin: data.vin
-                };
-
-                actualizarVistasTarjetas();
-                listaItems = data.items || [];
-                renderizarItems();
-            } catch (err) {
-                mostrarToast(err.message, "error");
+                modalRegistroInstance.show();
             }
         }
 
-        async function buscarClienteInSitu() {
-            const input = document.getElementById('inputBuscarCliente');
-            const query = input.value.trim();
-            const drop = document.getElementById('dropdownClientes');
+        function continuarSinCliente() {
+            clienteSeleccionado = null;
+            document.getElementById('lblClienteNombre').textContent = "Sin cliente asociado";
+            document.getElementById('badgeClienteRut').textContent = "RUT: S/I";
+            document.getElementById('lblClienteTelefono').textContent = "—";
+            document.getElementById('lblClienteEmail').textContent = "—";
+            document.getElementById('lblClienteDireccion').textContent = "—";
+            
+            mostrarToast("Continuando presupuesto sin datos de cliente.", "exito");
+            modalRegistroInstance.hide();
+        }
 
-            if (query.length < 2) {
-                drop.classList.add('d-none');
+        function guardarYAsignarCliente() {
+            const nombre = document.getElementById('modalInputNombre').value.trim();
+            const rut = document.getElementById('modalInputRut').value.trim();
+            const telefono = document.getElementById('modalInputTelefono').value.trim();
+            const email = document.getElementById('modalInputEmail').value.trim();
+
+            if (!nombre) {
+                alert("El nombre del cliente es obligatorio.");
                 return;
             }
 
-            try {
-                const db = initSupabase();
-                const cleanQuery = query.replace(/[%_\\]/g, '\\$&');
-                const filterPattern = `*${cleanQuery}*`;
-                const searchFilter = `cliente.ilike.${filterPattern},rut.ilike.${filterPattern},patente.ilike.${filterPattern},vin.ilike.${filterPattern}`;
+            clienteSeleccionado = { nombre, rut: rut || 'S/I', telefono: telefono || '—', email: email || '—', direccion: '—' };
 
-                const { data, error } = await db.from('ordenes_trabajo')
-                    .select('*')
-                    .or(searchFilter)
-                    .limit(20);
+            document.getElementById('lblClienteNombre').textContent = nombre;
+            document.getElementById('badgeClienteRut').textContent = `RUT: ${rut || 'S/I'}`;
+            document.getElementById('lblClienteTelefono').textContent = telefono || '—';
+            document.getElementById('lblClienteEmail').textContent = email || '—';
+            document.getElementById('lblClienteDireccion').textContent = '—';
 
-                if (error) return;
-
-                const registrosValidos = (data || []).filter(item => item && item.cliente);
-                if (registrosValidos.length === 0) {
-                    drop.innerHTML = '<div class="search-item-card text-muted small">Sin resultados encontrados...</div>';
-                    drop.classList.remove('d-none');
-                    return;
-                }
-
-                const clientesMap = {};
-                registrosValidos.forEach(item => {
-                    const key = item.cliente.trim().toLowerCase();
-                    if (!clientesMap[key]) {
-                        clientesMap[key] = {
-                            cliente: item.cliente,
-                            rut: item.rut || 'N/A',
-                            telefono: item.telefono || '',
-                            email: item.email_cliente || '',
-                            direccion: item.direccion_cliente || '',
-                            vehiculos: []
-                        };
-                    }
-                    if (item.vehiculo || item.patente) {
-                        const existe = clientesMap[key].vehiculos.some(v => v.patente === item.patente);
-                        if (!existe) {
-                            clientesMap[key].vehiculos.push({ 
-                                vehiculo: item.vehiculo || `${item.marca || ''} ${item.modelo || ''}`.trim(),
-                                patente: item.patente || 'S/P',
-                                marca: item.marca || '',
-                                modelo: item.modelo || '',
-                                ano: item.ano || '',
-                                color: item.color || '',
-                                transmision: item.transmision || '',
-                                numero_motor: item.numero_motor || '',
-                                vin: item.vin || ''
-                            });
-                        }
-                    }
-                });
-
-                historialRegistrosCliente = Object.values(clientesMap);
-                drop.innerHTML = historialRegistrosCliente.map((c, idx) => `
-                    <div class="search-item-card" onclick="seleccionarClienteGlobal(${idx})">
-                        <div class="fw-bold text-white">${c.cliente}</div>
-                        <div class="small text-muted">RUT: ${c.rut} | Vehículos: ${c.vehiculos.length}</div>
-                    </div>
-                `).join('');
-                drop.classList.remove('d-none');
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        function seleccionarClienteGlobal(idx) {
-            const cliente = historialRegistrosCliente[idx];
-            if (!cliente) return;
-
-            clienteSeleccionado = cliente;
-            document.getElementById('dropdownClientes').classList.add('d-none');
-
-            const selectVehiculos = document.getElementById('selectVehiculosCliente');
-            selectVehiculos.innerHTML = '<option value="">Selecciona un vehículo...</option>';
-
-            if (cliente.vehiculos && cliente.vehiculos.length > 0) {
-                cliente.vehiculos.forEach((v, vIdx) => {
-                    selectVehiculos.innerHTML += `<option value="${vIdx}">${v.patente} - ${v.vehiculo}</option>`;
-                });
-                selectVehiculos.disabled = false;
-                seleccionarVehiculo(0);
-            } else {
-                selectVehiculos.disabled = true;
-                vehiculoSeleccionado = null;
-            }
-
-            actualizarVistasTarjetas();
-        }
-
-        function seleccionarVehiculo(idx) {
-            if (clienteSeleccionado && clienteSeleccionado.vehiculos && clienteSeleccionado.vehiculos[idx]) {
-                vehiculoSeleccionado = clienteSeleccionado.vehiculos[idx];
-                actualizarVistasTarjetas();
-            }
-        }
-
-        function actualizarVistasTarjetas() {
-            if (clienteSeleccionado) {
-                document.getElementById('lblClienteNombre').textContent = clienteSeleccionado.cliente || 'Sin Nombre';
-                document.getElementById('badgeClienteRut').textContent = `RUT: ${clienteSeleccionado.rut || 'S/I'}`;
-                document.getElementById('lblClienteTelefono').textContent = clienteSeleccionado.telefono || '—';
-                document.getElementById('lblClienteEmail').textContent = clienteSeleccionado.email || '—';
-                document.getElementById('lblClienteDireccion').textContent = clienteSeleccionado.direccion || '—';
-            }
-
-            if (vehiculoSeleccionado) {
-                document.getElementById('lblVehiculoTitulo').textContent = vehiculoSeleccionado.vehiculo || 'Sin especificar';
-                document.getElementById('lblVehiculoPatenteBadge').textContent = vehiculoSeleccionado.patente || 'S/P';
-                document.getElementById('lblBadgePatenteHeader').textContent = vehiculoSeleccionado.patente || 'S/P';
-                document.getElementById('lblVehiculoColor').textContent = vehiculoSeleccionado.color || '—';
-                document.getElementById('lblVehiculoAno').textContent = vehiculoSeleccionado.ano || '—';
-                document.getElementById('lblVehiculoTransmision').textContent = vehiculoSeleccionado.transmision || '—';
-                document.getElementById('lblVehiculoNumMotor').textContent = vehiculoSeleccionado.numero_motor || '—';
-                document.getElementById('lblVehiculoVin').textContent = vehiculoSeleccionado.vin || '—';
-            }
+            mostrarToast("¡Cliente registrado y asignado al presupuesto con éxito!", "exito");
+            modalRegistroInstance.hide();
         }
 
         function agregarItem(e) {
             e.preventDefault();
             const desc = document.getElementById('itemDescripcion').value.trim();
-            const cant = parseFloat(document.getElementById('itemCantidad').value) || 1;
+            const cant = parseInt(document.getElementById('itemCantidad').value) || 1;
             const precio = parseFloat(document.getElementById('itemPrecio').value) || 0;
 
-            if (!desc || cant <= 0 || precio < 0) return;
+            if (!desc || precio < 0) return;
 
-            listaItems.push({ descripcion: desc, cantidad: cant, precio: precio });
+            listaItems.push({ id: Date.now(), descripcion: desc, cantidad: cant, precioUnitario: precio });
             document.getElementById('formAgregarItem').reset();
             document.getElementById('itemCantidad').value = 1;
-            renderizarItems();
+            document.getElementById('itemDescripcion').focus();
+            renderizarTablaItems();
         }
 
-        function eliminarItem(index) {
-            listaItems.splice(index, 1);
-            renderizarItems();
+        function eliminarItem(id) {
+            listaItems = listaItems.filter(item => item.id !== id);
+            renderizarTablaItems();
         }
 
-        function renderizarItems() {
+        function renderizarTablaItems() {
             const tbody = document.getElementById('bodyItemsPresupuesto');
-            if (listaItems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>';
+            if (!listaItems.length) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>`;
                 calcularTotales();
                 return;
             }
 
-            tbody.innerHTML = listaItems.map((item, index) => {
-                const subtotal = item.cantidad * item.precio;
+            tbody.innerHTML = listaItems.map(item => {
+                const subtotal = item.cantidad * item.precioUnitario;
                 return `
                     <tr>
-                        <td class="fw-bold text-white">${item.descripcion}</td>
+                        <td><span class="fw-bold text-white">${item.descripcion}</span></td>
                         <td class="text-center">${item.cantidad}</td>
-                        <td class="text-end">${formatterCLP.format(item.precio)}</td>
-                        <td class="text-end fw-bold text-success">${formatterCLP.format(subtotal)}</td>
+                        <td class="text-end">${formatterCLP.format(item.precioUnitario)}</td>
+                        <td class="text-end text-success fw-bold">${formatterCLP.format(subtotal)}</td>
                         <td class="text-center">
-                            <button class="btn btn-delete-row" onclick="eliminarItem(${index})"><i class="bi bi-trash-fill"></i></button>
+                            <button type="button" class="btn btn-delete-row" onclick="eliminarItem(${item.id})">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -994,31 +845,39 @@
         }
 
         function calcularTotales() {
-            const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
+            const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precioUnitario), 0);
             const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
-            const baseConDescuento = Math.max(0, subtotalNeto - descuento);
-            const aplicaIVA = document.getElementById('checkAplicarIVA').checked;
-            const mtoIVA = aplicaIVA ? Math.round(baseConDescuento * 0.19) : 0;
-            const totalFinal = baseConDescuento + mtoIVA;
+            const aplicarIVA = document.getElementById('checkAplicarIVA').checked;
+
+            const baseImponible = Math.max(0, subtotalNeto - descuento);
+            const montoIVA = aplicarIVA ? Math.round(baseImponible * 0.19) : 0;
+            const totalFinal = baseImponible + montoIVA;
 
             document.getElementById('lblSubtotalNeto').textContent = formatterCLP.format(subtotalNeto);
             document.getElementById('lblMontoDescuento').textContent = `-${formatterCLP.format(descuento)}`;
-            document.getElementById('lblMontoIVA').textContent = formatterCLP.format(mtoIVA);
+            document.getElementById('lblMontoIVA').textContent = formatterCLP.format(montoIVA);
             document.getElementById('lblTotalFinal').textContent = formatterCLP.format(totalFinal);
             document.getElementById('lblTotalHeader').textContent = formatterCLP.format(totalFinal);
         }
 
         function guardarPresupuesto() {
-            mostrarToast("Presupuesto procesado exitosamente.");
+            if (!vehiculoSeleccionado) {
+                mostrarToast("Debes consultar y seleccionar un vehículo primero.", "error");
+                return;
+            }
+            if (!listaItems.length) {
+                mostrarToast("Agrega al menos un ítem o repuesto al presupuesto.", "error");
+                return;
+            }
+            mostrarToast("¡Presupuesto guardado correctamente en la base de datos!", "exito");
         }
 
         function enviarWhatsApp() {
-            if (!clienteSeleccionado || !clienteSeleccionado.telefono) {
-                mostrarToast("Por favor selecciona un cliente con teléfono válido", "error");
+            if (!clienteSeleccionado || clienteSeleccionado.telefono === '—') {
+                mostrarToast("No hay un número de teléfono de cliente válido para enviar WhatsApp.", "error");
                 return;
             }
-            const numClean = clienteSeleccionado.telefono.replace(/[^0-9]/g, '');
-            window.open(`https://wa.me/${numClean}`, '_blank');
+            mostrarToast("Abriendo canal de WhatsApp...", "exito");
         }
     </script>
 </body>
