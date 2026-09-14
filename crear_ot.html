@@ -367,9 +367,6 @@
         /**
          * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE (INCLUYE JWT DE AUTORIZACIÓN)
          */
-        /**
-         * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE (INCLUYE JWT DE AUTORIZACIÓN)
-         */
         async function consultarPatenteAPI() {
             const inputPatente = document.getElementById('patente');
             const btnConsultar = document.getElementById('btnConsultarPatente');
@@ -446,9 +443,39 @@
                 vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '',
                 color: data.color || data.colour || '',
                 n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || ''
-         };
-        
-        };
+            };
+        }
+
+        /**
+         * FUNCIÓN QUE LLENA LOS CAMPOS VISUALES EN LA PANTALLA
+         */
+        function autocompletarFormularioRecepcion(datos) {
+            if (datos.cliente && document.getElementById('cliente')) document.getElementById('cliente').value = datos.cliente;
+            if (datos.rut && document.getElementById('rut')) document.getElementById('rut').value = datos.rut;
+            if (datos.marca && document.getElementById('marca')) document.getElementById('marca').value = datos.marca;
+            if (datos.modelo && document.getElementById('modelo')) document.getElementById('modelo').value = datos.modelo;
+            if (datos.ano && document.getElementById('ano')) document.getElementById('ano').value = datos.ano;
+            if (datos.vin && document.getElementById('vin')) document.getElementById('vin').value = datos.vin;
+            if (datos.color && document.getElementById('color')) document.getElementById('color').value = datos.color;
+            if (datos.n_motor && document.getElementById('n_motor')) document.getElementById('n_motor').value = datos.n_motor;
+        }
+
+        function mostrarPrevisualizaciones(input) {
+            const contenedor = document.getElementById('contenedorPreviews');
+            contenedor.innerHTML = '';
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'preview-img-container';
+                        contenedor.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
     </script>
 </body>
 </html>
