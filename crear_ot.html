@@ -221,21 +221,37 @@
                             <div class="col-12">
                                 <label class="form-label text-warning">Patente / Placa (API Auto-Rellenar) *</label>
                                 <div class="input-group">
-                                    <input type="text" id="patente" class="form-control text-uppercase fw-bold" required placeholder="EJ: BBCL10 O WAUZZZ..." maxlength="17" style="letter-spacing: 1.5px;">
+                                    <input type="text" id="patente" class="form-control text-uppercase fw-bold" required placeholder="EJ: JTYY13" maxlength="10" style="letter-spacing: 1.5px;">
                                     <button type="button" class="btn btn-api-search px-3" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
                                         <i class="bi bi-magic me-1"></i> Consultar API
                                     </button>
                                 </div>
-                                <span class="text-muted" style="font-size: 0.72rem;">Ingresa la patente y presiona Enter o el botón para llenar Marca, Modelo y Datos.</span>
+                                <span class="text-muted" style="font-size: 0.72rem;">Ingresa la patente y presiona Enter o el botón para autocompletar.</span>
                             </div>
 
-                            <div class="col-12 col-md-7">
-                                <label class="form-label">Marca y Modelo *</label>
-                                <input type="text" id="vehiculo" class="form-control" required placeholder="Ej: Toyota Yaris 2018">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Marca *</label>
+                                <input type="text" id="marca" class="form-control" required placeholder="Ej: KIA">
                             </div>
-                            <div class="col-12 col-md-5">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Modelo *</label>
+                                <input type="text" id="modelo" class="form-control" required placeholder="Ej: SPORTAGE QL">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label class="form-label">Año</label>
+                                <input type="text" id="ano" class="form-control" placeholder="2021">
+                            </div>
+                            <div class="col-12 col-md-8">
                                 <label class="form-label">VIN / N° Chasis</label>
                                 <input type="text" id="vin" class="form-control text-uppercase font-monospace" placeholder="WAUZZZ...">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Color</label>
+                                <input type="text" id="color" class="form-control" placeholder="Ej: Blanco Perla">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">N° de Motor</label>
+                                <input type="text" id="n_motor" class="form-control text-uppercase font-monospace" placeholder="Ej: G4KJ...">
                             </div>
                         </div>
                     </div>
@@ -349,19 +365,22 @@
         }
 
         /**
-         * CONSULTA DIRECTA Y REAL A LA EDGE FUNCTION DE SUPABASE
+         * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE (INCLUYE JWT DE AUTORIZACIÓN)
+         */
+        /**
+         * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE (INCLUYE JWT DE AUTORIZACIÓN)
          */
         async function consultarPatenteAPI() {
             const inputPatente = document.getElementById('patente');
             const btnConsultar = document.getElementById('btnConsultarPatente');
             const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
 
-            if (!patenteQuery || patenteQuery.length < 5) {
+            if (!patenteQuery || patenteQuery.length < 4) {
                 mostrarToast("Ingresa una patente válida (Ej: HHTZ36)", "error");
                 return;
             }
 
-            mostrarToast(`Consultando datos reales de ${patenteQuery}...`, "exito");
+            mostrarToast(`Consultando patente ${patenteQuery}...`, "exito");
             
             if (btnConsultar) {
                 btnConsultar.disabled = true;
@@ -369,32 +388,35 @@
             }
 
             try {
-                // Endpoint directo de tu Edge Function en Supabase
-                const FUNCTION_URL = "https://okkydrwdexacxvfbtopb.supabase.co/functions/v1/get-vehiculo";
-
-                const response = await fetch(FUNCTION_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ patente: patenteQuery })
-                });
-
-                const jsonResult = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(jsonResult.error || `Error en el servidor (${response.status})`);
+                const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
+                if (!db) {
+                    throw new Error("No se encontró la conexión con Supabase.");
                 }
 
-                // Normalización de la respuesta real enviada por la API
-                const rawData = jsonResult.data || jsonResult;
-                const datosProcesados = normalizarRespuestaAPI(rawData);
+                // Invocación segura a la Edge Function
+                const { data, error } = await db.functions.invoke('get-vehiculo', {
+                    body: { patente: patenteQuery }
+                });
+
+                if (error) {
+                    throw new Error(error.message || "Error al invocar la función de búsqueda.");
+                }
+
+                if (!data || data.error) {
+                    throw new Error(data?.error || "La API no devolvió información para esta patente.");
+                }
+
+                // IMPRIME EL JSON COMPLETO EN LA CONSOLA (F12) PARA VER CÓMO LLEGAN LOS DATOS EXACTOS
+                console.log("RESPUESTA COMPLETA DE LA API BOOSTR:", data);
+
+                // Procesar y mapear campos independientes de forma ampliada
+                const datosProcesados = normalizarRespuestaAPI(data);
 
                 autocompletarFormularioRecepcion(datosProcesados);
-                mostrarToast(`¡Vehículo ${patenteQuery} obtenido con éxito!`, "exito");
+                mostrarToast(`¡Vehículo ${patenteQuery} cargado exitosamente!`, "exito");
 
             } catch (error) {
-                console.error("Error en la consulta real:", error);
+                console.error("Error en la consulta:", error);
                 mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
             } finally {
                 if (btnConsultar) {
@@ -404,117 +426,29 @@
             }
         }
 
-        function normalizarRespuestaAPI(data) {
-            const propietario = data.owner || data.propietario || {};
-            const marca = data.make || data.marca || '';
-            const modelo = data.model || data.modelo || '';
-            const ano = data.year || data.ano || '';
+        /**
+         * MAPEO AMPLIADO PARA CAPTURAR CUALQUIER VARIACIÓN DE NOMBRES DE LA API
+         */
+        function normalizarRespuestaAPI(responseJson) {
+            const data = responseJson.data || responseJson;
+            const owner = data.owner || {};
 
             return {
-                cliente: propietario.fullname || propietario.nombre || '',
-                rut: propietario.documentNumber || propietario.rut || '',
-                vehiculo: `${marca} ${modelo} ${ano}`.trim(),
-                vin: data.chassis || data.vin || data.chasis || ''
-            };
-        }
-
-        function autocompletarFormularioRecepcion(datos) {
-            if (datos.cliente) document.getElementById('cliente').value = datos.cliente;
-            if (datos.rut) document.getElementById('rut').value = datos.rut;
-            if (datos.vehiculo) document.getElementById('vehiculo').value = datos.vehiculo;
-            if (datos.vin) document.getElementById('vin').value = datos.vin;
-        }
-
-        function mostrarPrevisualizaciones(input) {
-            const contenedor = document.getElementById('contenedorPreviews');
-            contenedor.innerHTML = '';
-            if (input.files) {
-                Array.from(input.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'preview-img-container';
-                        contenedor.appendChild(img);
-                    }
-                    reader.readAsDataURL(file);
-                });
-            }
-        }
-
-        document.getElementById('formNuevaOT').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const alerta = document.getElementById('alertaForm');
-            const btnText = document.getElementById('btnTextOT');
-            const btnSpinner = document.getElementById('btnSpinnerOT');
-            const btn = document.getElementById('btnGuardarOT');
-            const inputFotos = document.getElementById('inputFotos');
-
-            alerta.className = 'alert alert-info py-2 px-3 small m-0';
-            alerta.classList.remove('d-none');
-            alerta.innerText = 'Procesando registro de orden...';
-            
-            btnText.innerText = 'Guardando...';
-            btnSpinner.classList.remove('d-none');
-            btn.disabled = true;
-
-            const urlsFotos = [];
-            if (inputFotos.files.length > 0) {
-                for (let i = 0; i < inputFotos.files.length; i++) {
-                    try {
-                        if (typeof subirFotoSupabase === 'function') {
-                            const url = await subirFotoSupabase(inputFotos.files[i]);
-                            if (url) urlsFotos.push(url);
-                        }
-                    } catch (errFoto) {
-                        console.warn(`No se pudo subir la foto ${inputFotos.files[i].name}:`, errFoto);
-                    }
-                }
-            }
-
-            try {
-                const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
-                if (!db) throw new Error("Sin conexión con la base de datos.");
-
-                const folio = 'OT-' + Math.floor(1000 + Math.random() * 9000);
+                cliente: owner.name || owner.fullname || owner.nombre || data.client_name || '',
+                rut: owner.rut || owner.documentNumber || data.client_rut || '',
                 
-                const payload = {
-                    numero: folio,
-                    cliente: document.getElementById('cliente').value.trim(),
-                    rut: document.getElementById('rut').value.trim(),
-                    vehiculo: document.getElementById('vehiculo').value.trim(),
-                    patente: document.getElementById('patente').value.toUpperCase().trim(),
-                    vin: document.getElementById('vin').value.trim(),
-                    kilometraje: document.getElementById('kilometraje').value.trim(),
-                    combustible: document.getElementById('combustible').value,
-                    fecha: document.getElementById('fecha').value,
-                    observaciones: document.getElementById('observaciones').value.trim(),
-                    fotos: urlsFotos,
-                    estado: 'Recepción',
-                    items: [],
-                    total: 0
-                };
-
-                const { data, error } = await db.from('ordenes_trabajo').insert([payload]);
-                if (error) throw error;
-
-                alerta.className = 'alert alert-success py-2 px-3 small m-0';
-                alerta.innerText = '¡Orden de trabajo registrada exitosamente!';
+                // Mapeo ampliado de Marca, Modelo, Año
+                marca: data.brand || data.marca || data.make || '',
+                modelo: data.model || data.modelo || '',
+                ano: data.year || data.ano || data.anio || '',
                 
-                setTimeout(() => {
-                    window.location.href = 'ordenes.html';
-                }, 1200);
-
-            } catch (err) {
-                alerta.className = 'alert alert-danger py-2 px-3 small m-0';
-                alerta.innerText = 'Error al registrar orden: ' + (err.message || 'Verifica la conexión.');
-                
-                btnText.innerHTML = '<i class="bi bi-check2-circle me-1"></i> Generar Orden de Trabajo';
-                btnSpinner.classList.add('d-none');
-                btn.disabled = false;
-            }
-        });
+                // Mapeo ampliado para VIN y Motor (cubre todas las opciones posibles de Boostr)
+                vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '',
+                color: data.color || data.colour || '',
+                n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || ''
+         };
+        
+        };
     </script>
 </body>
-</html
+</html>
