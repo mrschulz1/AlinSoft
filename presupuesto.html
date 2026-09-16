@@ -44,6 +44,10 @@ body {
     margin-left: 290px;
     padding: 20px 30px 40px 10px;
 }
+@media (max-width: 992px) {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; padding: 15px; }
+}
 .brand-logo {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
@@ -297,7 +301,6 @@ body {
                 </div>
             </div>
         </div>
-
         <!-- TARJETA VEHÍCULO (COLAPSABLE) -->
         <div class="col-12 col-lg-6">
             <div class="bujia-card h-100">
@@ -489,7 +492,7 @@ body {
             </div>
             <div class="modal-body py-4">
                 <p class="text-muted small mb-3">
-                    El vehículo fue encontrado en la API, pero el propietario asociado <strong>no se encuentra registrado</strong> en tu base de datos interna o en la información del sistema.
+                    El vehículo fue encontrado en la API, pero el propietario asociado <strong>no se encuentra registrado</strong> en tu base de datos interna.
                 </p>
                 <p class="fw-semibold text-warning mb-4" id="txtDetallePropietarioApi">Propietario en API: -</p>
                 <form id="formNuevoClienteModal">
@@ -499,7 +502,7 @@ body {
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label-tech">RUT / DNI</label>
+                            <label class="form-label-tech">RUT/DNI</label>
                             <input type="text" id="modalInputRut" class="form-control-tech" placeholder="Ej: 12.345.678-9">
                         </div>
                         <div class="col-md-6">
@@ -541,7 +544,7 @@ body {
 <script src="app.js"></script>
 <script>
 let ordenActual = null;
-let listaItems = [];
+let listItems = [];
 let clienteSeleccionado = null;
 let vehiculoSeleccionado = null;
 let modalRegistroInstance = null;
@@ -558,6 +561,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+    // Cargar orden si viene un ID por parámetro en la URL
+    cargarOrdenParaEditar();
 });
 
 function mostrarToast(mensaje, tipo = "exito") {
@@ -570,9 +575,6 @@ function mostrarToast(mensaje, tipo = "exito") {
     bsToast.show();
 }
 
-/**
- * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE
- */
 async function consultarPatenteAPI() {
     const inputPatente = document.getElementById('inputBuscarPatenteAPI');
     const btnConsultar = document.getElementById('btnConsultarPatente');
@@ -602,15 +604,14 @@ async function consultarPatenteAPI() {
         if (error) {
             throw new Error(error.message || "Error al invocar la función de búsqueda.");
         }
+        
         if (!data || data.error) {
             throw new Error(data?.error || "La API no devolvió información para esta patente.");
         }
         
-        console.log("RESPUESTA COMPLETA DE LA API:", data);
         const infoVehiculo = normalizarDatosVehiculo(data);
         asignarDatosVehiculoUI(infoVehiculo, patenteQuery);
         verificarClienteEnBaseDeDatos(data);
-        
     } catch (error) {
         console.error("Error en la consulta:", error);
         mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
@@ -622,9 +623,6 @@ async function consultarPatenteAPI() {
     }
 }
 
-/**
- * EXTRAE SOLO LA INFORMACIÓN TÉCNICA DEL VEHÍCULO DE LA API
- */
 function normalizarDatosVehiculo(responseJson) {
     const data = responseJson.data || responseJson;
     return {
@@ -638,9 +636,6 @@ function normalizarDatosVehiculo(responseJson) {
     };
 }
 
-/**
- * RELLENA LOS CAMPOS DE LA TARJETA VEHÍCULO EXCLUSIVAMENTE
- */
 function asignarDatosVehiculoUI(datos, patente) {
     vehiculoSeleccionado = { patente: patente, ...datos };
     document.getElementById('lblVehiculoPatenteBadge').textContent = patente;
@@ -653,9 +648,30 @@ function asignarDatosVehiculoUI(datos, patente) {
     document.getElementById('lblVehiculoVin').textContent = datos.vin;
 }
 
-/**
- * VERIFICA SI EL CLIENTE EXISTE EN LA BASE DE DATOS INTERNA DE SUPABASE
- */
+function actualizarVistaVehiculo(datos) {
+    if (!datos) return;
+    const patente = datos.patente || 'S/P';
+    document.getElementById('lblVehiculoPatenteBadge').textContent = patente;
+    document.getElementById('lblBadgePatenteHeader').textContent = patente;
+    document.getElementById('lblVehiculoTitulo').textContent = `${datos.marca || ''} ${datos.modelo || ''}`.trim() || 'Vehículo';
+    document.getElementById('lblVehiculoColor').textContent = datos.color || '-';
+    document.getElementById('lblVehiculoAno').textContent = datos.ano || '-';
+    document.getElementById('lblVehiculoTransmision').textContent = datos.transmision || '-';
+    document.getElementById('lblVehiculoNumMotor').textContent = datos.n_motor || datos.numero_motor || '-';
+    document.getElementById('lblVehiculoVin').textContent = datos.vin || '-';
+}
+
+function actualizarVistaCliente(datos) {
+    if (!datos) return;
+    const nombre = datos.nombre || datos.full_name || 'Sin cliente asociado';
+    const rut = datos.rut || 'S/I';
+    document.getElementById('lblClienteNombre').textContent = nombre;
+    document.getElementById('badgeClienteRut').textContent = `RUT: ${rut}`;
+    document.getElementById('lblClienteTelefono').textContent = datos.telefono || datos.phone || '-';
+    document.getElementById('lblClienteEmail').textContent = datos.email || '-';
+    document.getElementById('lblClienteDireccion').textContent = datos.direccion || datos.address || '-';
+}
+
 async function verificarClienteEnBaseDeDatos(responseJson) {
     const data = responseJson.data || responseJson;
     const ownerApi = data.owner || {};
@@ -665,7 +681,6 @@ async function verificarClienteEnBaseDeDatos(responseJson) {
     try {
         const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
         let clienteEncontrado = null;
-        
         if (db && (rutPropietarioApi || nombrePropietarioApi)) {
             let query = db.from('clientes').select('*');
             if (rutPropietarioApi) {
@@ -681,11 +696,7 @@ async function verificarClienteEnBaseDeDatos(responseJson) {
         
         if (clienteEncontrado) {
             clienteSeleccionado = clienteEncontrado;
-            document.getElementById('lblClienteNombre').textContent = clienteEncontrado.nombre || clienteEncontrado.full_name;
-            document.getElementById('badgeClienteRut').textContent = `RUT: ${clienteEncontrado.rut || 'S/I'}`;
-            document.getElementById('lblClienteTelefono').textContent = clienteEncontrado.telefono || clienteEncontrado.phone || '-';
-            document.getElementById('lblClienteEmail').textContent = clienteEncontrado.email || '-';
-            document.getElementById('lblClienteDireccion').textContent = clienteEncontrado.direccion || clienteEncontrado.address || '-';
+            actualizarVistaCliente(clienteEncontrado);
             mostrarToast("¡Vehículo y cliente encontrados en tu base de datos!", "exito");
         } else {
             document.getElementById('txtDetallePropietarioApi').textContent = `Propietario reportado por API: ${nombrePropietarioApi || 'Desconocido'} (RUT: ${rutPropietarioApi || 'No especificado'})`;
@@ -696,9 +707,50 @@ async function verificarClienteEnBaseDeDatos(responseJson) {
             modalRegistroInstance.show();
         }
     } catch (e) {
-        console.error("Error consultando la base de datos de clientes:", e);
-        document.getElementById('txtDetallePropietarioApi').textContent = `Propietario en API: ${nombrePropietarioApi || 'Desconocido'}`;
+        console.error("Error consultando clientes:", e);
         modalRegistroInstance.show();
+    }
+}
+
+async function cargarOrdenParaEditar() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const idOrden = urlParams.get('id');
+    if (!idOrden) return;
+    
+    try {
+        const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
+        if (!db) return;
+        
+        const { data, error } = await db
+            .from('ordenes_trabajo')
+            .select('*')
+            .eq('id', idOrden)
+            .single();
+            
+        if (error) throw new Error(error.message);
+        if (!data) return;
+        
+        document.getElementById('lblFolioOT').textContent = data.numero ? `ORDEN / FOLIO: ${data.numero}` : 'EDITAR PRESUPUESTO';
+        
+        vehiculoSeleccionado = data.vehiculo_info || { patente: data.patente };
+        clienteSeleccionado = data.cliente_info || { nombre: data.cliente, rut: data.rut, telefono: data.telefono };
+        listItems = data.items || [];
+        
+        if (document.getElementById('selectEstadoOT')) document.getElementById('selectEstadoOT').value = data.estado || 'Presupuestado';
+        if (document.getElementById('inputKilometraje')) document.getElementById('inputKilometraje').value = data.kilometraje || '';
+        if (document.getElementById('selectCombustible')) document.getElementById('selectCombustible').value = data.combustible || 'No Registra';
+        if (document.getElementById('txtObservaciones')) document.getElementById('txtObservaciones').value = data.observaciones || '';
+        if (document.getElementById('inputDescuento')) document.getElementById('inputDescuento').value = data.descuento || 0;
+        if (document.getElementById('selectMedioPago')) document.getElementById('selectMedioPago').value = data.medio_pago || 'Efectivo';
+        
+        actualizarVistaVehiculo(vehiculoSeleccionado);
+        actualizarVistaCliente(clienteSeleccionado);
+        renderizarTablaItems();
+        
+        mostrarToast("Orden cargada correctamente para edición", "exito");
+    } catch (error) {
+        console.error("Error al cargar orden:", error);
+        mostrarToast("No se pudo cargar la orden: " + error.message, "error");
     }
 }
 
@@ -725,13 +777,8 @@ function guardarYAsignarCliente() {
     }
     
     clienteSeleccionado = { nombre, rut: rut || 'S/I', telefono: telefono || '-', email: email || '-', direccion: '-' };
-    document.getElementById('lblClienteNombre').textContent = nombre;
-    document.getElementById('badgeClienteRut').textContent = `RUT: ${rut || 'S/I'}`;
-    document.getElementById('lblClienteTelefono').textContent = telefono || '-';
-    document.getElementById('lblClienteEmail').textContent = email || '-';
-    document.getElementById('lblClienteDireccion').textContent = '-';
-    
-    mostrarToast("¡Cliente registrado y asignado al presupuesto con éxito!", "exito");
+    actualizarVistaCliente(clienteSeleccionado);
+    mostrarToast("¡Cliente registrado y asignado con éxito!", "exito");
     modalRegistroInstance.hide();
 }
 
@@ -743,7 +790,7 @@ function agregarItem(e) {
     
     if (!desc || precio < 0) return;
     
-    listaItems.push({ id: Date.now(), descripcion: desc, cantidad: cant, precioUnitario: precio });
+    listItems.push({ id: Date.now(), descripcion: desc, cantidad: cant, precioUnitario: precio });
     document.getElementById('formAgregarItem').reset();
     document.getElementById('itemCantidad').value = 1;
     document.getElementById('itemDescripcion').focus();
@@ -751,19 +798,19 @@ function agregarItem(e) {
 }
 
 function eliminarItem(id) {
-    listaItems = listaItems.filter(item => item.id !== id);
+    listItems = listItems.filter(item => item.id !== id);
     renderizarTablaItems();
 }
 
 function renderizarTablaItems() {
     const tbody = document.getElementById('bodyItemsPresupuesto');
-    if (!listaItems.length) {
+    if (!listItems.length) {
         tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>';
         calcularTotales();
         return;
     }
     
-    tbody.innerHTML = listaItems.map(item => {
+    tbody.innerHTML = listItems.map(item => {
         const subtotal = item.cantidad * item.precioUnitario;
         return `
             <tr>
@@ -779,12 +826,11 @@ function renderizarTablaItems() {
             </tr>
         `;
     }).join('');
-    
     calcularTotales();
 }
 
 function calcularTotales() {
-    const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precioUnitario), 0);
+    const subtotalNeto = listItems.reduce((acc, item) => acc + (item.cantidad * item.precioUnitario), 0);
     const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
     const aplicarIVA = document.getElementById('checkAplicarIVA').checked;
     const baseImponible = Math.max(0, subtotalNeto - descuento);
@@ -804,7 +850,7 @@ async function guardarPresupuesto() {
         return;
     }
     
-    if (!listaItems.length) {
+    if (!listItems.length) {
         mostrarToast("Agrega al menos un ítem o repuesto al presupuesto.", "error");
         return;
     }
@@ -821,22 +867,20 @@ async function guardarPresupuesto() {
         const observaciones = document.getElementById('txtObservaciones')?.value || '';
         const descuento = parseFloat(document.getElementById('inputDescuento')?.value) || 0;
         const medioPago = document.getElementById('selectMedioPago')?.value || 'Efectivo';
-        const aplicarIVA = document.getElementById('checkAplicarIVA')?.checked ?? true;
         
-        const subtotalNeto = listaItems.reduce((acc, item) => acc + ((item.cantidad || 1) * (item.precioUnitario || 0)), 0);
+        const subtotalNeto = listItems.reduce((acc, item) => acc + ((item.cantidad || 1) * (item.precioUnitario || 0)), 0);
         const baseImponible = Math.max(0, subtotalNeto - descuento);
-        const montoIVA = aplicarIVA ? Math.round(baseImponible * 0.19) : 0;
+        const montoIVA = Math.round(baseImponible * 0.19);
         const totalFinal = baseImponible + montoIVA;
         
-        const numeroOT = 'OT-' + Math.floor(1000 + Math.random() * 9000);
-
-        // Objeto estructurado listo para la BD con JSONB
+        const urlParams = new URLSearchParams(window.location.search);
+        const idOrden = urlParams.get('id');
+        
         const datosPresupuesto = {
-            numero: numeroOT,
             patente: vehiculoSeleccionado.patente,
             vehiculo_info: vehiculoSeleccionado,
             cliente_info: clienteSeleccionado || {},
-            items: listaItems,
+            items: listItems,
             estado: estadoOT,
             kilometraje: kilometraje,
             combustible: combustible,
@@ -848,17 +892,33 @@ async function guardarPresupuesto() {
             total: totalFinal
         };
         
-        const { data, error } = await db
-            .from('ordenes_trabajo')
-            .insert([datosPresupuesto])
-            .select();
-            
-        if (error) {
-            throw new Error(error.message);
+        let resultado;
+        if (idOrden) {
+            // Actualizar si ya existe el ID en la URL
+            resultado = await db
+                .from('ordenes_trabajo')
+                .update(datosPresupuesto)
+                .eq('id', idOrden)
+                .select();
+        } else {
+            // Crear nuevo registro si es presupuesto nuevo
+            datosPresupuesto.numero = 'OT-' + Math.floor(1000 + Math.random() * 9000);
+            resultado = await db
+                .from('ordenes_trabajo')
+                .insert([datosPresupuesto])
+                .select();
         }
         
-        mostrarToast("¡Orden de trabajo guardada con éxito (Estructura JSONB)!", "exito");
-        console.log("Guardado exitoso:", data);
+        if (resultado.error) {
+            throw new Error(resultado.error.message);
+        }
+        
+        mostrarToast("¡Orden de trabajo guardada con éxito!", "exito");
+        console.log("Guardado exitoso:", resultado.data);
+        
+        setTimeout(() => {
+            window.location.href = 'ordenes.html';
+        }, 1500);
         
     } catch (error) {
         console.error("Error al guardar:", error);
@@ -872,6 +932,14 @@ function enviarWhatsApp() {
         return;
     }
     mostrarToast("Abriendo canal de WhatsApp...", "exito");
+}
+
+function logout() {
+    if (typeof supabase !== 'undefined') {
+        const db = initSupabase();
+        if (db) db.auth.signOut();
+    }
+    window.location.href = 'index.html';
 }
 </script>
 </body>
