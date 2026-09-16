@@ -189,7 +189,6 @@ body {
 </style>
 </head>
 <body>
-
 <!-- SIDEBAR -->
 <div class="sidebar d-flex flex-column justify-content-between p-3">
     <div>
@@ -244,30 +243,30 @@ body {
         </div>
     </div>
 
-    <!-- CONSULTA RÁPIDA POR API PATENTE -->
+    <!-- CONSULTA RÁPIDA POR PATENTE -->
     <div class="hud-card mb-4 border-danger border-opacity-25">
         <div class="row g-3 align-items-end">
             <div class="col-12 col-md-8">
                 <label class="form-label-tech text-danger">
-                    <i class="bi bi-magic me-1"></i> Consulta Automática por Patente (API Vehículo)
+                    <i class="bi bi-search me-1"></i> Ingresar Patente (Búsqueda en Supabase)
                 </label>
                 <div class="input-group">
                     <span class="input-group-text bg-dark border-secondary border-opacity-25 text-danger fw-bold">PATENTE</span>
-                    <input type="text" id="inputBuscarPatenteAPI" class="form-control-tech text-uppercase fw-bold" placeholder="EJ: BBCL10 O WAUZZZ..." maxlength="17" style="letter-spacing: 2px;">
+                    <input type="text" id="inputBuscarPatenteAPI" class="form-control-tech text-uppercase fw-bold" placeholder="EJ: BBCL10" maxlength="10" style="letter-spacing: 2px;">
                     <button type="button" class="btn btn-glow-danger px-4" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
-                        <i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo
+                        <i class="bi bi-search me-2"></i> Buscar
                     </button>
                 </div>
             </div>
             <div class="col-12 col-md-4 text-muted small">
-                <i class="bi bi-info-circle me-1"></i> Rellena automáticamente los datos del vehículo. Si el propietario no está registrado, se te notificará.
+                <i class="bi bi-info-circle me-1"></i> Si la patente está registrada en Supabase, se autocompletarán los datos. Si no, se abrirá el formulario para ingresarlos.
             </div>
         </div>
     </div>
 
-    <!-- TARJETAS SEPARADAS Y COLAPSABLES TIPO BUJÍA -->
+    <!-- TARJETAS CLIENTE Y VEHÍCULO -->
     <div class="row g-4 mb-4">
-        <!-- TARJETA CLIENTE (COLAPSABLE) -->
+        <!-- TARJETA CLIENTE -->
         <div class="col-12 col-lg-6">
             <div class="bujia-card h-100">
                 <div class="d-flex justify-content-between align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapseCliente" aria-expanded="true" aria-controls="collapseCliente">
@@ -301,7 +300,8 @@ body {
                 </div>
             </div>
         </div>
-        <!-- TARJETA VEHÍCULO (COLAPSABLE) -->
+
+        <!-- TARJETA VEHÍCULO -->
         <div class="col-12 col-lg-6">
             <div class="bujia-card h-100">
                 <div class="d-flex justify-content-between align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapseVehiculo" aria-expanded="true" aria-controls="collapseVehiculo">
@@ -345,7 +345,7 @@ body {
         </div>
     </div>
 
-    <!-- PARAMETROS ADICIONALES DE SERVICIO -->
+    <!-- PARAMETROS ADICIONALES -->
     <div class="hud-card mb-4">
         <div class="row g-3">
             <div class="col-6 col-md-3">
@@ -365,7 +365,7 @@ body {
             </div>
             <div class="col-12 col-md-6">
                 <label class="form-label-tech">Observaciones Diagnósticas / Requerimientos</label>
-                <input type="text" id="txtObservaciones" class="form-control-tech" placeholder="Describe requerimientos del cliente o diagnóstico previo...">
+                <input type="text" id="txtObservaciones" class="form-control-tech" placeholder="Describe requerimientos del cliente...">
             </div>
         </div>
     </div>
@@ -410,7 +410,7 @@ body {
         </div>
     </div>
 
-    <!-- 3. CONFIGURACIÓN FINANCIERA Y TOTALES -->
+    <!-- 3. CONFIGURACIÓN FINANCIERA -->
     <div class="row g-4">
         <div class="col-12 col-lg-6">
             <div class="hud-card h-100">
@@ -480,21 +480,20 @@ body {
     </div>
 </div>
 
-<!-- MODAL DE ADVERTENCIA Y REGISTRO DE CLIENTE NO ENCONTRADO -->
+<!-- MODAL REGISTRO CLIENTE -->
 <div class="modal fade" id="modalRegistroCliente" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark border border-danger border-opacity-50 rounded-4 shadow-lg text-white">
             <div class="modal-header border-bottom border-secondary border-opacity-25">
                 <h5 class="modal-title fw-bold text-danger">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Cliente No Registrado
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Patente No Registrada en BD
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body py-4">
                 <p class="text-muted small mb-3">
-                    El vehículo fue encontrado en la API, pero el propietario asociado <strong>no se encuentra registrado</strong> en tu base de datos interna.
+                    Esta patente no se encuentra registrada en tu base de datos de Supabase. Ingresa los datos del cliente para registrarlo:
                 </p>
-                <p class="fw-semibold text-warning mb-4" id="txtDetallePropietarioApi">Propietario en API: -</p>
                 <form id="formNuevoClienteModal">
                     <div class="mb-3">
                         <label class="form-label-tech">Nombre Completo del Cliente *</label>
@@ -518,7 +517,7 @@ body {
             </div>
             <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-between">
                 <button type="button" class="btn btn-glass px-4" data-bs-dismiss="modal" onclick="continuarSinCliente()">
-                    Proseguir sin datos de cliente
+                    Proseguir sin datos
                 </button>
                 <button type="button" class="btn btn-glow-danger px-4" onclick="guardarYAsignarCliente()">
                     <i class="bi bi-person-plus-fill me-1"></i> Registrar y Asignar
@@ -561,7 +560,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    // Cargar orden si viene un ID por parámetro en la URL
     cargarOrdenParaEditar();
 });
 
@@ -579,73 +577,71 @@ async function consultarPatenteAPI() {
     const inputPatente = document.getElementById('inputBuscarPatenteAPI');
     const btnConsultar = document.getElementById('btnConsultarPatente');
     const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
-    
+
     if (!patenteQuery || patenteQuery.length < 4) {
-        mostrarToast("Ingresa una patente o VIN válido (Ej: HHTZ36)", "error");
+        mostrarToast("Ingresa una patente válida (Ej: BBCL10)", "error");
         return;
     }
-    
-    mostrarToast(`Consultando patente ${patenteQuery}...`, "exito");
+
+    mostrarToast(`Buscando patente ${patenteQuery} en Supabase...`, "exito");
     if (btnConsultar) {
         btnConsultar.disabled = true;
-        btnConsultar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Consultando...';
+        btnConsultar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Buscando...';
     }
-    
+
     try {
         const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
-        if (!db) {
-            throw new Error("No se encontró la conexión con Supabase.");
+        if (!db) throw new Error("No se encontró la conexión con Supabase.");
+
+        // BÚSQUEDA EXCLUSIVA EN SUPABASE (Tabla de órdenes anteriores o vehículos registrados)
+        // Buscamos si ya existe la patente guardada en alguna orden de trabajo previa
+        const { data: ordenesDB, error: errDB } = await db
+            .from('ordenes_trabajo')
+            .select('*')
+            .ilike('patente', patenteQuery)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        if (!errDB && ordenesDB && ordenesDB.length > 0) {
+            const registro = ordenesDB[0];
+            
+            // Cargamos la información guardada en Supabase
+            vehiculoSeleccionado = registro.vehiculo_info || { patente: patenteQuery };
+            clienteSeleccionado = registro.cliente_info || null;
+
+            actualizarVistaVehiculo(vehiculoSeleccionado);
+            if (clienteSeleccionado) {
+                actualizarVistaCliente(clienteSeleccionado);
+            }
+
+            mostrarToast("¡Vehículo y cliente encontrados en Supabase!", "exito");
+            return;
         }
+
+        // Si NO está registrado en Supabase, mostramos el popup para agregar datos del cliente
+        console.log("Patente no encontrada en Supabase local.");
+        vehiculoSeleccionado = { patente: patenteQuery };
         
-        const { data, error } = await db.functions.invoke('get-vehiculo', {
-            body: { patente: patenteQuery }
-        });
+        document.getElementById('lblVehiculoPatenteBadge').textContent = patenteQuery;
+        document.getElementById('lblBadgePatenteHeader').textContent = patenteQuery;
+        document.getElementById('lblVehiculoTitulo').textContent = 'Vehículo Nuevo / Manual';
+
+        document.getElementById('modalInputNombre').value = '';
+        document.getElementById('modalInputRut').value = '';
+        document.getElementById('modalInputTelefono').value = '';
+        document.getElementById('modalInputEmail').value = '';
         
-        if (error) {
-            throw new Error(error.message || "Error al invocar la función de búsqueda.");
-        }
-        
-        if (!data || data.error) {
-            throw new Error(data?.error || "La API no devolvió información para esta patente.");
-        }
-        
-        const infoVehiculo = normalizarDatosVehiculo(data);
-        asignarDatosVehiculoUI(infoVehiculo, patenteQuery);
-        verificarClienteEnBaseDeDatos(data);
+        modalRegistroInstance.show();
+
     } catch (error) {
         console.error("Error en la consulta:", error);
-        mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
+        mostrarToast(error.message || "Error al buscar en la base de datos.", "error");
     } finally {
         if (btnConsultar) {
             btnConsultar.disabled = false;
-            btnConsultar.innerHTML = '<i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo';
+            btnConsultar.innerHTML = '<i class="bi bi-search me-2"></i> Buscar';
         }
     }
-}
-
-function normalizarDatosVehiculo(responseJson) {
-    const data = responseJson.data || responseJson;
-    return {
-        marca: data.brand || data.marca || data.make || '',
-        modelo: data.model || data.modelo || '',
-        ano: data.year || data.ano || data.anio || '-',
-        vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '-',
-        color: data.color || data.colour || '-',
-        transmision: data.transmission || data.transmision || 'Automática / Mecánica',
-        n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || '-'
-    };
-}
-
-function asignarDatosVehiculoUI(datos, patente) {
-    vehiculoSeleccionado = { patente: patente, ...datos };
-    document.getElementById('lblVehiculoPatenteBadge').textContent = patente;
-    document.getElementById('lblBadgePatenteHeader').textContent = patente;
-    document.getElementById('lblVehiculoTitulo').textContent = `${datos.marca} ${datos.modelo}`;
-    document.getElementById('lblVehiculoColor').textContent = datos.color;
-    document.getElementById('lblVehiculoAno').textContent = datos.ano;
-    document.getElementById('lblVehiculoTransmision').textContent = datos.transmision;
-    document.getElementById('lblVehiculoNumMotor').textContent = datos.n_motor;
-    document.getElementById('lblVehiculoVin').textContent = datos.vin;
 }
 
 function actualizarVistaVehiculo(datos) {
@@ -655,10 +651,10 @@ function actualizarVistaVehiculo(datos) {
     document.getElementById('lblBadgePatenteHeader').textContent = patente;
     document.getElementById('lblVehiculoTitulo').textContent = `${datos.marca || ''} ${datos.modelo || ''}`.trim() || 'Vehículo';
     document.getElementById('lblVehiculoColor').textContent = datos.color || '-';
-    document.getElementById('lblVehiculoAno').textContent = datos.ano || '-';
+    document.getElementById('lblVehiculoAno').textContent = datos.ano || datos.anio || '-';
     document.getElementById('lblVehiculoTransmision').textContent = datos.transmision || '-';
     document.getElementById('lblVehiculoNumMotor').textContent = datos.n_motor || datos.numero_motor || '-';
-    document.getElementById('lblVehiculoVin').textContent = datos.vin || '-';
+    document.getElementById('lblVehiculoVin').textContent = datos.vin || datos.chasis || '-';
 }
 
 function actualizarVistaCliente(datos) {
@@ -672,66 +668,18 @@ function actualizarVistaCliente(datos) {
     document.getElementById('lblClienteDireccion').textContent = datos.direccion || datos.address || '-';
 }
 
-async function verificarClienteEnBaseDeDatos(responseJson) {
-    const data = responseJson.data || responseJson;
-    const ownerApi = data.owner || {};
-    const nombrePropietarioApi = ownerApi.name || ownerApi.fullname || ownerApi.nombre || data.client_name || '';
-    const rutPropietarioApi = ownerApi.rut || ownerApi.documentNumber || data.client_rut || '';
-    
-    try {
-        const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
-        let clienteEncontrado = null;
-        if (db && (rutPropietarioApi || nombrePropietarioApi)) {
-            let query = db.from('clientes').select('*');
-            if (rutPropietarioApi) {
-                query = query.eq('rut', rutPropietarioApi);
-            } else if (nombrePropietarioApi) {
-                query = query.ilike('nombre', `%${nombrePropietarioApi}%`);
-            }
-            const { data: clientesDB, error: errDB } = await query.limit(1);
-            if (!errDB && clientesDB && clientesDB.length > 0) {
-                clienteEncontrado = clientesDB[0];
-            }
-        }
-        
-        if (clienteEncontrado) {
-            clienteSeleccionado = clienteEncontrado;
-            actualizarVistaCliente(clienteEncontrado);
-            mostrarToast("¡Vehículo y cliente encontrados en tu base de datos!", "exito");
-        } else {
-            document.getElementById('txtDetallePropietarioApi').textContent = `Propietario reportado por API: ${nombrePropietarioApi || 'Desconocido'} (RUT: ${rutPropietarioApi || 'No especificado'})`;
-            document.getElementById('modalInputNombre').value = nombrePropietarioApi !== 'Desconocido' ? nombrePropietarioApi : '';
-            document.getElementById('modalInputRut').value = rutPropietarioApi;
-            document.getElementById('modalInputTelefono').value = ownerApi.phone || ownerApi.telefono || '';
-            document.getElementById('modalInputEmail').value = ownerApi.email || '';
-            modalRegistroInstance.show();
-        }
-    } catch (e) {
-        console.error("Error consultando clientes:", e);
-        modalRegistroInstance.show();
-    }
-}
-
 async function cargarOrdenParaEditar() {
     const urlParams = new URLSearchParams(window.location.search);
     const idOrden = urlParams.get('id');
     if (!idOrden) return;
-    
     try {
         const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
         if (!db) return;
-        
-        const { data, error } = await db
-            .from('ordenes_trabajo')
-            .select('*')
-            .eq('id', idOrden)
-            .single();
-            
+        const { data, error } = await db.from('ordenes_trabajo').select('*').eq('id', idOrden).single();
         if (error) throw new Error(error.message);
         if (!data) return;
         
-        document.getElementById('lblFolioOT').textContent = data.numero ? `ORDEN / FOLIO: ${data.numero}` : 'EDITAR PRESUPUESTO';
-        
+        document.getElementById('lblFolioOT').textContent = data.numero ? `ORDEN/FOLIO: ${data.numero}` : 'EDITAR PRESUPUESTO';
         vehiculoSeleccionado = data.vehiculo_info || { patente: data.patente };
         clienteSeleccionado = data.cliente_info || { nombre: data.cliente, rut: data.rut, telefono: data.telefono };
         listItems = data.items || [];
@@ -746,7 +694,6 @@ async function cargarOrdenParaEditar() {
         actualizarVistaVehiculo(vehiculoSeleccionado);
         actualizarVistaCliente(clienteSeleccionado);
         renderizarTablaItems();
-        
         mostrarToast("Orden cargada correctamente para edición", "exito");
     } catch (error) {
         console.error("Error al cargar orden:", error);
@@ -770,12 +717,12 @@ function guardarYAsignarCliente() {
     const rut = document.getElementById('modalInputRut').value.trim();
     const telefono = document.getElementById('modalInputTelefono').value.trim();
     const email = document.getElementById('modalInputEmail').value.trim();
-    
+
     if (!nombre) {
         alert("El nombre del cliente es obligatorio.");
         return;
     }
-    
+
     clienteSeleccionado = { nombre, rut: rut || 'S/I', telefono: telefono || '-', email: email || '-', direccion: '-' };
     actualizarVistaCliente(clienteSeleccionado);
     mostrarToast("¡Cliente registrado y asignado con éxito!", "exito");
@@ -787,9 +734,8 @@ function agregarItem(e) {
     const desc = document.getElementById('itemDescripcion').value.trim();
     const cant = parseInt(document.getElementById('itemCantidad').value) || 1;
     const precio = parseFloat(document.getElementById('itemPrecio').value) || 0;
-    
     if (!desc || precio < 0) return;
-    
+
     listItems.push({ id: Date.now(), descripcion: desc, cantidad: cant, precioUnitario: precio });
     document.getElementById('formAgregarItem').reset();
     document.getElementById('itemCantidad').value = 1;
@@ -809,7 +755,6 @@ function renderizarTablaItems() {
         calcularTotales();
         return;
     }
-    
     tbody.innerHTML = listItems.map(item => {
         const subtotal = item.cantidad * item.precioUnitario;
         return `
@@ -836,7 +781,7 @@ function calcularTotales() {
     const baseImponible = Math.max(0, subtotalNeto - descuento);
     const montoIVA = aplicarIVA ? Math.round(baseImponible * 0.19) : 0;
     const totalFinal = baseImponible + montoIVA;
-    
+
     document.getElementById('lblSubtotalNeto').textContent = formatterCLP.format(subtotalNeto);
     document.getElementById('lblMontoDescuento').textContent = `-${formatterCLP.format(descuento)}`;
     document.getElementById('lblMontoIVA').textContent = formatterCLP.format(montoIVA);
@@ -846,21 +791,18 @@ function calcularTotales() {
 
 async function guardarPresupuesto() {
     if (!vehiculoSeleccionado) {
-        mostrarToast("Debes consultar y seleccionar un vehículo primero.", "error");
+        mostrarToast("Debes ingresar una patente primero.", "error");
         return;
     }
-    
     if (!listItems.length) {
         mostrarToast("Agrega al menos un ítem o repuesto al presupuesto.", "error");
         return;
     }
-    
+
     try {
         const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
-        if (!db) {
-            throw new Error("No se encontró la conexión con Supabase.");
-        }
-        
+        if (!db) throw new Error("No se encontró la conexión con Supabase.");
+
         const estadoOT = document.getElementById('selectEstadoOT')?.value || 'Presupuestado';
         const kilometraje = document.getElementById('inputKilometraje')?.value || '';
         const combustible = document.getElementById('selectCombustible')?.value || 'No Registra';
@@ -872,10 +814,10 @@ async function guardarPresupuesto() {
         const baseImponible = Math.max(0, subtotalNeto - descuento);
         const montoIVA = Math.round(baseImponible * 0.19);
         const totalFinal = baseImponible + montoIVA;
-        
+
         const urlParams = new URLSearchParams(window.location.search);
         const idOrden = urlParams.get('id');
-        
+
         const datosPresupuesto = {
             patente: vehiculoSeleccionado.patente,
             vehiculo_info: vehiculoSeleccionado,
@@ -891,35 +833,22 @@ async function guardarPresupuesto() {
             iva: montoIVA,
             total: totalFinal
         };
-        
+
         let resultado;
         if (idOrden) {
-            // Actualizar si ya existe el ID en la URL
-            resultado = await db
-                .from('ordenes_trabajo')
-                .update(datosPresupuesto)
-                .eq('id', idOrden)
-                .select();
+            resultado = await db.from('ordenes_trabajo').update(datosPresupuesto).eq('id', idOrden).select();
         } else {
-            // Crear nuevo registro si es presupuesto nuevo
             datosPresupuesto.numero = 'OT-' + Math.floor(1000 + Math.random() * 9000);
-            resultado = await db
-                .from('ordenes_trabajo')
-                .insert([datosPresupuesto])
-                .select();
+            resultado = await db.from('ordenes_trabajo').insert([datosPresupuesto]).select();
         }
-        
-        if (resultado.error) {
-            throw new Error(resultado.error.message);
-        }
-        
+
+        if (resultado.error) throw new Error(resultado.error.message);
+
         mostrarToast("¡Orden de trabajo guardada con éxito!", "exito");
-        console.log("Guardado exitoso:", resultado.data);
-        
         setTimeout(() => {
             window.location.href = 'ordenes.html';
         }, 1500);
-        
+
     } catch (error) {
         console.error("Error al guardar:", error);
         mostrarToast("Error al guardar: " + error.message, "error");
