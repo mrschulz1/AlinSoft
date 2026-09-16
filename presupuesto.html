@@ -1,884 +1,878 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presupuesto & Cotizador - AlinSoft Studio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <style>
-        :root { 
-            --bg-dark: #07090e; 
-            --panel-bg: rgba(15, 22, 36, 0.65); 
-            --panel-border: rgba(255, 255, 255, 0.07); 
-            --accent-red: #ff2a4b; 
-            --accent-glow: rgba(255, 42, 75, 0.4);
-            --accent-green: #10b981;
-            --text-main: #f8fafc;
-            --text-sub: #64748b;
-        }
-
-        body { 
-            background-color: var(--bg-dark);
-            background-image: radial-gradient(at 0% 0%, rgba(255, 42, 75, 0.08) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-main); 
-            font-family: 'Outfit', sans-serif;
-            min-height: 100vh;
-        }
-
-        .sidebar { 
-            width: 260px; 
-            height: calc(100vh - 30px); 
-            background: rgba(10, 15, 26, 0.8); 
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--panel-border);
-            border-radius: 24px;
-            position: fixed; 
-            top: 15px; 
-            left: 15px; 
-            z-index: 1000; 
-        }
-        
-        .main-content { 
-            margin-left: 290px; 
-            padding: 20px 30px 40px 10px; 
-        }
-
-        .brand-logo {
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffffff 30%, var(--accent-red));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-link { 
-            color: #8a99ad; 
-            padding: 12px 18px; 
-            font-size: 0.95rem; 
-            font-weight: 600; 
-            border-radius: 14px; 
-            margin-bottom: 6px; 
-            display: flex;
-            align-items: center;
-        }
-        .nav-link:hover { color: #fff; background: rgba(255, 255, 255, 0.04); }
-        .nav-link.active { 
-            color: #fff; 
-            background: linear-gradient(135deg, rgba(255, 42, 75, 0.25) 0%, rgba(255, 42, 75, 0.05) 100%);
-            border: 1px solid rgba(255, 42, 75, 0.3);
-        }
-
-        .hud-card { 
-            background: var(--panel-bg); 
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--panel-border); 
-            border-radius: 24px; 
-            padding: 24px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        }
-
-        .hud-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.05rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .badge-hud {
-            background: rgba(255, 42, 75, 0.15);
-            color: var(--accent-red);
-            border: 1px solid rgba(255, 42, 75, 0.3);
-            border-radius: 8px;
-            padding: 4px 10px;
-            font-weight: 700;
-            font-size: 0.8rem;
-        }
-
-        .bujia-card {
-            background: rgba(10, 16, 28, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 18px;
-            padding: 20px;
-            transition: all 0.25s ease;
-        }
-        .bujia-card:hover {
-            border-color: rgba(255, 255, 255, 0.18);
-        }
-
-        .bujia-badge-patente {
-            background: #ffffff;
-            color: #07090e;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 800;
-            letter-spacing: 1px;
-            padding: 4px 12px;
-            border-radius: 8px;
-            display: inline-block;
-            font-size: 1.1rem;
-        }
-
-        .data-label {
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .data-value {
-            font-size: 0.9rem;
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        .cursor-pointer {
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .btn-collapse-icon {
-            transition: transform 0.25s ease-in-out;
-            font-size: 1rem;
-        }
-
-        [aria-expanded="false"] .btn-collapse-icon {
-            transform: rotate(180deg);
-        }
-
-        .form-label-tech {
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--text-sub);
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .form-control-tech, .form-select-tech { 
-            background: rgba(8, 12, 20, 0.8); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            color: #fff; 
-            border-radius: 14px;
-            padding: 12px 16px;
-            font-size: 0.95rem;
-        }
-        .form-control-tech:focus, .form-select-tech:focus { 
-            background: rgba(12, 18, 30, 0.95); 
-            border-color: var(--accent-red); 
-            color: #fff; 
-            box-shadow: 0 0 20px var(--accent-glow); 
-            outline: none;
-        }
-
-        .search-results-panel {
-            position: absolute;
-            top: 100%; left: 0; right: 0;
-            z-index: 1050;
-            background: rgba(11, 16, 26, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            margin-top: 8px;
-            max-height: 280px;
-            overflow-y: auto;
-        }
-        .search-item-card {
-            padding: 14px 18px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .search-item-card:hover { background: rgba(255, 42, 75, 0.15); }
-
-        .btn-glow-danger { 
-            background: linear-gradient(135deg, #ff2a4b 0%, #b91c1c 100%);
-            border: none; color: #fff; font-weight: 700; border-radius: 14px;
-            padding: 12px 24px; box-shadow: 0 4px 20px var(--accent-glow);
-        }
-
-        .btn-glass {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff; border-radius: 14px; font-weight: 600;
-        }
-
-        .tech-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-        .tech-table th { font-size: 0.75rem; letter-spacing: 1.5px; color: var(--text-sub); padding: 12px 16px; }
-        .tech-table tbody tr { background: rgba(10, 15, 26, 0.5); }
-        .tech-table td { padding: 16px; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
-
-        .btn-delete-row {
-            background: rgba(255, 42, 75, 0.1); color: var(--accent-red);
-            border: 1px solid rgba(255, 42, 75, 0.2); width: 34px; height: 34px; border-radius: 10px;
-        }
-
-        .ticket-panel {
-            background: linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, rgba(10, 15, 26, 0.95) 100%);
-            border: 1px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 20px; padding: 24px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presupuesto & Cotizador - AlinSoft Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+:root {
+    --bg-dark: #07090e;
+    --panel-bg: rgba(15, 22, 36, 0.65);
+    --panel-border: rgba(255, 255, 255, 0.07);
+    --accent-red: #ff2a4b;
+    --accent-glow: rgba(255, 42, 75, 0.4);
+    --accent-green: #10b981;
+    --text-main: #f8fafc;
+    --text-sub: #64748b;
+}
+body {
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(at 0% 0%, rgba(255, 42, 75, 0.08) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(0, 242, 254, 0.05) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+}
+.sidebar {
+    width: 260px;
+    height: calc(100vh - 30px);
+    background: rgba(10, 15, 26, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1000;
+}
+.main-content {
+    margin-left: 290px;
+    padding: 20px 30px 40px 10px;
+}
+.brand-logo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff 30%, var(--accent-red));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.nav-link {
+    color: #8a99ad;
+    padding: 12px 18px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+}
+.nav-link:hover { color: #fff; background: rgba(255, 255, 255, 0.04); }
+.nav-link.active {
+    color: #fff;
+    background: linear-gradient(135deg, rgba(255, 42, 75, 0.25) 0%, rgba(255, 42, 75, 0.05) 100%);
+    border: 1px solid rgba(255, 42, 75, 0.3);
+}
+.hud-card {
+    background: var(--panel-bg);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--panel-border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+}
+.hud-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.badge-hud {
+    background: rgba(255, 42, 75, 0.15);
+    color: var(--accent-red);
+    border: 1px solid rgba(255, 42, 75, 0.3);
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+.bujia-card {
+    background: rgba(10, 16, 28, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 20px;
+    transition: all 0.25s ease;
+}
+.bujia-card:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+}
+.bujia-badge-patente {
+    background: #ffffff;
+    color: #07090e;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    display: inline-block;
+    font-size: 1.1rem;
+}
+.data-label {
+    font-size: 0.75rem;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.data-value {
+    font-size: 0.9rem;
+    color: #ffffff;
+    font-weight: 600;
+}
+.cursor-pointer {
+    cursor: pointer;
+    user-select: none;
+}
+.btn-collapse-icon {
+    transition: transform 0.25s ease-in-out;
+    font-size: 1rem;
+}
+[aria-expanded="false"] .btn-collapse-icon {
+    transform: rotate(180deg);
+}
+.form-label-tech {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-sub);
+    margin-bottom: 8px;
+    display: block;
+}
+.form-control-tech, .form-select-tech {
+    background: rgba(8, 12, 20, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+}
+.form-control-tech:focus, .form-select-tech:focus {
+    background: rgba(12, 18, 30, 0.95);
+    border-color: var(--accent-red);
+    color: #fff;
+    box-shadow: 0 0 20px var(--accent-glow);
+    outline: none;
+}
+.btn-glow-danger {
+    background: linear-gradient(135deg, #ff2a4b 0%, #b91c1c 100%);
+    border: none; color: #fff; font-weight: 700; border-radius: 14px;
+    padding: 12px 24px; box-shadow: 0 4px 20px var(--accent-glow);
+}
+.btn-glass {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff; border-radius: 14px; font-weight: 600;
+}
+.tech-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+.tech-table th { font-size: 0.75rem; letter-spacing: 1.5px; color: var(--text-sub); padding: 12px 16px; }
+.tech-table tbody tr { background: rgba(10, 15, 26, 0.5); }
+.tech-table td { padding: 16px; border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
+.btn-delete-row {
+    background: rgba(255, 42, 75, 0.1); color: var(--accent-red);
+    border: 1px solid rgba(255, 42, 75, 0.2); width: 34px; height: 34px; border-radius: 10px;
+}
+.ticket-panel {
+    background: linear-gradient(180deg, rgba(17, 24, 39, 0.8) 0%, rgba(10, 15, 26, 0.95) 100%);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: 20px; padding: 24px;
+}
+</style>
 </head>
 <body>
 
-    <!-- SIDEBAR -->
-    <div class="sidebar d-flex flex-column justify-content-between p-3">
-        <div>
-            <div class="d-flex align-items-center px-2 py-3 mb-4">
-                <i class="bi bi-cpu-fill text-danger fs-3 me-3"></i>
-                <span class="fs-4 brand-logo">AlinSoft<span class="text-danger">.io</span></span>
-            </div>
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-grid-1x2-fill me-3"></i> Inicio</a></li>
-                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-receipt-cutoff me-3"></i> Órdenes</a></li>
-                <li class="nav-item"><a href="presupuesto.html" class="nav-link active"><i class="bi bi-calculator-fill me-3"></i> Crear Presupuesto</a></li>
-            </ul>
+<!-- SIDEBAR -->
+<div class="sidebar d-flex flex-column justify-content-between p-3">
+    <div>
+        <div class="d-flex align-items-center px-2 py-3 mb-4">
+            <i class="bi bi-cpu-fill text-danger fs-3 me-3"></i>
+            <span class="fs-4 brand-logo">AlinSoft<span class="text-danger">.io</span></span>
         </div>
-        <div class="px-2 py-2 border-top border-secondary border-opacity-25">
-            <a href="#" onclick="logout()" class="nav-link text-danger p-2"><i class="bi bi-power me-3"></i> Cerrar Sesión</a>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-grid-1x2-fill me-3"></i> Inicio</a></li>
+            <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-receipt-cutoff me-3"></i> Órdenes</a></li>
+            <li class="nav-item"><a href="presupuesto.html" class="nav-link active"><i class="bi bi-calculator-fill me-3"></i> Crear Presupuesto</a></li>
+        </ul>
+    </div>
+    <div class="px-2 py-2 border-top border-secondary border-opacity-25">
+        <a href="#" onclick="logout()" class="nav-link text-danger p-2"><i class="bi bi-power me-3"></i> Cerrar Sesión</a>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <!-- HEADER HUD -->
+    <div class="hud-card mb-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-4">
+                    <i class="bi bi-file-earmark-spreadsheet-fill fs-2 text-danger"></i>
+                </div>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h3 class="fw-bold m-0" id="lblFolioOT">NUEVO PRESUPUESTO</h3>
+                        <span class="badge-hud" id="lblBadgePatenteHeader">SIN PATENTE</span>
+                    </div>
+                    <p class="text-muted small m-0 mt-1">Configura ítems, repuestos y especificaciones del vehículo</p>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-4">
+                <div class="text-end">
+                    <span class="form-label-tech mb-1">Estado de Orden</span>
+                    <select id="selectEstadoOT" class="form-select-tech form-select-sm py-1 border-danger text-danger fw-bold">
+                        <option value="Recepción">Recepción</option>
+                        <option value="Presupuestado" selected>Presupuestado</option>
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Listo para Retiro">Listo para Retiro</option>
+                        <option value="Finalizado">Finalizado</option>
+                    </select>
+                </div>
+                <div class="text-end border-start border-white border-opacity-10 ps-4">
+                    <span class="form-label-tech mb-0">Total Estimado</span>
+                    <span id="lblTotalHeader" class="fs-2 fw-bold text-success" style="font-family: 'Space Grotesk';">$0</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="main-content">
+    <!-- CONSULTA RÁPIDA POR API PATENTE -->
+    <div class="hud-card mb-4 border-danger border-opacity-25">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-md-8">
+                <label class="form-label-tech text-danger">
+                    <i class="bi bi-magic me-1"></i> Consulta Automática por Patente (API Vehículo)
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text bg-dark border-secondary border-opacity-25 text-danger fw-bold">PATENTE</span>
+                    <input type="text" id="inputBuscarPatenteAPI" class="form-control-tech text-uppercase fw-bold" placeholder="EJ: BBCL10 O WAUZZZ..." maxlength="17" style="letter-spacing: 2px;">
+                    <button type="button" class="btn btn-glow-danger px-4" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
+                        <i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo
+                    </button>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 text-muted small">
+                <i class="bi bi-info-circle me-1"></i> Rellena automáticamente los datos del vehículo. Si el propietario no está registrado, se te notificará.
+            </div>
+        </div>
+    </div>
 
-        <!-- HEADER HUD -->
-        <div class="hud-card mb-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-4">
-                        <i class="bi bi-file-earmark-spreadsheet-fill fs-2 text-danger"></i>
+    <!-- TARJETAS SEPARADAS Y COLAPSABLES TIPO BUJÍA -->
+    <div class="row g-4 mb-4">
+        <!-- TARJETA CLIENTE (COLAPSABLE) -->
+        <div class="col-12 col-lg-6">
+            <div class="bujia-card h-100">
+                <div class="d-flex justify-content-between align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapseCliente" aria-expanded="true" aria-controls="collapseCliente">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-person-fill text-danger fs-5"></i>
+                        <h6 class="fw-bold text-white m-0">Cliente / Propietario</h6>
                     </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2">
-                            <h3 class="fw-bold m-0" id="lblFolioOT">NUEVO PRESUPUESTO</h3>
-                            <span class="badge-hud" id="lblBadgePatenteHeader">SIN PATENTE</span>
-                        </div>
-                        <p class="text-muted small m-0 mt-1">Configura ítems, repuestos y especificaciones del vehículo</p>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="badgeClienteRut" class="badge bg-secondary bg-opacity-25 text-light border border-white border-opacity-10 fs-7">RUT: S/I</span>
+                        <i class="bi bi-chevron-up text-muted btn-collapse-icon ms-2"></i>
                     </div>
                 </div>
-
-                <div class="d-flex align-items-center gap-4">
-                    <div class="text-end">
-                        <span class="form-label-tech mb-1">Estado de Orden</span>
-                        <select id="selectEstadoOT" class="form-select-tech form-select-sm py-1 border-danger text-danger fw-bold">
-                            <option value="Recepción">Recepción</option>
-                            <option value="Presupuestado" selected>Presupuestado</option>
-                            <option value="En Proceso">En Proceso</option>
-                            <option value="Listo para Retiro">Listo para Retiro</option>
-                            <option value="Finalizado">Finalizado</option>
-                        </select>
-                    </div>
-                    <div class="text-end border-start border-white border-opacity-10 ps-4">
-                        <span class="form-label-tech mb-0">Total Estimado</span>
-                        <span id="lblTotalHeader" class="fs-2 fw-bold text-success" style="font-family:'Space Grotesk';">$0</span>
+                <div class="collapse show mt-3" id="collapseCliente">
+                    <div class="pt-2 border-top border-secondary border-opacity-25">
+                        <h4 class="fw-bold text-white mb-3" id="lblClienteNombre">No seleccionado</h4>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <span class="data-label d-block">Teléfono:</span>
+                                <span class="data-value text-info" id="lblClienteTelefono">-</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="data-label d-block">Email:</span>
+                                <span class="data-value" id="lblClienteEmail">-</span>
+                            </div>
+                            <div class="col-12">
+                                <span class="data-label d-block">Dirección:</span>
+                                <span class="data-value" id="lblClienteDireccion">-</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- CONSULTA RÁPIDA POR API PATENTE -->
-        <div class="hud-card mb-4 border-danger border-opacity-25">
-            <div class="row g-3 align-items-end">
-                <div class="col-12 col-md-8">
-                    <label class="form-label-tech text-danger">
-                        <i class="bi bi-magic me-1"></i> Consulta Automática por Patente (API Vehículo)
-                    </label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-dark border-secondary border-opacity-25 text-danger fw-bold">PATENTE</span>
-                        <input type="text" id="inputBuscarPatenteAPI" class="form-control-tech text-uppercase fw-bold" placeholder="EJ: BBCL10 O WAUZZZ..." maxlength="17" style="letter-spacing: 2px;">
-                        <button type="button" class="btn btn-glow-danger px-4" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
-                            <i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo
+        <!-- TARJETA VEHÍCULO (COLAPSABLE) -->
+        <div class="col-12 col-lg-6">
+            <div class="bujia-card h-100">
+                <div class="d-flex justify-content-between align-items-center cursor-pointer" data-bs-toggle="collapse" data-bs-target="#collapseVehiculo" aria-expanded="true" aria-controls="collapseVehiculo">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-car-front-fill text-danger fs-5"></i>
+                        <h6 class="fw-bold text-white m-0">Vehículo</h6>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="lblVehiculoPatenteBadge" class="bujia-badge-patente">S/P</span>
+                        <i class="bi bi-chevron-up text-muted btn-collapse-icon ms-2"></i>
+                    </div>
+                </div>
+                <div class="collapse show mt-3" id="collapseVehiculo">
+                    <div class="pt-2 border-top border-secondary border-opacity-25">
+                        <h5 class="fw-bold text-white mb-3" id="lblVehiculoTitulo">Sin especificar</h5>
+                        <div class="row g-3">
+                            <div class="col-4">
+                                <span class="data-label d-block">Color:</span>
+                                <span class="data-value" id="lblVehiculoColor">-</span>
+                            </div>
+                            <div class="col-4">
+                                <span class="data-label d-block">Año:</span>
+                                <span class="data-value" id="lblVehiculoAno">-</span>
+                            </div>
+                            <div class="col-4">
+                                <span class="data-label d-block">Transmisión:</span>
+                                <span class="data-value" id="lblVehiculoTransmision">-</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="data-label d-block">N° de Motor:</span>
+                                <span class="data-value font-monospace text-warning" id="lblVehiculoNumMotor">-</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="data-label d-block">VIN / Chasis:</span>
+                                <span class="data-value font-monospace text-info" id="lblVehiculoVin">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PARAMETROS ADICIONALES DE SERVICIO -->
+    <div class="hud-card mb-4">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <label class="form-label-tech">Kilometraje</label>
+                <input type="text" id="inputKilometraje" class="form-control-tech" placeholder="100.000 KM">
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label-tech">Combustible</label>
+                <select id="selectCombustible" class="form-select-tech">
+                    <option value="No Registra">No Registra</option>
+                    <option value="Reserva">Reserva</option>
+                    <option value="1/4 Tanque">1/4 Tanque</option>
+                    <option value="1/2 Tanque" selected>1/2 Tanque</option>
+                    <option value="3/4 Tanque">3/4 Tanque</option>
+                    <option value="Lleno">Lleno</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label-tech">Observaciones Diagnósticas / Requerimientos</label>
+                <input type="text" id="txtObservaciones" class="form-control-tech" placeholder="Describe requerimientos del cliente o diagnóstico previo...">
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. TRABAJOS Y ÍTEMS -->
+    <div class="hud-card mb-4">
+        <div class="d-flex align-items-center gap-2 mb-4">
+            <span class="badge-hud">02</span>
+            <h5 class="hud-title m-0">Detalle de Servicios & Repuestos</h5>
+        </div>
+        <form id="formAgregarItem" onsubmit="agregarItem(event)" class="row g-2 mb-4">
+            <div class="col-12 col-md-6">
+                <input type="text" id="itemDescripcion" class="form-control-tech" placeholder="Descripción del trabajo o repuesto..." required>
+            </div>
+            <div class="col-4 col-md-2">
+                <input type="number" id="itemCantidad" class="form-control-tech text-center" placeholder="Cant." min="1" value="1" required>
+            </div>
+            <div class="col-8 col-md-2">
+                <input type="number" id="itemPrecio" class="form-control-tech text-end" placeholder="Precio ($)" min="0" step="100" required>
+            </div>
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-glow-danger w-100 h-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-plus-lg"></i> Agregar
+                </button>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <table class="tech-table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">DESCRIPCIÓN DE SERVICIO / REPUESTO</th>
+                        <th class="text-center" style="width: 15%;">CANT.</th>
+                        <th class="text-end" style="width: 15%;">P. UNITARIO</th>
+                        <th class="text-end" style="width: 15%;">SUBTOTAL</th>
+                        <th class="text-center" style="width: 10%;">ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody id="bodyItemsPresupuesto">
+                    <tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 3. CONFIGURACIÓN FINANCIERA Y TOTALES -->
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <div class="hud-card h-100">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <span class="badge-hud">03</span>
+                    <h5 class="hud-title m-0">Ajustes & Método de Pago</h5>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label-tech">Aplicar Descuento Directo ($)</label>
+                    <input type="number" id="inputDescuento" class="form-control-tech" value="0" min="0" oninput="calcularTotales()">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label-tech">Medio de Pago Principal</label>
+                    <select id="selectMedioPago" class="form-select-tech">
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Transferencia">Transferencia Bancaria</option>
+                        <option value="Débito">Tarjeta Débito</option>
+                        <option value="Crédito">Tarjeta Crédito</option>
+                    </select>
+                </div>
+                <div class="p-3 border border-white border-opacity-10 rounded-4 d-flex align-items-center justify-content-between bg-dark bg-opacity-50">
+                    <div>
+                        <span class="fw-bold d-block text-white">Recargo IVA (19%)</span>
+                        <span class="text-muted small">Aplica cálculo de impuesto al subtotal</span>
+                    </div>
+                    <div class="form-check form-switch m-0 fs-4">
+                        <input class="form-check-input cursor-pointer" type="checkbox" id="checkAplicarIVA" checked onchange="calcularTotales()">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="hud-card h-100 d-flex flex-column justify-content-between">
+                <div class="ticket-panel">
+                    <h5 class="hud-title text-center text-muted mb-4 pb-2 border-bottom border-secondary border-opacity-25">Resumen del Cálculo</h5>
+                    <div class="d-flex justify-content-between mb-3 fs-6">
+                        <span class="text-muted">Subtotal Neto:</span>
+                        <span id="lblSubtotalNeto" class="fw-bold text-white">$0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 fs-6">
+                        <span class="text-muted">Descuento Aplicado:</span>
+                        <span id="lblMontoDescuento" class="text-danger fw-bold">-$0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 fs-6">
+                        <span class="text-muted">Impuestos (IVA 19%):</span>
+                        <span id="lblMontoIVA" class="text-info fw-bold">$0</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top border-secondary border-opacity-25">
+                        <span class="fs-5 fw-bold text-white">Total a Cobrar:</span>
+                        <span id="lblTotalFinal" class="fs-2 fw-bold text-success" style="font-family: 'Space Grotesk';">$0</span>
+                    </div>
+                </div>
+                <div class="row g-3 mt-3">
+                    <div class="col-6">
+                        <button class="btn btn-glass w-100 py-3 fw-bold" onclick="enviarWhatsApp()">
+                            <i class="bi bi-whatsapp me-2 text-success"></i> WhatsApp
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-glow-danger w-100 py-3" onclick="guardarPresupuesto()">
+                            <i class="bi bi-cloud-arrow-up-fill me-2"></i> Guardar Todo
                         </button>
                     </div>
                 </div>
-                <div class="col-12 col-md-4 text-muted small">
-                    <i class="bi bi-info-circle me-1"></i> Rellena automáticamente los datos del vehículo. Si el propietario no está registrado, se te notificará.
-                </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- TARJETAS SEPARADAS Y COLAPSABLES TIPO BUJÍA -->
-        <div class="row g-4 mb-4">
-            <!-- TARJETA CLIENTE (COLAPSABLE) -->
-            <div class="col-12 col-lg-6">
-                <div class="bujia-card h-100">
-                    <div class="d-flex justify-content-between align-items-center cursor-pointer" 
-                         data-bs-toggle="collapse" 
-                         data-bs-target="#collapseCliente" 
-                         aria-expanded="true" 
-                         aria-controls="collapseCliente">
-                        
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-person-fill text-danger fs-5"></i>
-                            <h6 class="fw-bold text-white m-0">Cliente / Propietario</h6>
-                        </div>
-                        
-                        <div class="d-flex align-items-center gap-2">
-                            <span id="badgeClienteRut" class="badge bg-secondary bg-opacity-25 text-light border border-white border-opacity-10 fs-7">RUT: S/I</span>
-                            <i class="bi bi-chevron-up text-muted btn-collapse-icon ms-2"></i>
-                        </div>
-                    </div>
-
-                    <div class="collapse show mt-3" id="collapseCliente">
-                        <div class="pt-2 border-top border-secondary border-opacity-25">
-                            <h4 class="fw-bold text-white mb-3" id="lblClienteNombre">No seleccionado</h4>
-
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <span class="data-label d-block">Teléfono:</span>
-                                    <span class="data-value text-info" id="lblClienteTelefono">—</span>
-                                </div>
-                                <div class="col-6">
-                                    <span class="data-label d-block">Email:</span>
-                                    <span class="data-value" id="lblClienteEmail">—</span>
-                                </div>
-                                <div class="col-12">
-                                    <span class="data-label d-block">Dirección:</span>
-                                    <span class="data-value" id="lblClienteDireccion">—</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<!-- MODAL DE ADVERTENCIA Y REGISTRO DE CLIENTE NO ENCONTRADO -->
+<div class="modal fade" id="modalRegistroCliente" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-danger border-opacity-50 rounded-4 shadow-lg text-white">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title fw-bold text-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Cliente No Registrado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
-            <!-- TARJETA VEHÍCULO (COLAPSABLE) -->
-            <div class="col-12 col-lg-6">
-                <div class="bujia-card h-100">
-                    <div class="d-flex justify-content-between align-items-center cursor-pointer" 
-                         data-bs-toggle="collapse" 
-                         data-bs-target="#collapseVehiculo" 
-                         aria-expanded="true" 
-                         aria-controls="collapseVehiculo">
-                        
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-car-front-fill text-danger fs-5"></i>
-                            <h6 class="fw-bold text-white m-0">Vehículo</h6>
-                        </div>
-
-                        <div class="d-flex align-items-center gap-2">
-                            <span id="lblVehiculoPatenteBadge" class="bujia-badge-patente">S/P</span>
-                            <i class="bi bi-chevron-up text-muted btn-collapse-icon ms-2"></i>
-                        </div>
-                    </div>
-
-                    <div class="collapse show mt-3" id="collapseVehiculo">
-                        <div class="pt-2 border-top border-secondary border-opacity-25">
-                            <h5 class="fw-bold text-white mb-3" id="lblVehiculoTitulo">Sin especificar</h5>
-
-                            <div class="row g-3">
-                                <div class="col-4">
-                                    <span class="data-label d-block">Color:</span>
-                                    <span class="data-value" id="lblVehiculoColor">—</span>
-                                </div>
-                                <div class="col-4">
-                                    <span class="data-label d-block">Año:</span>
-                                    <span class="data-value" id="lblVehiculoAno">—</span>
-                                </div>
-                                <div class="col-4">
-                                    <span class="data-label d-block">Transmisión:</span>
-                                    <span class="data-value" id="lblVehiculoTransmision">—</span>
-                                </div>
-
-                                <div class="col-6">
-                                    <span class="data-label d-block">N° de Motor:</span>
-                                    <span class="data-value font-monospace text-warning" id="lblVehiculoNumMotor">—</span>
-                                </div>
-                                <div class="col-6">
-                                    <span class="data-label d-block">VIN / Chasis:</span>
-                                    <span class="data-value font-monospace text-info" id="lblVehiculoVin">—</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PARAMETROS ADICIONALES DE SERVICIO -->
-        <div class="hud-card mb-4">
-            <div class="row g-3">
-                <div class="col-6 col-md-3">
-                    <label class="form-label-tech">Kilometraje</label>
-                    <input type="text" id="inputKilometraje" class="form-control-tech" placeholder="100.000 KM">
-                </div>
-                <div class="col-6 col-md-3">
-                    <label class="form-label-tech">Combustible</label>
-                    <select id="selectCombustible" class="form-select-tech">
-                        <option value="No Registra">No Registra</option>
-                        <option value="Reserva">Reserva</option>
-                        <option value="1/4 Tanque">1/4 Tanque</option>
-                        <option value="1/2 Tanque" selected>1/2 Tanque</option>
-                        <option value="3/4 Tanque">3/4 Tanque</option>
-                        <option value="Lleno">Lleno</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-6">
-                    <label class="form-label-tech">Observaciones Diagnósticas / Requerimientos</label>
-                    <input type="text" id="txtObservaciones" class="form-control-tech" placeholder="Describe requerimientos del cliente o diagnóstico previo...">
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. TRABAJOS Y ÍTEMS -->
-        <div class="hud-card mb-4">
-            <div class="d-flex align-items-center gap-2 mb-4">
-                <span class="badge-hud">02</span>
-                <h5 class="hud-title m-0">Detalle de Servicios & Repuestos</h5>
-            </div>
-
-            <form id="formAgregarItem" onsubmit="agregarItem(event)" class="row g-2 mb-4">
-                <div class="col-12 col-md-6">
-                    <input type="text" id="itemDescripcion" class="form-control-tech" placeholder="Descripción del trabajo o repuesto..." required>
-                </div>
-                <div class="col-4 col-md-2">
-                    <input type="number" id="itemCantidad" class="form-control-tech text-center" placeholder="Cant." min="1" value="1" required>
-                </div>
-                <div class="col-8 col-md-2">
-                    <input type="number" id="itemPrecio" class="form-control-tech text-end" placeholder="Precio ($)" min="0" step="100" required>
-                </div>
-                <div class="col-12 col-md-2">
-                    <button type="submit" class="btn btn-glow-danger w-100 h-100 d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-plus-lg"></i> Agregar
-                    </button>
-                </div>
-            </form>
-
-            <div class="table-responsive">
-                <table class="tech-table align-middle">
-                    <thead>
-                        <tr>
-                            <th style="width: 45%;">DESCRIPCIÓN DE SERVICIO / REPUESTO</th>
-                            <th class="text-center" style="width: 15%;">CANT.</th>
-                            <th class="text-end" style="width: 15%;">P. UNITARIO</th>
-                            <th class="text-end" style="width: 15%;">SUBTOTAL</th>
-                            <th class="text-center" style="width: 10%;">ACCIÓN</th>
-                        </tr>
-                    </thead>
-                    <tbody id="bodyItemsPresupuesto">
-                        <tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 3. CONFIGURACIÓN FINANCIERA Y TOTALES -->
-        <div class="row g-4">
-            <div class="col-12 col-lg-6">
-                <div class="hud-card h-100">
-                    <div class="d-flex align-items-center gap-2 mb-4">
-                        <span class="badge-hud">03</span>
-                        <h5 class="hud-title m-0">Ajustes & Método de Pago</h5>
-                    </div>
-
+            <div class="modal-body py-4">
+                <p class="text-muted small mb-3">
+                    El vehículo fue encontrado en la API, pero el propietario asociado <strong>no se encuentra registrado</strong> en tu base de datos interna o en la información del sistema.
+                </p>
+                <p class="fw-semibold text-warning mb-4" id="txtDetallePropietarioApi">Propietario en API: -</p>
+                <form id="formNuevoClienteModal">
                     <div class="mb-3">
-                        <label class="form-label-tech">Aplicar Descuento Directo ($)</label>
-                        <input type="number" id="inputDescuento" class="form-control-tech" value="0" min="0" oninput="calcularTotales()">
+                        <label class="form-label-tech">Nombre Completo del Cliente *</label>
+                        <input type="text" id="modalInputNombre" class="form-control-tech" placeholder="Ej: Carlos Soto" required>
                     </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label-tech">Medio de Pago Principal</label>
-                        <select id="selectMedioPago" class="form-select-tech">
-                            <option value="Efectivo">Efectivo</option>
-                            <option value="Transferencia">Transferencia Bancaria</option>
-                            <option value="Débito">Tarjeta Débito</option>
-                            <option value="Crédito">Tarjeta Crédito</option>
-                        </select>
-                    </div>
-
-                    <div class="p-3 border border-white border-opacity-10 rounded-4 d-flex align-items-center justify-content-between bg-dark bg-opacity-50">
-                        <div>
-                            <span class="fw-bold d-block text-white">Recargo IVA (19%)</span>
-                            <span class="text-muted small">Aplica cálculo de impuesto al subtotal</span>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label-tech">RUT / DNI</label>
+                            <input type="text" id="modalInputRut" class="form-control-tech" placeholder="Ej: 12.345.678-9">
                         </div>
-                        <div class="form-check form-switch m-0 fs-4">
-                            <input class="form-check-input cursor-pointer" type="checkbox" id="checkAplicarIVA" checked onchange="calcularTotales()">
+                        <div class="col-md-6">
+                            <label class="form-label-tech">Teléfono de Contacto</label>
+                            <input type="text" id="modalInputTelefono" class="form-control-tech" placeholder="+569...">
                         </div>
                     </div>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label-tech">Correo Electrónico</label>
+                        <input type="email" id="modalInputEmail" class="form-control-tech" placeholder="correo@ejemplo.com">
+                    </div>
+                </form>
             </div>
-
-            <div class="col-12 col-lg-6">
-                <div class="hud-card h-100 d-flex flex-column justify-content-between">
-                    <div class="ticket-panel">
-                        <h5 class="hud-title text-center text-muted mb-4 pb-2 border-bottom border-secondary border-opacity-25">Resumen del Cálculo</h5>
-                        
-                        <div class="d-flex justify-content-between mb-3 fs-6">
-                            <span class="text-muted">Subtotal Neto:</span>
-                            <span id="lblSubtotalNeto" class="fw-bold text-white">$0</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-3 fs-6">
-                            <span class="text-muted">Descuento Aplicado:</span>
-                            <span id="lblMontoDescuento" class="text-danger fw-bold">-$0</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-3 fs-6">
-                            <span class="text-muted">Impuestos (IVA 19%):</span>
-                            <span id="lblMontoIVA" class="text-info fw-bold">$0</span>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center pt-3 mt-3 border-top border-secondary border-opacity-25">
-                            <span class="fs-5 fw-bold text-white">Total a Cobrar:</span>
-                            <span id="lblTotalFinal" class="fs-2 fw-bold text-success" style="font-family:'Space Grotesk';">$0</span>
-                        </div>
-                    </div>
-
-                    <div class="row g-3 mt-3">
-                        <div class="col-6">
-                            <button class="btn btn-glass w-100 py-3 fw-bold" onclick="enviarWhatsApp()">
-                                <i class="bi bi-whatsapp me-2 text-success"></i> WhatsApp
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button class="btn btn-glow-danger w-100 py-3" onclick="guardarPresupuesto()">
-                                <i class="bi bi-cloud-arrow-up-fill me-2"></i> Guardar Todo
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-between">
+                <button type="button" class="btn btn-glass px-4" data-bs-dismiss="modal" onclick="continuarSinCliente()">
+                    Proseguir sin datos de cliente
+                </button>
+                <button type="button" class="btn btn-glow-danger px-4" onclick="guardarYAsignarCliente()">
+                    <i class="bi bi-person-plus-fill me-1"></i> Registrar y Asignar
+                </button>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- MODAL DE ADVERTENCIA Y REGISTRO DE CLIENTE NO ENCONTRADO -->
-    <div class="modal fade" id="modalRegistroCliente" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark border border-danger border-opacity-50 rounded-4 shadow-lg text-white">
-                <div class="modal-header border-bottom border-secondary border-opacity-25">
-                    <h5 class="modal-title fw-bold text-danger">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Cliente No Registrado
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body py-4">
-                    <p class="text-muted small mb-3">
-                        El vehículo fue encontrado en la API, pero el propietario asociado <strong>no se encuentra registrado</strong> en tu base de datos interna o en la información del sistema.
-                    </p>
-                    <p class="fw-semibold text-warning mb-4" id="txtDetallePropietarioApi">Propietario en API: —</p>
-
-                    <form id="formNuevoClienteModal">
-                        <div class="mb-3">
-                            <label class="form-label-tech">Nombre Completo del Cliente *</label>
-                            <input type="text" id="modalInputNombre" class="form-control-tech" placeholder="Ej: Carlos Soto" required>
-                        </div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label-tech">RUT / DNI</label>
-                                <input type="text" id="modalInputRut" class="form-control-tech" placeholder="Ej: 12.345.678-9">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label-tech">Teléfono de Contacto</label>
-                                <input type="text" id="modalInputTelefono" class="form-control-tech" placeholder="+569...">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label-tech">Correo Electrónico</label>
-                            <input type="email" id="modalInputEmail" class="form-control-tech" placeholder="correo@ejemplo.com">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-top border-secondary border-opacity-25 d-flex justify-content-between">
-                    <button type="button" class="btn btn-glass px-4" data-bs-dismiss="modal" onclick="continuarSinCliente()">
-                        Proseguir sin datos de cliente
-                    </button>
-                    <button type="button" class="btn btn-glow-danger px-4" onclick="guardarYAsignarCliente()">
-                        <i class="bi bi-person-plus-fill me-1"></i> Registrar y Asignar
-                    </button>
-                </div>
-            </div>
+<!-- TOAST NOTIFICACIÓN -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+    <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-4" role="alert">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center fs-6 fw-bold" id="toastMensaje"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
     </div>
+</div>
 
-    <!-- TOAST NOTIFICACIÓN -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
-        <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-4" role="alert">
-            <div class="d-flex">
-                <div class="toast-body d-flex align-items-center fs-6 fw-bold" id="toastMensaje"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="app.js"></script>
+<script>
+let ordenActual = null;
+let listaItems = [];
+let clienteSeleccionado = null;
+let vehiculoSeleccionado = null;
+let modalRegistroInstance = null;
+const formatterCLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="app.js"></script>
-
-    <script>
-        let ordenActual = null;
-        let listaItems = [];
-        let clienteSeleccionado = null;
-        let vehiculoSeleccionado = null;
-        let modalRegistroInstance = null;
-        const formatterCLP = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            modalRegistroInstance = new bootstrap.Modal(document.getElementById('modalRegistroCliente'));
-
-            const inputPatente = document.getElementById('inputBuscarPatenteAPI');
-            if (inputPatente) {
-                inputPatente.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        consultarPatenteAPI();
-                    }
-                });
+document.addEventListener("DOMContentLoaded", () => {
+    modalRegistroInstance = new bootstrap.Modal(document.getElementById('modalRegistroCliente'));
+    const inputPatente = document.getElementById('inputBuscarPatenteAPI');
+    if (inputPatente) {
+        inputPatente.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                consultarPatenteAPI();
             }
         });
+    }
+});
 
-        function mostrarToast(mensaje, tipo = "exito") {
-            const toastEl = document.getElementById('toastNotificacion');
-            const toastMsg = document.getElementById('toastMensaje');
-            if (!toastEl || !toastMsg) return;
+function mostrarToast(mensaje, tipo = "exito") {
+    const toastEl = document.getElementById('toastNotificacion');
+    const toastMsg = document.getElementById('toastMensaje');
+    if (!toastEl || !toastMsg) return;
+    toastMsg.textContent = mensaje;
+    toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : "bg-danger"}`;
+    const bsToast = new bootstrap.Toast(toastEl);
+    bsToast.show();
+}
 
-            toastMsg.textContent = mensaje;
-            toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : "bg-danger"}`;
-            const bsToast = new bootstrap.Toast(toastEl);
-            bsToast.show();
+/**
+ * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE
+ */
+async function consultarPatenteAPI() {
+    const inputPatente = document.getElementById('inputBuscarPatenteAPI');
+    const btnConsultar = document.getElementById('btnConsultarPatente');
+    const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
+    
+    if (!patenteQuery || patenteQuery.length < 4) {
+        mostrarToast("Ingresa una patente o VIN válido (Ej: HHTZ36)", "error");
+        return;
+    }
+    
+    mostrarToast(`Consultando patente ${patenteQuery}...`, "exito");
+    if (btnConsultar) {
+        btnConsultar.disabled = true;
+        btnConsultar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Consultando...';
+    }
+    
+    try {
+        const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
+        if (!db) {
+            throw new Error("No se encontró la conexión con Supabase.");
         }
+        
+        const { data, error } = await db.functions.invoke('get-vehiculo', {
+            body: { patente: patenteQuery }
+        });
+        
+        if (error) {
+            throw new Error(error.message || "Error al invocar la función de búsqueda.");
+        }
+        if (!data || data.error) {
+            throw new Error(data?.error || "La API no devolvió información para esta patente.");
+        }
+        
+        console.log("RESPUESTA COMPLETA DE LA API:", data);
+        const infoVehiculo = normalizarDatosVehiculo(data);
+        asignarDatosVehiculoUI(infoVehiculo, patenteQuery);
+        verificarClienteEnBaseDeDatos(data);
+        
+    } catch (error) {
+        console.error("Error en la consulta:", error);
+        mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
+    } finally {
+        if (btnConsultar) {
+            btnConsultar.disabled = false;
+            btnConsultar.innerHTML = '<i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo';
+        }
+    }
+}
 
-        /**
-         * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE
-         */
-        async function consultarPatenteAPI() {
-            const inputPatente = document.getElementById('inputBuscarPatenteAPI');
-            const btnConsultar = document.getElementById('btnConsultarPatente');
-            const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
+/**
+ * EXTRAE SOLO LA INFORMACIÓN TÉCNICA DEL VEHÍCULO DE LA API
+ */
+function normalizarDatosVehiculo(responseJson) {
+    const data = responseJson.data || responseJson;
+    return {
+        marca: data.brand || data.marca || data.make || '',
+        modelo: data.model || data.modelo || '',
+        ano: data.year || data.ano || data.anio || '-',
+        vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '-',
+        color: data.color || data.colour || '-',
+        transmision: data.transmission || data.transmision || 'Automática / Mecánica',
+        n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || '-'
+    };
+}
 
-            if (!patenteQuery || patenteQuery.length < 4) {
-                mostrarToast("Ingresa una patente o VIN válido (Ej: HHTZ36)", "error");
-                return;
+/**
+ * RELLENA LOS CAMPOS DE LA TARJETA VEHÍCULO EXCLUSIVAMENTE
+ */
+function asignarDatosVehiculoUI(datos, patente) {
+    vehiculoSeleccionado = { patente: patente, ...datos };
+    document.getElementById('lblVehiculoPatenteBadge').textContent = patente;
+    document.getElementById('lblBadgePatenteHeader').textContent = patente;
+    document.getElementById('lblVehiculoTitulo').textContent = `${datos.marca} ${datos.modelo}`;
+    document.getElementById('lblVehiculoColor').textContent = datos.color;
+    document.getElementById('lblVehiculoAno').textContent = datos.ano;
+    document.getElementById('lblVehiculoTransmision').textContent = datos.transmision;
+    document.getElementById('lblVehiculoNumMotor').textContent = datos.n_motor;
+    document.getElementById('lblVehiculoVin').textContent = datos.vin;
+}
+
+/**
+ * VERIFICA SI EL CLIENTE EXISTE EN LA BASE DE DATOS INTERNA DE SUPABASE
+ */
+async function verificarClienteEnBaseDeDatos(responseJson) {
+    const data = responseJson.data || responseJson;
+    const ownerApi = data.owner || {};
+    const nombrePropietarioApi = ownerApi.name || ownerApi.fullname || ownerApi.nombre || data.client_name || '';
+    const rutPropietarioApi = ownerApi.rut || ownerApi.documentNumber || data.client_rut || '';
+    
+    try {
+        const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
+        let clienteEncontrado = null;
+        
+        if (db && (rutPropietarioApi || nombrePropietarioApi)) {
+            let query = db.from('clientes').select('*');
+            if (rutPropietarioApi) {
+                query = query.eq('rut', rutPropietarioApi);
+            } else if (nombrePropietarioApi) {
+                query = query.ilike('nombre', `%${nombrePropietarioApi}%`);
             }
+            const { data: clientesDB, error: errDB } = await query.limit(1);
+            if (!errDB && clientesDB && clientesDB.length > 0) {
+                clienteEncontrado = clientesDB[0];
+            }
+        }
+        
+        if (clienteEncontrado) {
+            clienteSeleccionado = clienteEncontrado;
+            document.getElementById('lblClienteNombre').textContent = clienteEncontrado.nombre || clienteEncontrado.full_name;
+            document.getElementById('badgeClienteRut').textContent = `RUT: ${clienteEncontrado.rut || 'S/I'}`;
+            document.getElementById('lblClienteTelefono').textContent = clienteEncontrado.telefono || clienteEncontrado.phone || '-';
+            document.getElementById('lblClienteEmail').textContent = clienteEncontrado.email || '-';
+            document.getElementById('lblClienteDireccion').textContent = clienteEncontrado.direccion || clienteEncontrado.address || '-';
+            mostrarToast("¡Vehículo y cliente encontrados en tu base de datos!", "exito");
+        } else {
+            document.getElementById('txtDetallePropietarioApi').textContent = `Propietario reportado por API: ${nombrePropietarioApi || 'Desconocido'} (RUT: ${rutPropietarioApi || 'No especificado'})`;
+            document.getElementById('modalInputNombre').value = nombrePropietarioApi !== 'Desconocido' ? nombrePropietarioApi : '';
+            document.getElementById('modalInputRut').value = rutPropietarioApi;
+            document.getElementById('modalInputTelefono').value = ownerApi.phone || ownerApi.telefono || '';
+            document.getElementById('modalInputEmail').value = ownerApi.email || '';
+            modalRegistroInstance.show();
+        }
+    } catch (e) {
+        console.error("Error consultando la base de datos de clientes:", e);
+        document.getElementById('txtDetallePropietarioApi').textContent = `Propietario en API: ${nombrePropietarioApi || 'Desconocido'}`;
+        modalRegistroInstance.show();
+    }
+}
 
-            mostrarToast(`Consultando patente ${patenteQuery}...`, "exito");
+function continuarSinCliente() {
+    clienteSeleccionado = null;
+    document.getElementById('lblClienteNombre').textContent = "Sin cliente asociado";
+    document.getElementById('badgeClienteRut').textContent = "RUT: S/I";
+    document.getElementById('lblClienteTelefono').textContent = "-";
+    document.getElementById('lblClienteEmail').textContent = "-";
+    document.getElementById('lblClienteDireccion').textContent = "-";
+    mostrarToast("Continuando presupuesto sin datos de cliente.", "exito");
+    modalRegistroInstance.hide();
+}
+
+function guardarYAsignarCliente() {
+    const nombre = document.getElementById('modalInputNombre').value.trim();
+    const rut = document.getElementById('modalInputRut').value.trim();
+    const telefono = document.getElementById('modalInputTelefono').value.trim();
+    const email = document.getElementById('modalInputEmail').value.trim();
+    
+    if (!nombre) {
+        alert("El nombre del cliente es obligatorio.");
+        return;
+    }
+    
+    clienteSeleccionado = { nombre, rut: rut || 'S/I', telefono: telefono || '-', email: email || '-', direccion: '-' };
+    document.getElementById('lblClienteNombre').textContent = nombre;
+    document.getElementById('badgeClienteRut').textContent = `RUT: ${rut || 'S/I'}`;
+    document.getElementById('lblClienteTelefono').textContent = telefono || '-';
+    document.getElementById('lblClienteEmail').textContent = email || '-';
+    document.getElementById('lblClienteDireccion').textContent = '-';
+    
+    mostrarToast("¡Cliente registrado y asignado al presupuesto con éxito!", "exito");
+    modalRegistroInstance.hide();
+}
+
+function agregarItem(e) {
+    e.preventDefault();
+    const desc = document.getElementById('itemDescripcion').value.trim();
+    const cant = parseInt(document.getElementById('itemCantidad').value) || 1;
+    const precio = parseFloat(document.getElementById('itemPrecio').value) || 0;
+    
+    if (!desc || precio < 0) return;
+    
+    listaItems.push({ id: Date.now(), descripcion: desc, cantidad: cant, precioUnitario: precio });
+    document.getElementById('formAgregarItem').reset();
+    document.getElementById('itemCantidad').value = 1;
+    document.getElementById('itemDescripcion').focus();
+    renderizarTablaItems();
+}
+
+function eliminarItem(id) {
+    listaItems = listaItems.filter(item => item.id !== id);
+    renderizarTablaItems();
+}
+
+function renderizarTablaItems() {
+    const tbody = document.getElementById('bodyItemsPresupuesto');
+    if (!listaItems.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>';
+        calcularTotales();
+        return;
+    }
+    
+    tbody.innerHTML = listaItems.map(item => {
+        const subtotal = item.cantidad * item.precioUnitario;
+        return `
+            <tr>
+                <td><span class="fw-bold text-white">${item.descripcion}</span></td>
+                <td class="text-center">${item.cantidad}</td>
+                <td class="text-end">${formatterCLP.format(item.precioUnitario)}</td>
+                <td class="text-end text-success fw-bold">${formatterCLP.format(subtotal)}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-delete-row" onclick="eliminarItem(${item.id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    calcularTotales();
+}
+
+function calcularTotales() {
+    const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precioUnitario), 0);
+    const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
+    const aplicarIVA = document.getElementById('checkAplicarIVA').checked;
+    const baseImponible = Math.max(0, subtotalNeto - descuento);
+    const montoIVA = aplicarIVA ? Math.round(baseImponible * 0.19) : 0;
+    const totalFinal = baseImponible + montoIVA;
+    
+    document.getElementById('lblSubtotalNeto').textContent = formatterCLP.format(subtotalNeto);
+    document.getElementById('lblMontoDescuento').textContent = `-${formatterCLP.format(descuento)}`;
+    document.getElementById('lblMontoIVA').textContent = formatterCLP.format(montoIVA);
+    document.getElementById('lblTotalFinal').textContent = formatterCLP.format(totalFinal);
+    document.getElementById('lblTotalHeader').textContent = formatterCLP.format(totalFinal);
+}
+
+async function guardarPresupuesto() {
+    if (!vehiculoSeleccionado) {
+        mostrarToast("Debes consultar y seleccionar un vehículo primero.", "error");
+        return;
+    }
+    
+    if (!listaItems.length) {
+        mostrarToast("Agrega al menos un ítem o repuesto al presupuesto.", "error");
+        return;
+    }
+    
+    try {
+        const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
+        if (!db) {
+            throw new Error("No se encontró la conexión con Supabase.");
+        }
+        
+        const estadoOT = document.getElementById('selectEstadoOT')?.value || 'Presupuestado';
+        const kilometraje = document.getElementById('inputKilometraje')?.value || '';
+        const combustible = document.getElementById('selectCombustible')?.value || 'No Registra';
+        const observaciones = document.getElementById('txtObservaciones')?.value || '';
+        const descuento = parseFloat(document.getElementById('inputDescuento')?.value) || 0;
+        const medioPago = document.getElementById('selectMedioPago')?.value || 'Efectivo';
+        const aplicarIVA = document.getElementById('checkAplicarIVA')?.checked ?? true;
+        
+        const subtotalNeto = listaItems.reduce((acc, item) => acc + ((item.cantidad || 1) * (item.precioUnitario || 0)), 0);
+        const baseImponible = Math.max(0, subtotalNeto - descuento);
+        const montoIVA = aplicarIVA ? Math.round(baseImponible * 0.19) : 0;
+        const totalFinal = baseImponible + montoIVA;
+        
+        const numeroOT = 'OT-' + Math.floor(1000 + Math.random() * 9000);
+
+        // Objeto estructurado listo para la BD con JSONB
+        const datosPresupuesto = {
+            numero: numeroOT,
+            patente: vehiculoSeleccionado.patente,
+            vehiculo_info: vehiculoSeleccionado,
+            cliente_info: clienteSeleccionado || {},
+            items: listaItems,
+            estado: estadoOT,
+            kilometraje: kilometraje,
+            combustible: combustible,
+            observaciones: observaciones,
+            medio_pago: medioPago,
+            subtotal: subtotalNeto,
+            descuento: descuento,
+            iva: montoIVA,
+            total: totalFinal
+        };
+        
+        const { data, error } = await db
+            .from('ordenes_trabajo')
+            .insert([datosPresupuesto])
+            .select();
             
-            if (btnConsultar) {
-                btnConsultar.disabled = true;
-                btnConsultar.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Consultando...`;
-            }
-
-            try {
-                const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
-                if (!db) {
-                    throw new Error("No se encontró la conexión con Supabase.");
-                }
-
-                const { data, error } = await db.functions.invoke('get-vehiculo', {
-                    body: { patente: patenteQuery }
-                });
-
-                if (error) {
-                    throw new Error(error.message || "Error al invocar la función de búsqueda.");
-                }
-
-                if (!data || data.error) {
-                    throw new Error(data?.error || "La API no devolvió información para esta patente.");
-                }
-
-                console.log("RESPUESTA COMPLETA DE LA API:", data);
-
-                const infoVehiculo = normalizarDatosVehiculo(data);
-                
-                // Cargar únicamente los datos del vehículo
-                asignarDatosVehiculoUI(infoVehiculo, patenteQuery);
-
-                // Evaluar si el cliente está registrado en la BD interna (simulado o a través de supabase)
-                verificarClienteEnBaseDeDatos(data);
-
-            } catch (error) {
-                console.error("Error en la consulta:", error);
-                mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
-            } finally {
-                if (btnConsultar) {
-                    btnConsultar.disabled = false;
-                    btnConsultar.innerHTML = `<i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo`;
-                }
-            }
+        if (error) {
+            throw new Error(error.message);
         }
+        
+        mostrarToast("¡Orden de trabajo guardada con éxito (Estructura JSONB)!", "exito");
+        console.log("Guardado exitoso:", data);
+        
+    } catch (error) {
+        console.error("Error al guardar:", error);
+        mostrarToast("Error al guardar: " + error.message, "error");
+    }
+}
 
-        /**
-         * EXTRAE SOLO LA INFORMACIÓN TÉCNICA DEL VEHÍCULO DE LA API
-         */
-        function normalizarDatosVehiculo(responseJson) {
-            const data = responseJson.data || responseJson;
-            return {
-                marca: data.brand || data.marca || data.make || '',
-                modelo: data.model || data.modelo || '',
-                ano: data.year || data.ano || data.anio || '—',
-                vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '—',
-                color: data.color || data.colour || '—',
-                transmision: data.transmission || data.transmision || 'Automática / Mecánica',
-                n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || '—'
-            };
-        }
-
-        /**
-         * RELLENA LOS CAMPOS DE LA TARJETA VEHÍCULO EXCLUSIVAMENTE
-         */
-        function asignarDatosVehiculoUI(datos, patente) {
-            vehiculoSeleccionado = { patente: patente, ...datos };
-            document.getElementById('lblVehiculoPatenteBadge').textContent = patente;
-            document.getElementById('lblBadgePatenteHeader').textContent = patente;
-            document.getElementById('lblVehiculoTitulo').textContent = `${datos.marca} ${datos.modelo}`;
-            document.getElementById('lblVehiculoColor').textContent = datos.color;
-            document.getElementById('lblVehiculoAno').textContent = datos.ano;
-            document.getElementById('lblVehiculoTransmision').textContent = datos.transmision;
-            document.getElementById('lblVehiculoNumMotor').textContent = datos.n_motor;
-            document.getElementById('lblVehiculoVin').textContent = datos.vin;
-        }
-
-        /**
-         * VERIFICA SI EL CLIENTE EXISTE EN LA BASE DE DATOS INTERNA O SI LANZA EL POPUP DE ADVERTENCIA
-         */
-        function verificarClienteEnBaseDeDatos(responseJson) {
-            const data = responseJson.data || responseJson;
-            const ownerApi = data.owner || {};
-            const nombrePropietarioApi = ownerApi.name || ownerApi.fullname || ownerApi.nombre || data.client_name || 'Desconocido';
-            const rutPropietarioApi = ownerApi.rut || ownerApi.documentNumber || data.client_rut || '';
-
-            // Lógica de validación interna: Simulamos que verificamos si el RUT o Nombre existe en tu base local
-            // Aquí puedes conectar una consulta real a tu tabla de clientes de Supabase si lo requieres.
-            let clienteEncontradoLocalmente = false; 
-
-            if (clienteEncontradoLocalmente) {
-                // Si existe, se asigna directamente
-                mostrarToast("Vehículo y propietario encontrados en el sistema.", "exito");
-            } else {
-                // Si NO está registrado, advertimos y abrimos el popup de registro de cliente
-                document.getElementById('txtDetallePropietarioApi').textContent = `Propietario reportado por API: ${nombrePropietarioApi} (RUT: ${rutPropietarioApi || 'No especificado'})`;
-                
-                // Pre-llenar el modal opcionalmente con el nombre que arroja la API para ahorrar tiempo
-                document.getElementById('modalInputNombre').value = nombrePropietarioApi !== 'Desconocido' ? nombrePropietarioApi : '';
-                document.getElementById('modalInputRut').value = rutPropietarioApi;
-
-                modalRegistroInstance.show();
-            }
-        }
-
-        function continuarSinCliente() {
-            clienteSeleccionado = null;
-            document.getElementById('lblClienteNombre').textContent = "Sin cliente asociado";
-            document.getElementById('badgeClienteRut').textContent = "RUT: S/I";
-            document.getElementById('lblClienteTelefono').textContent = "—";
-            document.getElementById('lblClienteEmail').textContent = "—";
-            document.getElementById('lblClienteDireccion').textContent = "—";
-            
-            mostrarToast("Continuando presupuesto sin datos de cliente.", "exito");
-            modalRegistroInstance.hide();
-        }
-
-        function guardarYAsignarCliente() {
-            const nombre = document.getElementById('modalInputNombre').value.trim();
-            const rut = document.getElementById('modalInputRut').value.trim();
-            const telefono = document.getElementById('modalInputTelefono').value.trim();
-            const email = document.getElementById('modalInputEmail').value.trim();
-
-            if (!nombre) {
-                alert("El nombre del cliente es obligatorio.");
-                return;
-            }
-
-            clienteSeleccionado = { nombre, rut: rut || 'S/I', telefono: telefono || '—', email: email || '—', direccion: '—' };
-
-            document.getElementById('lblClienteNombre').textContent = nombre;
-            document.getElementById('badgeClienteRut').textContent = `RUT: ${rut || 'S/I'}`;
-            document.getElementById('lblClienteTelefono').textContent = telefono || '—';
-            document.getElementById('lblClienteEmail').textContent = email || '—';
-            document.getElementById('lblClienteDireccion').textContent = '—';
-
-            mostrarToast("¡Cliente registrado y asignado al presupuesto con éxito!", "exito");
-            modalRegistroInstance.hide();
-        }
-
-        function agregarItem(e) {
-            e.preventDefault();
-            const desc = document.getElementById('itemDescripcion').value.trim();
-            const cant = parseInt(document.getElementById('itemCantidad').value) || 1;
-            const precio = parseFloat(document.getElementById('itemPrecio').value) || 0;
-
-            if (!desc || precio < 0) return;
-
-            listaItems.push({ id: Date.now(), descripcion: desc, cantidad: cant, precioUnitario: precio });
-            document.getElementById('formAgregarItem').reset();
-            document.getElementById('itemCantidad').value = 1;
-            document.getElementById('itemDescripcion').focus();
-            renderizarTablaItems();
-        }
-
-        function eliminarItem(id) {
-            listaItems = listaItems.filter(item => item.id !== id);
-            renderizarTablaItems();
-        }
-
-        function renderizarTablaItems() {
-            const tbody = document.getElementById('bodyItemsPresupuesto');
-            if (!listaItems.length) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">No se han registrado elementos en la cotización.</td></tr>`;
-                calcularTotales();
-                return;
-            }
-
-            tbody.innerHTML = listaItems.map(item => {
-                const subtotal = item.cantidad * item.precioUnitario;
-                return `
-                    <tr>
-                        <td><span class="fw-bold text-white">${item.descripcion}</span></td>
-                        <td class="text-center">${item.cantidad}</td>
-                        <td class="text-end">${formatterCLP.format(item.precioUnitario)}</td>
-                        <td class="text-end text-success fw-bold">${formatterCLP.format(subtotal)}</td>
-                        <td class="text-center">
-                            <button type="button" class="btn btn-delete-row" onclick="eliminarItem(${item.id})">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-
-            calcularTotales();
-        }
-
-        function calcularTotales() {
-            const subtotalNeto = listaItems.reduce((acc, item) => acc + (item.cantidad * item.precioUnitario), 0);
-            const descuento = parseFloat(document.getElementById('inputDescuento').value) || 0;
-            const aplicarIVA = document.getElementById('checkAplicarIVA').checked;
-
-            const baseImponible = Math.max(0, subtotalNeto - descuento);
-            const montoIVA = aplicarIVA ? Math.round(baseImponible * 0.19) : 0;
-            const totalFinal = baseImponible + montoIVA;
-
-            document.getElementById('lblSubtotalNeto').textContent = formatterCLP.format(subtotalNeto);
-            document.getElementById('lblMontoDescuento').textContent = `-${formatterCLP.format(descuento)}`;
-            document.getElementById('lblMontoIVA').textContent = formatterCLP.format(montoIVA);
-            document.getElementById('lblTotalFinal').textContent = formatterCLP.format(totalFinal);
-            document.getElementById('lblTotalHeader').textContent = formatterCLP.format(totalFinal);
-        }
-
-        function guardarPresupuesto() {
-            if (!vehiculoSeleccionado) {
-                mostrarToast("Debes consultar y seleccionar un vehículo primero.", "error");
-                return;
-            }
-            if (!listaItems.length) {
-                mostrarToast("Agrega al menos un ítem o repuesto al presupuesto.", "error");
-                return;
-            }
-            mostrarToast("¡Presupuesto guardado correctamente en la base de datos!", "exito");
-        }
-
-        function enviarWhatsApp() {
-            if (!clienteSeleccionado || clienteSeleccionado.telefono === '—') {
-                mostrarToast("No hay un número de teléfono de cliente válido para enviar WhatsApp.", "error");
-                return;
-            }
-            mostrarToast("Abriendo canal de WhatsApp...", "exito");
-        }
-    </script>
+function enviarWhatsApp() {
+    if (!clienteSeleccionado || !clienteSeleccionado.telefono || clienteSeleccionado.telefono === '-') {
+        mostrarToast("No hay un número de teléfono de cliente válido para enviar WhatsApp.", "error");
+        return;
+    }
+    mostrarToast("Abriendo canal de WhatsApp...", "exito");
+}
+</script>
 </body>
 </html>
