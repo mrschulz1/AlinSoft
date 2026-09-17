@@ -575,77 +575,111 @@ function mostrarToast(mensaje, tipo = "exito") {
 }
 
 async function consultarPatenteAPI() {
-    const inputPatente = document.getElementById('inputBuscarPatenteAPI');
-    const btnConsultar = document.getElementById('btnConsultarPatente');
-    const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
+  const inputPatente = document.getElementById('inputBuscarPatenteAPI');
+  const btnConsultar = document.getElementById('btnConsultarPatente');
+  const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
 
-    if (!patenteQuery || patenteQuery.length < 4) {
-        mostrarToast("Ingresa una patente válida (Ej: BBCL10)", "error");
-        return;
+  if (!patenteQuery || patenteQuery.length < 4) {
+    mostrarToast("Ingresa una patente válida (Ej: BBCL10)", "error");
+    return;
+  }
+
+  mostrarToast(`Buscando patente ${patenteQuery}...`, "exito");
+  if (btnConsultar) {
+    btnConsultar.disabled = true;
+    btnConsultar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Consultando...';
+  }
+
+  try {
+    const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
+    if (!db) throw new Error("No se encontró la conexión con Supabase.");
+
+    console.log("🔍 PASO 1: Consultando Base de Datos interna...");
+    const { data: ordenesDB, error: errDB } = await db
+      .from('ordenes_trabajo')
+      .select('*')
+      .ilike('patente', patenteQuery)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (!errDB && ordenesDB && ordenesDB.length > 0) {
+      console.log("✅ Encontrado en Base de Datos local:", ordenesDB[0]);
+      const registro = ordenesDB[0];
+      vehiculoSeleccionado = registro.vehiculo_info || { patente: patenteQuery };
+      clienteSeleccionado = registro.cliente_info || null;
+      
+      actualizarVistaVehiculo(vehiculoSeleccionado);
+      if (clienteSeleccionado) actualizarVistaCliente(clienteSeleccionado);
+      mostrarToast("¡Vehículo y cliente encontrados en la Base de Datos!", "exito");
+      return;
     }
 
-    mostrarToast(`Buscando patente ${patenteQuery} en Supabase...`, "exito");
+    console.log("⚠️ Sin registros locales. Invocando Edge Function 'get-vehiculo'...");
+    
+    // Invocación a la Edge Function de Supabase
+    const { data: apiData, error: apiError } = await db.functions.invoke('get-vehiculo', {
+      body: { patente: patenteQuery, plate: patenteQuery }
+    });
+
+    console.log("📡 Respuesta recibida de Edge Function:", { apiData, apiError });
+
+    if (apiError) {
+      throw new Error(`Edge Function falló: ${apiError.message || 'Error de invocación / 404 / 500'}`);
+    }
+
+    if (!apiData) {
+      throw new Error("La Edge Function no devolvió respuesta.");
+    }
+
+    if (apiData.error) {
+      throw new Error(`API: ${apiData.error}`);
+    }
+
+    const infoVehiculo = normalizarDatosVehiculo(apiData);
+    console.log("🚗 Datos normalizados:", infoVehiculo);
+
+    if (!infoVehiculo.marca && !infoVehiculo.modelo) {
+      throw new Error("La API respondió pero no contiene información de marca/modelo.");
+    }
+
+    asignarDatosVehiculoUI(infoVehiculo, patenteQuery);
+    await verificarClienteEnBaseDeDatos(apiData);
+    mostrarToast("¡Datos cargados exitosamente desde la API!", "exito");
+
+  } catch (error) {
+    console.error("❌ Error en la búsqueda de patente:", error);
+    mostrarToast(error.message || "No se pudo consultar la patente.", "error");
+
+    // Caída a ingreso manual
+    vehiculoSeleccionado = { patente: patenteQuery, marca: '', modelo: '' };
+    document.getElementById('lblVehiculoPatenteBadge').textContent = patenteQuery;
+    document.getElementById('lblBadgePatenteHeader').textContent = patenteQuery;
+    document.getElementById('lblVehiculoTitulo').textContent = 'Vehículo Nuevo / Manual';
+    
+    if (typeof modalRegistroInstance !== 'undefined' && modalRegistroInstance) {
+      modalRegistroInstance.show();
+    }
+  } finally {
     if (btnConsultar) {
-        btnConsultar.disabled = true;
-        btnConsultar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Buscando...';
+      btnConsultar.disabled = false;
+      btnConsultar.innerHTML = '<i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo';
     }
+  }
+}
 
-    try {
-        const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
-        if (!db) throw new Error("No se encontró la conexión con Supabase.");
+function normalizarDatosVehiculo(responseJson) {
+  // Desenvolver respuestas anidadas tipo { data: {...} } o { result: {...} }
+  const data = responseJson.data || responseJson.vehiculo || responseJson.result || responseJson;
 
-        // Buscamos si ya existe la patente guardada en alguna orden previa en Supabase
-        const { data: ordenesDB, error: errDB } = await db
-            .from('ordenes_trabajo')
-            .select('*')
-            .ilike('patente', patenteQuery)
-            .order('created_at', { ascending: false })
-            .limit(1);
-
-        if (!errDB && ordenesDB && ordenesDB.length > 0) {
-            const registro = ordenesDB[0];
-            
-            // Si existe, recuperamos toda la info guardada (incluyendo marca, modelo, etc.)
-            vehiculoSeleccionado = registro.vehiculo_info || { patente: patenteQuery };
-            clienteSeleccionado = registro.cliente_info || null;
-
-            actualizarVistaVehiculo(vehiculoSeleccionado);
-            if (clienteSeleccionado) {
-                actualizarVistaCliente(clienteSeleccionado);
-            }
-
-            mostrarToast("¡Vehículo y cliente encontrados en Supabase!", "exito");
-            return;
-        }
-
-        // SI NO ESTÁ EN SUPABASE: 
-        // No bloqueamos ni vaciamos a la fuerza; dejamos la patente lista para que ingreses marca, modelo y cliente manualmente.
-        console.log("Patente no encontrada en registros previos de Supabase. Habilitando ingreso manual.");
-        
-        vehiculoSeleccionado = { 
-            patente: patenteQuery,
-            marca: document.getElementById('inputVehiculoMarca')?.value || '',
-            modelo: document.getElementById('inputVehiculoModelo')?.value || ''
-        };
-        
-        document.getElementById('lblVehiculoPatenteBadge').textContent = patenteQuery;
-        document.getElementById('lblBadgePatenteHeader').textContent = patenteQuery;
-        document.getElementById('lblVehiculoTitulo').textContent = 'Vehículo Nuevo / Manual';
-
-        // Abrimos el modal para pedir el cliente nuevo
-        if (typeof modalRegistroInstance !== 'undefined' && modalRegistroInstance) {
-            modalRegistroInstance.show();
-        }
-
-    } catch (error) {
-        console.error("Error en la consulta:", error);
-        mostrarToast(error.message || "Error al buscar en la base de datos.", "error");
-    } finally {
-        if (btnConsultar) {
-            btnConsultar.disabled = false;
-            btnConsultar.innerHTML = '<i class="bi bi-search me-2"></i> Buscar';
-        }
-    }
+  return {
+    marca: data.brand || data.marca || data.make || data.Marca || '',
+    modelo: data.model || data.modelo || data.Modelo || '',
+    ano: data.year || data.ano || data.anio || data.Anio || data.Año || '-',
+    vin: data.chassis || data.vin || data.chasis || data.numero_chasis || data.Vin || '-',
+    color: data.color || data.colour || data.Color || '-',
+    transmision: data.transmission || data.transmision || data.Transmision || 'Mecánica / Automática',
+    n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || data.Motor || '-'
+  };
 }
 
 function actualizarVistaVehiculo(datos) {
