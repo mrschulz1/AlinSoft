@@ -464,13 +464,22 @@ body {
                         <span id="lblTotalFinal" class="fs-2 fw-bold text-success" style="font-family: 'Space Grotesk';">$0</span>
                     </div>
                 </div>
+
+               
                 <div class="row g-3 mt-3">
                     <div class="col-6">
                         <button class="btn btn-glass w-100 py-3 fw-bold" onclick="enviarWhatsApp()">
                             <i class="bi bi-whatsapp me-2 text-success"></i> WhatsApp
                         </button>
                     </div>
-                    <div class="col-6">
+                       <div class="col-6">
+                        <button type="button" class="tn btn-glass w-100 py-3 fw-bold" onclick="verPDFPresupuesto()">
+                            <i class="bi bi-file-earmark-pdf me-1"></i> ver PDF Presupuesto
+                        </button>
+                    </div>
+                   
+
+                    <div class="col-6 center">
                         <button class="btn btn-glow-danger w-100 py-3" onclick="guardarPresupuesto()">
                             <i class="bi bi-cloud-arrow-up-fill me-2"></i> Guardar Todo
                         </button>
@@ -542,6 +551,7 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 let ordenActual = null;
 let listItems = [];
@@ -900,6 +910,7 @@ function enviarWhatsApp() {
     }
     mostrarToast("Abriendo canal de WhatsApp...", "exito");
 }
+
 
 function logout() {
     if (typeof supabase !== 'undefined') {
