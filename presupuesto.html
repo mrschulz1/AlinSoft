@@ -244,22 +244,23 @@ body {
     </div>
 
     <!-- CONSULTA RÁPIDA POR PATENTE -->
+     <!-- CONSULTA RÁPIDA POR API PATENTE -->
     <div class="hud-card mb-4 border-danger border-opacity-25">
         <div class="row g-3 align-items-end">
             <div class="col-12 col-md-8">
                 <label class="form-label-tech text-danger">
-                    <i class="bi bi-search me-1"></i> Ingresar Patente (Búsqueda en Supabase)
+                    <i class="bi bi-magic me-1"></i> Consulta Automática por Patente (API Vehículo)
                 </label>
                 <div class="input-group">
                     <span class="input-group-text bg-dark border-secondary border-opacity-25 text-danger fw-bold">PATENTE</span>
-                    <input type="text" id="inputBuscarPatenteAPI" class="form-control-tech text-uppercase fw-bold" placeholder="EJ: BBCL10" maxlength="10" style="letter-spacing: 2px;">
+                    <input type="text" id="inputBuscarPatenteAPI" class="form-control-tech text-uppercase fw-bold" placeholder="EJ: BBCL10 O WAUZZZ..." maxlength="17" style="letter-spacing: 2px;">
                     <button type="button" class="btn btn-glow-danger px-4" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
-                        <i class="bi bi-search me-2"></i> Buscar
+                        <i class="bi bi-search me-2"></i> Auto-Rellenar Vehículo
                     </button>
                 </div>
             </div>
             <div class="col-12 col-md-4 text-muted small">
-                <i class="bi bi-info-circle me-1"></i> Si la patente está registrada en Supabase, se autocompletarán los datos. Si no, se abrirá el formulario para ingresarlos.
+                <i class="bi bi-info-circle me-1"></i> Rellena automáticamente los datos del vehículo. Si el propietario no está registrado, se te notificará.
             </div>
         </div>
     </div>
@@ -593,8 +594,7 @@ async function consultarPatenteAPI() {
         const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
         if (!db) throw new Error("No se encontró la conexión con Supabase.");
 
-        // BÚSQUEDA EXCLUSIVA EN SUPABASE (Tabla de órdenes anteriores o vehículos registrados)
-        // Buscamos si ya existe la patente guardada en alguna orden de trabajo previa
+        // Buscamos si ya existe la patente guardada en alguna orden previa en Supabase
         const { data: ordenesDB, error: errDB } = await db
             .from('ordenes_trabajo')
             .select('*')
@@ -605,7 +605,7 @@ async function consultarPatenteAPI() {
         if (!errDB && ordenesDB && ordenesDB.length > 0) {
             const registro = ordenesDB[0];
             
-            // Cargamos la información guardada en Supabase
+            // Si existe, recuperamos toda la info guardada (incluyendo marca, modelo, etc.)
             vehiculoSeleccionado = registro.vehiculo_info || { patente: patenteQuery };
             clienteSeleccionado = registro.cliente_info || null;
 
@@ -618,20 +618,24 @@ async function consultarPatenteAPI() {
             return;
         }
 
-        // Si NO está registrado en Supabase, mostramos el popup para agregar datos del cliente
-        console.log("Patente no encontrada en Supabase local.");
-        vehiculoSeleccionado = { patente: patenteQuery };
+        // SI NO ESTÁ EN SUPABASE: 
+        // No bloqueamos ni vaciamos a la fuerza; dejamos la patente lista para que ingreses marca, modelo y cliente manualmente.
+        console.log("Patente no encontrada en registros previos de Supabase. Habilitando ingreso manual.");
+        
+        vehiculoSeleccionado = { 
+            patente: patenteQuery,
+            marca: document.getElementById('inputVehiculoMarca')?.value || '',
+            modelo: document.getElementById('inputVehiculoModelo')?.value || ''
+        };
         
         document.getElementById('lblVehiculoPatenteBadge').textContent = patenteQuery;
         document.getElementById('lblBadgePatenteHeader').textContent = patenteQuery;
         document.getElementById('lblVehiculoTitulo').textContent = 'Vehículo Nuevo / Manual';
 
-        document.getElementById('modalInputNombre').value = '';
-        document.getElementById('modalInputRut').value = '';
-        document.getElementById('modalInputTelefono').value = '';
-        document.getElementById('modalInputEmail').value = '';
-        
-        modalRegistroInstance.show();
+        // Abrimos el modal para pedir el cliente nuevo
+        if (typeof modalRegistroInstance !== 'undefined' && modalRegistroInstance) {
+            modalRegistroInstance.show();
+        }
 
     } catch (error) {
         console.error("Error en la consulta:", error);

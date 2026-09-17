@@ -298,80 +298,104 @@
         }
 
         // RENDERIZADO DE TABLA DE ÓRDENES
-        function renderizarTabla(lista) {
-            const tbody = document.getElementById('tablaOrdenesBody');
-            tbody.innerHTML = '';
+    function renderizarTabla(lista) {
+    const tbody = document.getElementById('tablaOrdenesBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-            if (lista.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">No hay órdenes registradas.</td></tr>';
-                return;
-            }
+    if (!lista || lista.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">No hay órdenes registradas.</td></tr>';
+        return;
+    }
 
-            lista.forEach(ot => {
-                let badgeColor = 'bg-secondary';
-                if (ot.estado === 'Recepción') badgeColor = 'bg-secondary text-white';
-                if (ot.estado === 'Presupuestado') badgeColor = 'bg-warning text-dark';
-                if (ot.estado === 'En Proceso') badgeColor = 'bg-info text-dark';
-                if (ot.estado === 'Listo para Retiro') badgeColor = 'bg-primary text-white';
-                if (ot.estado === 'Finalizado') badgeColor = 'bg-success text-white';
-
-                const totalFormateado = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(ot.total || 0);
-
-                const fonoLimpio = ot.telefono ? ot.telefono.replace(/\D/g, '') : '';
-                const msgListo = encodeURIComponent(`Hola ${ot.cliente}, te informamos que tu vehículo ${ot.vehiculo} (Patente: ${ot.patente}) está LISTO PARA RETIRAR. Total: ${totalFormateado}. Folio OT: ${ot.numero}.`);
-                const msgPpto = encodeURIComponent(`Hola ${ot.cliente}, adjuntamos el detalle del presupuesto para tu vehículo ${ot.vehiculo} (Patente: ${ot.patente}). Total: ${totalFormateado}. Puedes revisar la ficha aquí: ${window.location.origin}/ver_ot.html?ot=${ot.numero}`);
-
-                const folioTexto = ot.numero ? (isNaN(ot.numero) ? ot.numero : `OT-${ot.numero}`) : 'S/F';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="fw-bold text-white">${folioTexto}<br><small class="text-secondary fw-normal">${ot.fecha || ''}</small></td>
-                        <td>${ot.cliente || 'Sin Nombre'}<br><small class="text-secondary">${ot.rut || '-'}</small></td>
-                        <td>${ot.vehiculo || 'Vehículo'}<br><span class="badge bg-danger text-uppercase">${ot.patente || 'S/P'}</span></td>
-                        <td><span class="badge ${badgeColor}">${ot.estado || 'Recepción'}</span></td>
-                        <td class="fw-bold text-danger">${totalFormateado}</td>
-                        <td class="text-end">
-                            <div class="dropdown">
-                                <button class="btn btn-plus-action dropdown-toggle no-arrow" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}'>
-                                    <i class="bi bi-plus-lg"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary">
-                                    <li><h6 class="dropdown-header text-danger">${folioTexto}</h6></li>
-                                    <li>
-                                        <a class="dropdown-item text-warning" href="presupuesto.html?id=${ot.id}">
-                                            <i class="bi bi-pencil-square me-2"></i> Presupuesto / Cambiar Estado
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#" onclick="verHojaDeVida('${ot.patente}')">
-                                            <i class="bi bi-clock-history me-2"></i> Hoja de Vida (Historial)
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><h6 class="dropdown-header">Notificaciones WhatsApp</h6></li>
-                                    <li>
-                                        <a class="dropdown-item text-success" href="https://wa.me/${fonoLimpio}?text=${msgPpto}" target="_blank">
-                                            <i class="bi bi-whatsapp me-2"></i> Enviar Presupuesto
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item text-info" href="https://wa.me/${fonoLimpio}?text=${msgListo}" target="_blank">
-                                            <i class="bi bi-bell-fill me-2"></i> Notificar Vehículo Listo
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item text-danger" href="#" onclick="eliminarOT('${ot.numero}', '${ot.id}')">
-                                            <i class="bi bi-trash-fill me-2"></i> Eliminar Orden
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
+    lista.forEach(ot => {
+        // 1. Extracción segura del Cliente (Plano o desde cliente_info)
+        let nombreCliente = ot.cliente || "Sin Nombre";
+        let rutCliente = ot.rut || "-";
+        let telefonoCliente = ot.telefono || "";
+        if (ot.cliente_info) {
+            nombreCliente = ot.cliente_info.nombre || ot.cliente_info.full_name || nombreCliente;
+            rutCliente = ot.cliente_info.rut || rutCliente;
+            telefonoCliente = ot.cliente_info.telefono || ot.cliente_info.phone || telefonoCliente;
         }
+
+        // 2. Extracción segura del Vehículo y Marca/Modelo (Plano o desde vehiculo_info)
+        let textoVehiculo = ot.vehiculo || "Vehículo";
+        let patenteVehiculo = ot.patente || "S/P";
+        if (ot.vehiculo_info) {
+            patenteVehiculo = ot.vehiculo_info.patente || patenteVehiculo;
+            const marca = ot.vehiculo_info.marca || "";
+            const modelo = ot.vehiculo_info.modelo || "";
+            if (marca || modelo) {
+                textoVehiculo = `${marca} ${modelo}`.trim();
+            }
+        }
+
+        // 3. Colores de estado
+        let badgeColor = 'bg-secondary';
+        if (ot.estado === 'Recepción') badgeColor = 'bg-secondary text-white';
+        if (ot.estado === 'Presupuestado') badgeColor = 'bg-warning text-dark';
+        if (ot.estado === 'En Proceso') badgeColor = 'bg-info text-dark';
+        if (ot.estado === 'Listo para Retiro') badgeColor = 'bg-primary text-white';
+        if (ot.estado === 'Finalizado') badgeColor = 'bg-success text-white';
+
+        const totalFormateado = new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' }).format(ot.total || 0);
+
+        const fonoLimpio = telefonoCliente ? telefonoCliente.replace(/\D/g, '') : '';
+        const msgListo = encodeURIComponent(`Hola ${nombreCliente}, te informamos que tu vehículo ${textoVehiculo} (Patente: ${patenteVehiculo}) está LISTO PARA RETIRAR. Total: ${totalFormateado}. Folio OT: ${ot.numero}.`);
+        const msgPpto = encodeURIComponent(`Hola ${nombreCliente}, adjuntamos el detalle del presupuesto para tu vehículo ${textoVehiculo} (Patente: ${patenteVehiculo}). Total: ${totalFormateado}. Puedes revisar la ficha aquí: ${window.location.origin}/ver_ot.html?ot=${ot.numero}`);
+
+        const folioTexto = ot.numero ? (isNaN(ot.numero) ? ot.numero : `OT-${ot.numero}`) : 'S/F';
+
+        tbody.innerHTML += `
+            <tr>
+                <td class="fw-bold text-white">${folioTexto}<br><small class="text-secondary fw-normal">${ot.fecha || (ot.created_at ? new Date(ot.created_at).toLocaleDateString() : '')}</small></td>
+                <td>${nombreCliente}<br><small class="text-secondary">${rutCliente}</small></td>
+                <td>${textoVehiculo}<br><span class="badge bg-danger text-uppercase">${patenteVehiculo}</span></td>
+                <td><span class="badge ${badgeColor}">${ot.estado || 'Recepción'}</span></td>
+                <td class="fw-bold text-danger">${totalFormateado}</td>
+                <td class="text-end">
+                    <div class="dropdown">
+                        <button class="btn btn-plus-action dropdown-toggle no-arrow" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}'>
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary">
+                            <li><h6 class="dropdown-header text-danger">${folioTexto}</h6></li>
+                            <li>
+                                <a class="dropdown-item text-warning" href="presupuesto.html?id=${ot.id}">
+                                    <i class="bi bi-pencil-square me-2"></i> Presupuesto / Cambiar Estado
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="verHojaDeVida('${patenteVehiculo}')">
+                                    <i class="bi bi-clock-history me-2"></i> Hoja de Vida (Historial)
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Notificaciones WhatsApp</h6></li>
+                            <li>
+                                <a class="dropdown-item text-success" href="https://wa.me/${fonoLimpio}?text=${msgPpto}" target="_blank">
+                                    <i class="bi bi-whatsapp me-2"></i> Enviar Presupuesto
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-info" href="https://wa.me/${fonoLimpio}?text=${msgListo}" target="_blank">
+                                    <i class="bi bi-bell-fill me-2"></i> Notificar Vehículo Listo
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="#" onclick="eliminarOT('${ot.numero}', '${ot.id}')">
+                                    <i class="bi bi-trash-fill me-2"></i> Eliminar Orden
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+    }
 
         // ELIMINACIÓN SEGURA DE OT
         async function eliminarOT(folio, idBD) {
