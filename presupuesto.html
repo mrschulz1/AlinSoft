@@ -2,11 +2,11 @@
 <html lang="es" data-bs-theme="dark">
 <head>
 <meta charset="UTF-8">
-<!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Presupuesto & Cotizador - AlinSoft Studio</title>
-<!-- <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
-<!-- <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet"> -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <style>
@@ -189,25 +189,23 @@ body {
 </style>
 </head>
 <body>
-<    <!-- Sidebar Lateral -->
-    <div class="sidebar d-flex flex-column justify-content-between p-2">
-        <div>
-            <div class="d-flex align-items-center px-3 py-3 mb-2">
-                <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
-                <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
-            </div>
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
-                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
-                <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
-                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> mantenedor de datos</a></li>
-            </ul>
+<!-- SIDEBAR -->
+<div class="sidebar d-flex flex-column justify-content-between p-3">
+    <div>
+        <div class="d-flex align-items-center px-2 py-3 mb-4">
+            <i class="bi bi-cpu-fill text-danger fs-3 me-3"></i>
+            <span class="fs-4 brand-logo">AlinSoft<span class="text-danger">.io</span></span>
         </div>
-        <div class="px-3 py-2 border-top border-secondary">
-            <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
-        </div>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-grid-1x2-fill me-3"></i> Inicio</a></li>
+            <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-receipt-cutoff me-3"></i> Órdenes</a></li>
+            <li class="nav-item"><a href="presupuesto.html" class="nav-link active"><i class="bi bi-calculator-fill me-3"></i> Crear Presupuesto</a></li>
+        </ul>
     </div>
+    <div class="px-2 py-2 border-top border-secondary border-opacity-25">
+        <a href="#" onclick="logout()" class="nav-link text-danger p-2"><i class="bi bi-power me-3"></i> Cerrar Sesión</a>
+    </div>
+</div>
 
 <!-- MAIN CONTENT -->
 <div class="main-content">
@@ -475,7 +473,7 @@ body {
                         </button>
                     </div>
                        <div class="col-6">
-                        <button type="button" class="tn btn-glass w-100 py-3 fw-bold" onclick="verPDFPresupuesto()">
+                        <button type="button" class="btn btn-outline-light ms-2" onclick="verPDFPresupuesto()">
                             <i class="bi bi-file-earmark-pdf me-1"></i> ver PDF Presupuesto
                         </button>
                     </div>

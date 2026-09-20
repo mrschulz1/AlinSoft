@@ -6,7 +6,7 @@
     <title>Mantenedor Base e Historial - AlinSoft</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
+       <style>
         :root {
             --sidebar-bg: #0b1120;
             --main-bg: #0f172a;
@@ -15,25 +15,108 @@
             --accent-orange: #ff5722;
         }
 
-        body { background-color: var(--main-bg); color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
-
-        .sidebar { width: 220px; height: 100vh; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); position: fixed; top: 0; left: 0; z-index: 1000; transition: all 0.3s; }
-        .main-content { margin-left: 220px; padding: 20px; transition: all 0.3s; }
-
-        @media (max-width: 768px) {
-            .sidebar { margin-left: -220px; }
-            .sidebar.show { margin-left: 0; }
-            .main-content { margin-left: 0; padding: 15px; }
+        body {
+            background-color: var(--main-bg);
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
         }
 
-        .sidebar .nav-link { color: #94a3b8; padding: 10px 16px; font-size: 0.85rem; border-radius: 6px; margin: 2px 8px; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #ffffff; background-color: #1e293b; }
-        
-        .card-custom { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; }
-        .btn-orange { background-color: var(--accent-orange); color: #fff; font-weight: 600; }
-        .btn-orange:hover { background-color: #e64a19; color: #fff; }
-        .nav-tabs .nav-link { color: #94a3b8; border: none; }
-        .nav-tabs .nav-link.active { background-color: var(--card-bg); color: #fff; border-bottom: 2px solid var(--accent-orange); }
+        /* Sidebar Sidebar */
+        .sidebar {
+            width: 220px;
+            height: 100vh;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar .nav-link {
+            color: #94a3b8;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            margin: 2px 8px;
+        }
+
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: #ffffff;
+            background-color: #1e293b;
+        }
+
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+
+        /* Dashboard Cards Estilo Bujia */
+        .card-bujia {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .card-bujia .metric-title {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .card-bujia .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-top: 4px;
+        }
+
+        .card-bujia .badge-variation {
+            font-size: 0.72rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .badge-down {
+            background-color: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+        }
+
+        .badge-up {
+            background-color: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+        }
+
+        .icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background-color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            font-size: 0.9rem;
+        }
+
+        .chart-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            height: 100%;
+        }
+
+        .chart-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -44,20 +127,18 @@
         <button class="btn btn-outline-light btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
     </div>
 
-    <!-- Sidebar -->
-     <!-- SIDEBAR -->
-    <div class="sidebar d-flex flex-column justify-content-between p-2" id="sidebar">
+    <div class="sidebar d-flex flex-column justify-content-between p-2">
         <div>
             <div class="d-flex align-items-center px-3 py-3 mb-2">
                 <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
                 <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
             </div>
             <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
-                <li class="nav-item"><a href="ordenes.html" class="nav-link active"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
+                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
+                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
                 <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
                 <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de Datos</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> mantenedor de datos</a></li>
             </ul>
         </div>
         <div class="px-3 py-2 border-top border-secondary">

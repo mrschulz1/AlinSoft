@@ -403,3 +403,53 @@ document.addEventListener("DOMContentLoaded", function() {
       });
   }
 });
+
+
+// Buscar vehículo por patente
+async function buscarVehiculoPorPatente(patenteInput) {
+    const patenteLimpia = patenteInput.trim().toUpperCase();
+    if (!patenteLimpia) return;
+
+    try {
+        let vehiculoEncontrado = null;
+
+        // 1. Intentar buscar en Supabase
+        if (typeof db !== 'undefined' && db) {
+            const { data, error } = await db
+                .from('vehiculos') // Reemplaza con el nombre de tu tabla de vehículos
+                .select('*')
+                .ilike('patente', patenteLimpia)
+                .maybeSingle();
+
+            if (!error && data) {
+                vehiculoEncontrado = data;
+            }
+        }
+
+        // 2. Si no está en Supabase, buscar en almacenamiento local (localStorage)
+        if (!vehiculoEncontrado) {
+            const vehiculosLocal = JSON.parse(localStorage.getItem('taller_vehiculos')) || [];
+            vehiculoEncontrado = vehiculosLocal.find(v => v.patente?.toUpperCase() === patenteLimpia);
+        }
+
+        // 3. Rellenar los campos del formulario si existe, o limpiar para uno nuevo
+        if (vehiculoEncontrado) {
+            document.getElementById('inputMarca').value = vehiculoEncontrado.marca || '';
+            document.getElementById('inputModelo').value = vehiculoEncontrado.modelo || '';
+            document.getElementById('inputAnio').value = vehiculoEncontrado.ano || vehiculoEncontrado.anio || '';
+            document.getElementById('inputColor').value = vehiculoEncontrado.color || '';
+            document.getElementById('inputVin').value = vehiculoEncontrado.vin || vehiculoEncontrado.chasis || '';
+            document.getElementById('inputMotor').value = vehiculoEncontrado.n_motor || vehiculoEncontrado.motor || '';
+            
+            // Guardar en la variable global que usa tu sistema
+            window.vehiculoSeleccionado = vehiculoEncontrado;
+            if (typeof mostrarToast === 'function') mostrarToast("Vehículo encontrado en los registros.", "exito");
+        } else {
+            window.vehiculoSeleccionado = { patente: patenteLimpia };
+            if (typeof mostrarToast === 'function') mostrarToast("Vehículo nuevo. Complete los datos para registrarlo.", "info");
+        }
+
+    } catch (err) {
+        console.error("Error al buscar vehículo:", err);
+    }
+}

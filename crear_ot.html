@@ -187,7 +187,6 @@
         <button class="btn btn-outline-light btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
     </div>
 
-    <!-- Sidebar -->
     <div class="sidebar d-flex flex-column justify-content-between p-2" id="sidebar">
         <div>
             <div class="d-flex align-items-center px-3 py-3 mb-2">
@@ -198,8 +197,8 @@
                 <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
                 <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
                 <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
-                <li class="nav-item"><a href="crear_ot.html" class="nav-link active"><i class="bi bi-box-arrow-in-right me-2"></i> Crear Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de Datos</a></li>
+                <li class="nav-item"><a href="crear_ot.html" class="nav-link active"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
+                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de datos</a></li>
             </ul>
         </div>
         <div class="px-3 py-2 border-top border-secondary">
@@ -212,7 +211,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold m-0">Nueva Recepción de Vehículo</h3>
-                <p class="text-secondary small m-0">Ingreso de unidad a taller y generación de OT con autocompletado por API</p>
+                <p class="text-secondary small m-0">Ingreso de unidad a taller y generación de OT con verificación en Supabase</p>
             </div>
         </div>
 
@@ -229,12 +228,12 @@
                                 <input type="text" id="cliente" class="form-control" required placeholder="Ej: Juan Pérez">
                             </div>
                             <div class="col-12 col-md-5">
-                                <label class="form-label">RUT / DNI</label>
-                                <input type="text" id="rut" class="form-control" placeholder="12.345.678-9">
+                                <label class="form-label">RUT / DNI *</label>
+                                <input type="text" id="rut" class="form-control" placeholder="12.345.678-9" maxlength="12">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label class="form-label">Teléfono</label>
-                                <input type="text" id="telefono" class="form-control" placeholder="+56 9 1234 5678">
+                                <label class="form-label">Teléfono (WhatsApp)</label>
+                                <input type="text" id="telefono" class="form-control" value="+56 9 " placeholder="+56 9 1234 5678">
                             </div>
                         </div>
                     </div>
@@ -246,14 +245,14 @@
                         <div class="panel-title"><i class="bi bi-car-front"></i> Datos del Vehículo</div>
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label text-warning">Patente / Placa (API Auto-Rellenar) *</label>
+                                <label class="form-label text-warning">Patente / Placa (Verificación en Supabase & API) *</label>
                                 <div class="input-group">
                                     <input type="text" id="patente" class="form-control text-uppercase fw-bold" required placeholder="EJ: JTYY13" maxlength="10" style="letter-spacing: 1.5px;">
-                                    <button type="button" class="btn btn-api-search px-3" id="btnConsultarPatente" onclick="consultarPatenteAPI()">
-                                        <i class="bi bi-magic me-1"></i> Consultar API
+                                    <button type="button" class="btn btn-api-search px-3" id="btnConsultarPatente" onclick="verificarPatenteSupabaseOAPI()">
+                                        <i class="bi bi-magic me-1"></i> Consultar Patente
                                     </button>
                                 </div>
-                                <span class="text-muted" style="font-size: 0.72rem;">Ingresa la patente y presiona Enter o el botón para autocompletar.</span>
+                                <span class="text-muted" style="font-size: 0.72rem;">Ingresa la patente y presiona Enter o sale del campo para verificar automáticamente.</span>
                             </div>
 
                             <div class="col-12 col-md-6">
@@ -293,16 +292,16 @@
                                 <label class="form-label">Kilometraje Actual</label>
                                 <input type="text" id="kilometraje" class="form-control" placeholder="120.000 KM">
                             </div>
-                         <div class="mb-3">
-                            <label class="form-label text-muted small fw-bold" style="font-size: 11px;">NIVEL DE COMBUSTIBLE</label>
-                            <div class="d-flex gap-2" id="fuelGaugeGroup">
-                                <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Reserva">Reserva</button>
-                                <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="1/4">1/4</button>
-                                <button type="button" class="btn fuel-level-btn flex-fill py-2 active" data-value="1/2">1/2</button>
-                                <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="3/4">3/4</button>
-                                <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Lleno">Lleno</button>
-                        </div>
-                            <input type="hidden" id="inputNivelCombustible" value="1/2">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label text-muted small fw-bold" style="font-size: 11px;">NIVEL DE COMBUSTIBLE</label>
+                                <div class="d-flex gap-2" id="fuelGaugeGroup">
+                                    <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Reserva">Reserva</button>
+                                    <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="1/4">1/4</button>
+                                    <button type="button" class="btn fuel-level-btn flex-fill py-2 active" data-value="1/2">1/2</button>
+                                    <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="3/4">3/4</button>
+                                    <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Lleno">Lleno</button>
+                                </div>
+                                <input type="hidden" id="inputNivelCombustible" value="1/2">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label">Fecha de Recepción</label>
@@ -362,16 +361,73 @@
     <script src="app.js"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            if (typeof checkAuth === 'function') await checkAuth();
-            document.getElementById('fecha').value = new Date().toISOString().split('T')[0];
+        document.addEventListener("DOMContentLoaded", function() {
+            // Establecer fecha actual por defecto si está vacía
+            const inputFecha = document.getElementById('fecha');
+            if (inputFecha && !inputFecha.value) {
+                const hoy = new Date().toISOString().split('T')[0];
+                inputFecha.value = hoy;
+            }
 
+            // Selector de nivel de combustible interactivo
+            document.querySelectorAll('.fuel-level-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.fuel-level-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('inputNivelCombustible').value = this.getAttribute('data-value');
+                });
+            });
+
+            // Lógica para el campo Patente
             const inputPatente = document.getElementById('patente');
             if (inputPatente) {
-                inputPatente.addEventListener('keypress', (e) => {
+                inputPatente.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
-                        consultarPatenteAPI();
+                        verificarPatenteSupabaseOAPI(this.value.trim());
+                    }
+                });
+
+                inputPatente.addEventListener('blur', function() {
+                    if (this.value.trim().length >= 4) {
+                        verificarPatenteSupabaseOAPI(this.value.trim());
+                    }
+                });
+            }
+
+            // Validación y formateo automático de RUT (Puntos y guion)
+            const inputRut = document.getElementById('rut');
+            if (inputRut) {
+                inputRut.addEventListener('input', function(e) {
+                    let valor = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
+                    if (valor.length > 1) {
+                        let cuerpo = valor.slice(0, -1);
+                        let dv = valor.slice(-1);
+                        cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                        this.value = `${cuerpo}-${dv}`;
+                    } else {
+                        this.value = valor;
+                    }
+                });
+
+                inputRut.addEventListener('blur', function() {
+                    if (this.value.trim().length >= 7) {
+                        verificarClienteSupabasePorRut(this.value.trim());
+                    }
+                });
+            }
+
+            // Prefijo automático para el Teléfono / WhatsApp
+            const inputTelefono = document.getElementById('telefono');
+            if (inputTelefono) {
+                inputTelefono.addEventListener('focus', function() {
+                    if (!this.value.startsWith('+56 9')) {
+                        this.value = '+56 9 ';
+                    }
+                });
+                inputTelefono.addEventListener('input', function() {
+                    if (!this.value.startsWith('+56 9')) {
+                        this.value = '+56 9 ';
                     }
                 });
             }
@@ -387,25 +443,120 @@
             if (!toastEl || !toastMsg) return;
 
             toastMsg.textContent = mensaje;
-            toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : "bg-danger"}`;
+            if (tipo === "alerta") {
+                toastEl.className = `toast align-items-center text-dark border-0 shadow-lg bg-warning fw-bold`;
+            } else {
+                toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : (tipo === "info" ? "bg-info text-dark" : "bg-danger")}`;
+            }
             const bsToast = new bootstrap.Toast(toastEl);
             bsToast.show();
         }
 
+        function obtenerSupabaseCliente() {
+            if (typeof initSupabase === 'function') {
+                return initSupabase();
+            }
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                return supabaseClient;
+            }
+            if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+                return window.supabase;
+            }
+            return null;
+        }
+
         /**
-         * CONSULTA SEGURA MEDIANTE EL SDK DE SUPABASE (INCLUYE JWT DE AUTORIZACIÓN)
+         * VERIFICACIÓN RIGUROSA EN SUPABASE Y ALERTA DE REGISTRO PREVIO
          */
-        async function consultarPatenteAPI() {
+        async function verificarPatenteSupabaseOAPI(patenteForzada = null) {
             const inputPatente = document.getElementById('patente');
-            const btnConsultar = document.getElementById('btnConsultarPatente');
-            const patenteQuery = inputPatente ? inputPatente.value.trim().toUpperCase() : '';
+            let patenteQuery = patenteForzada || (inputPatente ? inputPatente.value.trim().toUpperCase() : '');
 
             if (!patenteQuery || patenteQuery.length < 4) {
-                mostrarToast("Ingresa una patente válida (Ej: HHTZ36)", "error");
+                mostrarToast("Ingresa una patente válida (Ej: JTYY13)", "error");
                 return;
             }
+            patenteQuery = patenteQuery.toUpperCase();
 
-            mostrarToast(`Consultando patente ${patenteQuery}...`, "exito");
+            try {
+                const db = obtenerSupabaseCliente();
+                if (!db) {
+                    console.warn("Supabase no inicializado, pasando a API directa.");
+                    consultarPatenteAPI(patenteQuery);
+                    return;
+                }
+
+                // Revisamos de forma prioritaria en las tablas principales de vehículos u órdenes de trabajo
+                const tablasAProbar = ['vehiculos', 'ordenes_trabajo', 'recepciones'];
+                let encontrado = null;
+
+                for (let tabla of tablasAProbar) {
+                    const { data, error } = await db
+                        .from(tabla)
+                        .select('*')
+                        .ilike('patente', patenteQuery)
+                        .maybeSingle();
+
+                    if (!error && data) {
+                        encontrado = data;
+                        break;
+                    }
+                }
+
+                if (encontrado) {
+                    // Autocompletamos los campos con la información existente
+                    autocompletarFormularioRecepcion({
+                        cliente: encontrado.cliente || encontrado.nombre_cliente || encontrado.propietario || '',
+                        rut: encontrado.rut || encontrado.rut_cliente || '',
+                        marca: encontrado.marca || '',
+                        modelo: encontrado.modelo || '',
+                        ano: encontrado.ano || encontrado.anio || '',
+                        vin: encontrado.vin || encontrado.chasis || '',
+                        color: encontrado.color || '',
+                        n_motor: encontrado.n_motor || encontrado.motor || ''
+                    });
+                    
+                    if (encontrado.telefono && document.getElementById('telefono')) {
+                        document.getElementById('telefono').value = encontrado.telefono;
+                    }
+
+                    // Lanzamos la alerta amarilla obligatoria indicando que ya está registrado
+                    mostrarToast(`¡ATENCIÓN! La patente ${patenteQuery} ya se encuentra registrada en el sistema.`, "alerta");
+                    return; // IMPORTANTE: Cortamos el flujo aquí para evitar que salte a consultar la API externa
+                }
+            } catch (err) {
+                console.error("Error consultando la base de datos local:", err);
+            }
+
+            // Si no se encuentra en Supabase, recién procedemos a la consulta de la API externa
+            consultarPatenteAPI(patenteQuery);
+        }
+
+        async function verificarClienteSupabasePorRut(rutQuery) {
+            try {
+                const db = obtenerSupabaseCliente();
+                if (!db) return;
+
+                const { data, error } = await db
+                    .from('clientes')
+                    .select('*')
+                    .eq('rut', rutQuery)
+                    .maybeSingle();
+
+                if (!error && data) {
+                    if (data.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = data.nombre;
+                    if (data.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = data.telefono;
+                    mostrarToast(`¡Cliente con RUT ${rutQuery} encontrado en los registros!`, "exito");
+                }
+            } catch (err) {
+                console.error("Error al verificar cliente por RUT:", err);
+            }
+        }
+
+        async function consultarPatenteAPI(patenteQuery) {
+            const btnConsultar = document.getElementById('btnConsultarPatente');
+
+            mostrarToast(`Consultando patente ${patenteQuery} en API externa...`, "info");
             
             if (btnConsultar) {
                 btnConsultar.disabled = true;
@@ -413,12 +564,11 @@
             }
 
             try {
-                const db = typeof initSupabase === 'function' ? initSupabase() : supabaseClient;
+                const db = obtenerSupabaseCliente();
                 if (!db) {
                     throw new Error("No se encontró la conexión con Supabase.");
                 }
 
-                // Invocación segura a la Edge Function
                 const { data, error } = await db.functions.invoke('get-vehiculo', {
                     body: { patente: patenteQuery }
                 });
@@ -431,14 +581,9 @@
                     throw new Error(data?.error || "La API no devolvió información para esta patente.");
                 }
 
-                // IMPRIME EL JSON COMPLETO EN LA CONSOLA (F12) PARA VER CÓMO LLEGAN LOS DATOS EXACTOS
-                console.log("RESPUESTA COMPLETA DE LA API BOOSTR:", data);
-
-                // Procesar y mapear campos independientes de forma ampliada
                 const datosProcesados = normalizarRespuestaAPI(data);
-
                 autocompletarFormularioRecepcion(datosProcesados);
-                mostrarToast(`¡Vehículo ${patenteQuery} cargado exitosamente!`, "exito");
+                mostrarToast(`¡Vehículo ${patenteQuery} cargado desde la API exitosamente!`, "exito");
 
             } catch (error) {
                 console.error("Error en la consulta:", error);
@@ -446,14 +591,11 @@
             } finally {
                 if (btnConsultar) {
                     btnConsultar.disabled = false;
-                    btnConsultar.innerHTML = `<i class="bi bi-magic me-1"></i> Consultar API`;
+                    btnConsultar.innerHTML = `<i class="bi bi-magic me-1"></i> Consultar Patente`;
                 }
             }
         }
 
-        /**
-         * MAPEO AMPLIADO PARA CAPTURAR CUALQUIER VARIACIÓN DE NOMBRES DE LA API
-         */
         function normalizarRespuestaAPI(responseJson) {
             const data = responseJson.data || responseJson;
             const owner = data.owner || {};
@@ -461,22 +603,15 @@
             return {
                 cliente: owner.name || owner.fullname || owner.nombre || data.client_name || '',
                 rut: owner.rut || owner.documentNumber || data.client_rut || '',
-                
-                // Mapeo ampliado de Marca, Modelo, Año
                 marca: data.brand || data.marca || data.make || '',
                 modelo: data.model || data.modelo || '',
                 ano: data.year || data.ano || data.anio || '',
-                
-                // Mapeo ampliado para VIN y Motor (cubre todas las opciones posibles de Boostr)
                 vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '',
                 color: data.color || data.colour || '',
                 n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || ''
             };
         }
 
-        /**
-         * FUNCIÓN QUE LLENA LOS CAMPOS VISUALES EN LA PANTALLA
-         */
         function autocompletarFormularioRecepcion(datos) {
             if (datos.cliente && document.getElementById('cliente')) document.getElementById('cliente').value = datos.cliente;
             if (datos.rut && document.getElementById('rut')) document.getElementById('rut').value = datos.rut;
