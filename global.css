@@ -1,0 +1,63 @@
+:root {
+  /* Colores de marca y tema */
+  --primary: #ef4444;
+  --primary-hover: #dc2626;
+  --bg-main: #0f172a;
+  --bg-card: #1e293b;
+  --bg-input: #0b1120;
+  --border-color: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  /* Radios y transiciones */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --transition: all 0.2s ease-in-out;
+}
+
+/* Aplicación base global */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Tarjetas / Contenedores principales */
+.card-custom {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+/* Inputs y Selects */
+.form-control, .form-select {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Botones principales */
+.btn-primary-custom {
+  background-color: var(--primary);
+  color: #ffffff;
+  border: none;
+  font-weight: bold;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.btn-primary-custom:hover {
+  background-color: var(--primary-hover);
+  color: #ffffff;
+}

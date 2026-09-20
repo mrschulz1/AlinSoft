@@ -154,6 +154,29 @@
             background-color: var(--accent-orange);
             color: #fff;
         }
+
+        .fuel-level-btn {
+            background-color: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .fuel-level-btn:hover {
+            background-color: #334155;
+            color: #ffffff;
+            border-color: #475569;
+        }
+
+        .fuel-level-btn.active {
+            background-color: #ef4444 !important;
+            color: #ffffff !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -208,6 +231,10 @@
                             <div class="col-12 col-md-5">
                                 <label class="form-label">RUT / DNI</label>
                                 <input type="text" id="rut" class="form-control" placeholder="12.345.678-9">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Teléfono</label>
+                                <input type="text" id="telefono" class="form-control" placeholder="+56 9 1234 5678">
                             </div>
                         </div>
                     </div>
@@ -266,15 +293,16 @@
                                 <label class="form-label">Kilometraje Actual</label>
                                 <input type="text" id="kilometraje" class="form-control" placeholder="120.000 KM">
                             </div>
-                            <div class="col-12 col-md-4">
-                                <label class="form-label">Nivel de Combustible</label>
-                                <select id="combustible" class="form-select">
-                                    <option value="1/4">1/4 Tanque</option>
-                                    <option value="1/2" selected>1/2 Tanque</option>
-                                    <option value="3/4">3/4 Tanque</option>
-                                    <option value="Lleno">Tanque Lleno</option>
-                                    <option value="Reserva">Reserva</option>
-                                </select>
+                         <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold" style="font-size: 11px;">NIVEL DE COMBUSTIBLE</label>
+                            <div class="d-flex gap-2" id="fuelGaugeGroup">
+                                <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Reserva">Reserva</button>
+                                <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="1/4">1/4</button>
+                                <button type="button" class="btn fuel-level-btn flex-fill py-2 active" data-value="1/2">1/2</button>
+                                <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="3/4">3/4</button>
+                                <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Lleno">Lleno</button>
+                        </div>
+                            <input type="hidden" id="inputNivelCombustible" value="1/2">
                             </div>
                             <div class="col-12 col-md-4">
                                 <label class="form-label">Fecha de Recepción</label>

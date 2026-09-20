@@ -390,3 +390,16 @@ function verPDFPresupuesto() {
     mostrarToast("Permite las ventanas emergentes (popups) en tu navegador.", "error");
   }
 }
+
+
+//archivo de carga de sidebar global
+document.addEventListener("DOMContentLoaded", function() {
+  const sidebarContainer = document.getElementById("sidebar-container");
+  if (sidebarContainer) {
+    fetch("sidebar.html")
+      .then(response => response.text())
+      .then(data => {
+        sidebarContainer.innerHTML = data;
+      });
+  }
+});
