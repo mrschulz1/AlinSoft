@@ -454,6 +454,3 @@ async function buscarVehiculoPorPatente(patenteInput) {
     }
 }
 
-// 1. OBTENER EL SIGUIENTE NÚMERO CORRELATIVO ANTES DE INSERTAR
-        const siguienteNumero = await obtenerSiguienteNumeroOT();
-        const folioFinal = `OT-${siguienteNumero}`;
