@@ -353,7 +353,7 @@
         const msgListo = encodeURIComponent(`Hola ${nombreCliente}, te informamos que tu vehículo ${textoVehiculo} (Patente: ${patenteVehiculo}) está LISTO PARA RETIRAR. Total: ${totalFormateado}. Folio OT: ${ot.numero}.`);
         const msgPpto = encodeURIComponent(`Hola ${nombreCliente}, adjuntamos el detalle del presupuesto para tu vehículo ${textoVehiculo} (Patente: ${patenteVehiculo}). Total: ${totalFormateado}. Puedes revisar la ficha aquí: ${window.location.origin}/ver_ot.html?ot=${ot.numero}`);
 
-        const folioTexto = ot.numero ? (isNaN(ot.numero) ? ot.numero : `OT-${ot.numero}`) : 'S/F';
+        const folioTexto = ot.numero ? (isNaN(ot.numero) ? ot.numero : `OT-${ot.numero}`): 'S/F';
 
         tbody.innerHTML += `
             <tr>
