@@ -3,135 +3,404 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ficha de Recepción - AlinSoft</title>
+    <title>Seguimiento de Orden - AlinSoft</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; padding-bottom: 40px; }
-        .card-custom { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; }
-        .badge-estado { font-size: 0.85rem; padding: 6px 14px; border-radius: 20px; }
-        .img-grid { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; border: 1px solid #334155; }
-        
-        @media print {
-            .no-print { display: none !important; }
-            body { background-color: #fff !important; color: #000 !important; }
-            .card-custom { background-color: #fff !important; border: 1px solid #ccc !important; color: #000 !important; }
-            .text-secondary, .text-danger { color: #000 !important; }
+        :root {
+            --bg-body: #090d16;
+            --bg-card: #131c2e;
+            --bg-input: #1a263d;
+            --border-color: #24344d;
+            --accent-orange: #ff5722;
+            --accent-red: #ef4444;
+            --whatsapp-green: #10b981;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: #e2e8f0;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        .brand-header {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: #fff;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .brand-header span {
+            color: var(--accent-red);
+        }
+
+        .card-panel {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        .badge-status {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            border: 1px solid var(--border-color);
+            background-color: #1e293b;
+        }
+
+        .badge-status.finalizado {
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+
+        .badge-status.en-proceso {
+            color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* Timeline de Pasos */
+        .timeline-container {
+            position: relative;
+            margin: 30px 0 20px 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            top: 20px;
+            left: 15%;
+            right: 15%;
+            height: 3px;
+            background-color: #334155;
+            z-index: 1;
+        }
+
+        .timeline-steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #1e293b;
+            border: 2px solid #334155;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-step.active .step-circle {
+            background-color: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+        }
+
+        .timeline-step.completed .step-circle {
+            background-color: var(--accent-red);
+            border-color: var(--accent-red);
+            color: #fff;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        .timeline-step.active .step-label, .timeline-step.completed .step-label {
+            color: #fff;
+        }
+
+        .plate-badge {
+            background-color: #1e293b;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .comment-box {
+            background-color: rgba(26, 38, 61, 0.5);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            color: #94a3b8;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        .btn-whatsapp {
+            background-color: var(--whatsapp-green);
+            color: #000;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-whatsapp:hover {
+            background-color: #059669;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.75rem;
+            color: #64748b;
+            border-top: 1px solid var(--border-color);
         }
     </style>
 </head>
 <body>
-    <div class="container py-4" style="max-width: 680px;">
-        <!-- Header -->
-        <div class="text-center mb-4">
-            <h3 class="fw-bold mb-1"><i class="bi bi-gear-wide-connected text-danger me-2"></i>Alin<span class="text-danger">Soft</span></h3>
-            <p class="text-secondary small">Comprobante Digital de Recepción e Ingreso</p>
+
+    <div class="main-container">
+        <!-- MARCA / HEADER -->
+        <div class="brand-header">
+            Alin<span>Soft</span>
         </div>
 
-        <!-- Spinner de Carga -->
-        <div id="loading" class="text-center my-5">
-            <div class="spinner-border text-danger" role="status"></div>
-            <p class="text-secondary mt-2 small">Cargando información de la recepción...</p>
+        <!-- TARJETA 1: ESTADO Y PROGRESO DE LA ORDEN -->
+        <div class="card-panel">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <div>
+                    <h4 class="fw-bold m-0" id="txtOrdenTitulo">Orden #...</h4>
+                    <p class="text-secondary small m-0 mt-1" id="txtSubtitulo">Alineaciones Bustamante · Vehículo <span id="txtPatenteHeader" class="plate-badge">...</span></p>
+                </div>
+                <span id="badgeEstadoGeneral" class="badge-status finalizado">Cargando...</span>
+            </div>
+
+            <!-- TIMELINE VISUAL (1 AL 4) -->
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                <div class="timeline-steps">
+                    <div class="timeline-step" id="step-1">
+                        <div class="step-circle">1</div>
+                        <span class="step-label">Ingreso</span>
+                    </div>
+                    <div class="timeline-step" id="step-2">
+                        <div class="step-circle">2</div>
+                        <span class="step-label">Presupuesto</span>
+                    </div>
+                    <div class="timeline-step" id="step-3">
+                        <div class="step-circle">3</div>
+                        <span class="step-label">En proceso</span>
+                    </div>
+                    <div class="timeline-step" id="step-4">
+                        <div class="step-circle">4</div>
+                        <span class="step-label">Finalizado</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-3 pt-3 border-top border-secondary opacity-75">
+                <small class="text-muted" id="txtFechaFinInfo">Fecha de actualización: --</small>
+            </div>
         </div>
 
-        <!-- Contenido Ficha -->
-        <div id="contenidoOT" class="d-none">
-            <!-- Estado -->
-            <div class="card card-custom p-3 mb-3 text-center">
-                <span class="text-secondary small">ESTADO DEL VEHÍCULO</span>
-                <div class="mt-1">
-                    <span id="otEstado" class="badge bg-danger badge-estado">INGRESADO PARA REPARACIÓN</span>
-                </div>
-                <small id="otFolioFecha" class="text-secondary mt-2 d-block"></small>
-            </div>
-
-            <!-- Datos Recepción -->
-            <div class="card card-custom p-3 mb-3">
-                <h6 class="fw-bold text-danger mb-3"><i class="bi bi-car-front me-2"></i>Datos del Ingreso</h6>
-                <div class="row g-3 small">
-                    <div class="col-6"><span class="text-secondary d-block">Cliente</span><strong id="otCliente">-</strong></div>
-                    <div class="col-6"><span class="text-secondary d-block">RUT</span><strong id="otRut">-</strong></div>
-                    <div class="col-6"><span class="text-secondary d-block">Vehículo</span><strong id="otVehiculo">-</strong></div>
-                    <div class="col-6"><span class="text-secondary d-block">Patente</span><strong id="otPatente" class="text-uppercase">-</strong></div>
-                    <div class="col-6"><span class="text-secondary d-block">Kilometraje</span><strong id="otKm">-</strong></div>
-                    <div class="col-6"><span class="text-secondary d-block">Combustible</span><strong id="otCombustible">-</strong></div>
+        <!-- TARJETA 2: DETALLE DEL SERVICIO -->
+        <div class="card-panel">
+            <h6 class="text-uppercase fw-bold text-secondary mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em;">Detalle del servicio</h6>
+            
+            <div class="mb-3">
+                <span class="info-label"><i class="bi bi-car-front me-1"></i> Vehículo</span>
+                <div class="d-flex align-items-center gap-2 mt-1">
+                    <span id="txtPatenteDetalle" class="plate-badge">...</span>
+                    <span id="txtVehiculoDescripcion" class="info-value">Cargando datos del vehículo...</span>
                 </div>
             </div>
 
-            <!-- Detalle Inspección -->
-            <div class="card card-custom p-3 mb-3">
-                <h6 class="fw-bold text-danger mb-2"><i class="bi bi-clipboard-check me-2"></i>Motivo de Ingreso / Fallas Reportadas</h6>
-                <p id="otObservaciones" class="small text-light mb-0" style="white-space: pre-line;"></p>
+            <div class="mb-3">
+                <span class="info-label"><i class="bi bi-wrench me-1"></i> Servicio</span>
+                <div class="info-value" id="txtServicio">1</div>
             </div>
 
-            <!-- Fotos -->
-            <div class="card card-custom p-3 mb-4">
-                <h6 class="fw-bold text-danger mb-3"><i class="bi bi-images me-2"></i>Registro Fotográfico de Entrada</h6>
-                <div class="row g-2" id="galeriaFotos">
-                    <p class="text-secondary small mb-0">Sin fotos adjuntas en la recepción.</p>
-                </div>
+            <div>
+                <span class="info-label"><i class="bi bi-file-text me-1"></i> Solicitud</span>
+                <div class="info-value" id="txtSolicitud">ADJUNTAMOS COTIZACION DE TRABAJO</div>
             </div>
+        </div>
 
-            <!-- Acciones -->
-            <div class="d-grid gap-2 no-print">
-                <button onclick="window.print()" class="btn btn-outline-light py-2"><i class="bi bi-printer me-2"></i>Imprimir / Guardar como PDF</button>
+        <!-- TARJETA 3: AVANCE DEL TRABAJO -->
+        <div class="card-panel">
+            <h6 class="text-uppercase fw-bold text-secondary mb-3" style="font-size: 0.8rem; letter-spacing: 0.05em;">Avance del trabajo</h6>
+            <div class="comment-box" id="txtComentarios">
+                Aún no hay comentarios de avance.
             </div>
+        </div>
+
+        <!-- BOTÓN DE CONTACTO WHATSAPP -->
+        <div class="mt-4">
+            <a href="https://wa.me/56900000000?text=Hola,%20quisiera%20consultar%20por%20el%20estado%20de%20mi%20orden" target="_blank" class="btn-whatsapp" id="btnWhatsapp">
+                <i class="bi bi-whatsapp fs-5"></i> Contactar a Alineaciones Bustamante por WhatsApp
+            </a>
         </div>
     </div>
+
+    <!-- FOOTER -->
+    <footer>
+        © 2026 Alineaciones Bustamante — gestión para servicios automotrices
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", async () => {
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
+        document.addEventListener("DOMContentLoaded", async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id') || urlParams.get('ot') || '247'; // Por defecto 247 para pruebas visuales
 
-            if (!id) {
-                document.getElementById('loading').innerHTML = `<p class="text-danger">Enlace no válido o incompleto.</p>`;
-                return;
-            }
+            document.getElementById('txtOrdenTitulo').textContent = `Orden #${orderId}`;
 
-            let db = null;
-            if (typeof initSupabase === 'function') db = initSupabase();
+            try {
+                const db = (typeof initSupabase === 'function') ? initSupabase() : (window.supabaseClient || null);
+                if (!db) {
+                    console.warn("Supabase no inicializado, usando datos de demostración visual.");
+                    return;
+                }
 
-            if (!db) {
-                document.getElementById('loading').innerHTML = `<p class="text-warning">Modo vista previa sin conexión a base de datos.</p>`;
-                return;
-            }
+                // Consultamos en la tabla de órdenes de trabajo
+                const { data, error } = await db
+                    .from('ordenes_trabajo')
+                    .select('*')
+                    .eq('id', orderId)
+                    .maybeSingle();
 
-            const { data: ot, error } = await db.from('ordenes_trabajo').select('*').eq('id', id).single();
+                if (error || !data) {
+                    console.warn("No se encontró la orden en Supabase, mostrando valores por defecto.");
+                    return;
+                }
 
-            if (error || !ot) {
-                document.getElementById('loading').innerHTML = `<p class="text-danger">No se encontró la orden de recepción solicitada.</p>`;
-                return;
-            }
+                // Rellenar datos reales de la BD
+                const patente = data.patente || 'HBYP79';
+                document.getElementById('txtPatenteHeader').textContent = patente;
+                document.getElementById('txtPatenteDetalle').textContent = patente;
+                
+                const descripcionVehiculo = `${data.marca || 'FORD'} ${data.modelo || 'EXPLORER'} ${data.ano || data.anio || '2015'} ${data.color || 'NEGRO'}`.trim();
+                document.getElementById('txtVehiculoDescripcion').textContent = descripcionVehiculo;
 
-            document.getElementById('loading').classList.add('d-none');
-            document.getElementById('contenidoOT').classList.remove('d-none');
+                if (data.servicio) {
+                    document.getElementById('txtServicio').textContent = data.servicio;
+                }
+                if (data.observaciones || data.solicitud) {
+                    document.getElementById('txtSolicitud').textContent = data.observaciones || data.solicitud;
+                }
+                if (data.comentarios_avance || data.avances) {
+                    document.getElementById('txtComentarios').textContent = data.comentarios_avance || data.avances;
+                    document.getElementById('txtComentarios').style.fontStyle = 'normal';
+                    document.getElementById('txtComentarios').style.color = '#e2e8f0';
+                }
 
-            document.getElementById('otEstado').innerText = ot.estado || 'INGRESADO PARA REPARACIÓN';
-            document.getElementById('otFolioFecha').innerText = `Folio: ${ot.numero || 'OT-REC'} | Fecha: ${ot.fecha || ''}`;
-            document.getElementById('otCliente').innerText = ot.cliente || 'No especificado';
-            document.getElementById('otRut').innerText = ot.rut || 'N/A';
-            document.getElementById('otVehiculo').innerText = ot.vehiculo || 'No especificado';
-            document.getElementById('otPatente').innerText = ot.patente || 'N/A';
-            document.getElementById('otKm').innerText = (ot.kilometraje || '0') + ' KM';
-            document.getElementById('otCombustible').innerText = ot.combustible || 'N/A';
-            document.getElementById('otObservaciones').innerText = ot.observaciones || 'Sin detalles adicionales.';
+                // Manejo de estados y pasos (1 a 4)
+                // Estados comunes: 'ingreso', 'presupuesto', 'en_proceso', 'finalizado'
+                actualizarTimelinePasos(data.estado || 'finalizado', data.fecha_fin || data.updated_at);
 
-            if (ot.fotos && ot.fotos.length > 0) {
-                const galeria = document.getElementById('galeriaFotos');
-                galeria.innerHTML = '';
-                ot.fotos.forEach(url => {
-                    galeria.innerHTML += `
-                        <div class="col-4 col-sm-3">
-                            <a href="${url}" target="_blank">
-                                <img src="${url}" class="img-grid" alt="Foto recepción">
-                            </a>
-                        </div>`;
-                });
+            } catch (err) {
+                console.error("Error al cargar la orden desde Supabase:", err);
             }
         });
+
+        function actualizarTimelinePasos(estadoStr, fechaFinStr) {
+            const estado = estadoStr.toLowerCase();
+            let pasoActivo = 4; // Por defecto finalizado como en la captura
+
+            if (estado.includes('ingreso')) pasoActivo = 1;
+            else if (estado.includes('presupuesto')) pasoActivo = 2;
+            else if (estado.includes('proceso')) pasoActivo = 3;
+            else if (estado.includes('finalizado') || estado.includes('terminado')) pasoActivo = 4;
+
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step-${i}`);
+                if (!el) continue;
+                el.classList.remove('active', 'completed');
+                if (i < pasoActivo) {
+                    el.classList.add('completed');
+                } else if (i === pasoActivo) {
+                    el.classList.add('active');
+                }
+            }
+
+            const badge = document.getElementById('badgeEstadoGeneral');
+            if (pasoActivo === 4) {
+                badge.className = "badge-status finalizado";
+                badge.textContent = "Finalizado";
+            } else if (pasoActivo === 3) {
+                badge.className = "badge-status en-proceso";
+                badge.textContent = "En proceso";
+            } else if (pasoActivo === 2) {
+                badge.className = "badge-status en-proceso";
+                badge.textContent = "Presupuesto";
+            } else {
+                badge.className = "badge-status en-proceso";
+                badge.textContent = "Ingreso";
+            }
+
+            if (fechaFinStr) {
+                const fechaFmt = new Date(fechaFinStr).toLocaleDateString('es-CL', { day: '2-digit', month: 'long', year: 'numeric' });
+                document.getElementById('txtFechaFinInfo').textContent = `Fecha de actualización: ${fechaFmt}`;
+            }
+        }
     </script>
 </body>
 </html>

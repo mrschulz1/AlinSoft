@@ -268,33 +268,42 @@
         }
 
         // CÁLCULO DE FOLIO CORRELATIVO DESDE EL 29500 (Para uso al crear OT)
-        async function obtenerSiguienteNumeroOT() {
-            const BASE_NUMERO = 29500;
-            try {
-                if (db) {
-                    const { data, error } = await db.from('ordenes_trabajo')
-                        .select('numero')
-                        .not('numero', 'is', null)
-                        .order('numero', { ascending: false })
-                        .limit(1);
+     // CÁLCULO DE FOLIO CORRELATIVO DESDE EL 29500 (Seguro ante prefijos como "OT-")
+    async function obtenerSiguienteNumeroOT() {
+        const BASE_NUMERO = 29500;
+        try {
+            if (db) {
+                const { data, error } = await db.from('ordenes_trabajo')
+                    .select('numero')
+                    .not('numero', 'is', null)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
 
-                    if (!error && data && data.length > 0) {
-                        const maxBD = parseInt(data[0].numero, 10);
-                        return isNaN(maxBD) ? BASE_NUMERO : Math.max(maxBD + 1, BASE_NUMERO);
-                    }
-                } else {
-                    const ordenesLocal = JSON.parse(localStorage.getItem('taller_ordenes')) || [];
-                    if (ordenesLocal.length > 0) {
-                        const numeros = ordenesLocal.map(o => parseInt(o.numero || 0, 10)).filter(n => !isNaN(n));
+                if (!error && data && data.length > 0 && data[0].numero) {
+                    // Extraer solo los números de la cadena (ej: "OT-29500" -> 29500)
+                    const match = data[0].numero.toString().match(/\d+/);
+                    const maxBD = match ? parseInt(match[0], 10) : NaN;
+                    return isNaN(maxBD) ? BASE_NUMERO : Math.max(maxBD + 1, BASE_NUMERO);
+                }
+            } else {
+                const ordenesLocal = JSON.parse(localStorage.getItem('taller_ordenes')) || [];
+                if (ordenesLocal.length > 0) {
+                    const numeros = ordenesLocal.map(o => {
+                        const match = (o.numero || '').toString().match(/\d+/);
+                        return match ? parseInt(match[0], 10) : NaN;
+                    }).filter(n => !isNaN(n));
+                    
+                    if (numeros.length > 0) {
                         const maxLocal = Math.max(...numeros);
                         return Math.max(maxLocal + 1, BASE_NUMERO);
                     }
                 }
-            } catch (e) {
-                console.error("Error calculando correlativo OT:", e);
             }
-            return BASE_NUMERO;
+        } catch (e) {
+            console.error("Error calculando correlativo OT:", e);
         }
+        return BASE_NUMERO;
+    }
 
         // RENDERIZADO DE TABLA DE ÓRDENES
     function renderizarTabla(lista) {

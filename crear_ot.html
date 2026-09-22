@@ -431,7 +431,85 @@
                     }
                 });
             }
-        });
+
+            // LÓGICA DE ENVÍO ADAPTADA A TU TABLA (CON CLIENTE_INFO Y VEHICULO_INFO EN JSONB)
+      const formOT = document.getElementById('formNuevaOT');
+        if (formOT) {
+            formOT.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const btnGuardar = document.getElementById('btnGuardarOT');
+                const btnText = document.getElementById('btnTextOT');
+                const btnSpinner = document.getElementById('btnSpinnerOT');
+
+                if (btnGuardar) btnGuardar.disabled = true;
+                if (btnText) btnText.classList.add('d-none');
+                if (btnSpinner) btnSpinner.classList.remove('d-none');
+
+                try {
+                    const db = obtenerSupabaseCliente();
+                    if (!db) {
+                        throw new Error("No hay conexión activa con Supabase.");
+                    }
+
+                    // 1. OBTENER EL SIGUIENTE NÚMERO CORRELATIVO ANTES DE INSERTAR
+                    const siguienteNumero = await obtenerSiguienteNumeroOT();
+                    const folioFinal = `OT-${siguienteNumero}`;
+
+                    // 2. INCLUIR LA PROPIEDAD `numero` DENTRO DEL OBJETO
+                    const nuevaOrden = {
+                        numero: folioFinal, // <--- ESTO EVITA QUE SE GUARDE COMO NULL
+                        patente: document.getElementById('patente').value.trim().toUpperCase(),
+                        marca: document.getElementById('marca').value.trim().toUpperCase(),
+                        modelo: document.getElementById('modelo').value.trim(),
+                        ano: document.getElementById('ano').value.trim(),
+                        color: document.getElementById('color').value.trim(),
+                        kilometraje: document.getElementById('kilometraje').value.trim(),
+                        combustible: document.getElementById('inputNivelCombustible').value,
+                        fecha: document.getElementById('fecha').value,
+                        observaciones: document.getElementById('observaciones').value.trim(),
+                        estado: 'Recepción',
+                        cliente_info: {
+                            nombre: document.getElementById('cliente').value.trim(),
+                            rut: document.getElementById('rut').value.trim(),
+                            telefono: document.getElementById('telefono').value.trim()
+                        },
+                        vehiculo_info: {
+                            vin: document.getElementById('vin').value.trim().toUpperCase(),
+                            n_motor: document.getElementById('n_motor').value.trim().toUpperCase()
+                        },
+                        created_at: new Date().toISOString()
+                    };
+
+                    const { data, error } = await db
+                        .from('ordenes_trabajo')
+                        .insert([nuevaOrden])
+                        .select();
+
+                    if (error) {
+                        throw new Error(error.message);
+                    }
+
+                    mostrarToast(`¡Orden ${folioFinal} creada y guardada exitosamente!`, "exito");
+
+                    setTimeout(() => {
+                        const idCreado = data && data[0] ? (data[0].id || data[0].numero) : '';
+                        if (idCreado) {
+                            window.location.href = `ver_ot.html?id=${idCreado}`;
+                        } else {
+                            window.location.href = 'ordenes.html';
+                        }
+                    }, 1200);
+
+                } catch (err) {
+                    console.error("Error al enviar formulario a Supabase:", err);
+                    mostrarToast(err.message || "Error al guardar la orden de trabajo.", "error");
+                    if (btnGuardar) btnGuardar.disabled = false;
+                    if (btnText) btnText.classList.remove('d-none');
+                    if (btnSpinner) btnSpinner.classList.add('d-none');
+                }
+            });
+        }
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('show');
@@ -465,9 +543,6 @@
             return null;
         }
 
-        /**
-         * VERIFICACIÓN RIGUROSA EN SUPABASE Y ALERTA DE REGISTRO PREVIO
-         */
         async function verificarPatenteSupabaseOAPI(patenteForzada = null) {
             const inputPatente = document.getElementById('patente');
             let patenteQuery = patenteForzada || (inputPatente ? inputPatente.value.trim().toUpperCase() : '');
@@ -481,54 +556,38 @@
             try {
                 const db = obtenerSupabaseCliente();
                 if (!db) {
-                    console.warn("Supabase no inicializado, pasando a API directa.");
                     consultarPatenteAPI(patenteQuery);
                     return;
                 }
 
-                // Revisamos de forma prioritaria en las tablas principales de vehículos u órdenes de trabajo
-                const tablasAProbar = ['vehiculos', 'ordenes_trabajo', 'recepciones'];
-                let encontrado = null;
+                const { data, error } = await db
+                    .from('ordenes_trabajo')
+                    .select('*')
+                    .ilike('patente', patenteQuery)
+                    .maybeSingle();
 
-                for (let tabla of tablasAProbar) {
-                    const { data, error } = await db
-                        .from(tabla)
-                        .select('*')
-                        .ilike('patente', patenteQuery)
-                        .maybeSingle();
+                if (!error && data) {
+                    const cInfo = data.cliente_info || {};
+                    const vInfo = data.vehiculo_info || {};
 
-                    if (!error && data) {
-                        encontrado = data;
-                        break;
-                    }
-                }
+                    if (cInfo.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = cInfo.nombre;
+                    if (cInfo.rut && document.getElementById('rut')) document.getElementById('rut').value = cInfo.rut;
+                    if (cInfo.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = cInfo.telefono;
 
-                if (encontrado) {
-                    // Autocompletamos los campos con la información existente
-                    autocompletarFormularioRecepcion({
-                        cliente: encontrado.cliente || encontrado.nombre_cliente || encontrado.propietario || '',
-                        rut: encontrado.rut || encontrado.rut_cliente || '',
-                        marca: encontrado.marca || '',
-                        modelo: encontrado.modelo || '',
-                        ano: encontrado.ano || encontrado.anio || '',
-                        vin: encontrado.vin || encontrado.chasis || '',
-                        color: encontrado.color || '',
-                        n_motor: encontrado.n_motor || encontrado.motor || ''
-                    });
-                    
-                    if (encontrado.telefono && document.getElementById('telefono')) {
-                        document.getElementById('telefono').value = encontrado.telefono;
-                    }
+                    if (data.marca && document.getElementById('marca')) document.getElementById('marca').value = data.marca;
+                    if (data.modelo && document.getElementById('modelo')) document.getElementById('modelo').value = data.modelo;
+                    if (data.ano && document.getElementById('ano')) document.getElementById('ano').value = data.ano;
+                    if (data.color && document.getElementById('color')) document.getElementById('color').value = data.color;
+                    if (vInfo.vin && document.getElementById('vin')) document.getElementById('vin').value = vInfo.vin;
+                    if (vInfo.n_motor && document.getElementById('n_motor')) document.getElementById('n_motor').value = vInfo.n_motor;
 
-                    // Lanzamos la alerta amarilla obligatoria indicando que ya está registrado
-                    mostrarToast(`¡ATENCIÓN! La patente ${patenteQuery} ya se encuentra registrada en el sistema.`, "alerta");
-                    return; // IMPORTANTE: Cortamos el flujo aquí para evitar que salte a consultar la API externa
+                    mostrarToast(`¡ATENCIÓN! La patente ${patenteQuery} ya cuenta con registros previos.`, "alerta");
+                    return;
                 }
             } catch (err) {
-                console.error("Error consultando la base de datos local:", err);
+                console.error("Error consultando la base de datos:", err);
             }
 
-            // Si no se encuentra en Supabase, recién procedemos a la consulta de la API externa
             consultarPatenteAPI(patenteQuery);
         }
 
@@ -546,7 +605,7 @@
                 if (!error && data) {
                     if (data.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = data.nombre;
                     if (data.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = data.telefono;
-                    mostrarToast(`¡Cliente con RUT ${rutQuery} encontrado en los registros!`, "exito");
+                    mostrarToast(`¡Cliente con RUT ${rutQuery} encontrado!`, "exito");
                 }
             } catch (err) {
                 console.error("Error al verificar cliente por RUT:", err);
