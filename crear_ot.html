@@ -1,703 +1,678 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva Recepción - AlinSoft</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <style>
-        :root {
-            --bg-body: #090d16;
-            --bg-card: #131c2e;
-            --bg-input: #1a263d;
-            --border-color: #24344d;
-            --accent-orange: #ff5722;
-            --accent-orange-hover: #f44336;
-        }
-
-        body {
-            background-color: var(--bg-body);
-            color: #e2e8f0;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-
-        .sidebar {
-            width: 240px;
-            height: 100vh;
-            background-color: #0b111e;
-            border-right: 1px solid var(--border-color);
-            position: fixed;
-            top: 0; left: 0; z-index: 1000;
-        }
-
-        .main-content {
-            margin-left: 240px;
-            padding: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { margin-left: -240px; transition: 0.3s; }
-            .sidebar.show { margin-left: 0; }
-            .main-content { margin-left: 0; padding: 15px; }
-        }
-
-        .nav-link {
-            color: #94a3b8;
-            padding: 12px 18px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border-radius: 8px;
-            margin: 4px 12px;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: #fff;
-            background-color: #1a263d;
-        }
-
-        .nav-link.active {
-            border-left: 4px solid var(--accent-orange);
-        }
-
-        .card-panel {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-        }
-
-        .panel-title {
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--accent-orange);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .form-label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #94a3b8;
-            margin-bottom: 6px;
-        }
-
-        .form-control, .form-select {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: #fff;
-            border-radius: 8px;
-            padding: 10px 14px;
-            font-size: 0.9rem;
-        }
-
-        .form-control:focus, .form-select:focus {
-            background-color: var(--bg-input);
-            border-color: var(--accent-orange);
-            box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.2);
-            color: #fff;
-        }
-
-        .dropzone-box {
-            border: 2px dashed var(--border-color);
-            background-color: rgba(26, 38, 61, 0.4);
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .dropzone-box:hover {
-            border-color: var(--accent-orange);
-            background-color: rgba(255, 87, 34, 0.05);
-        }
-
-        .preview-img-container {
-            width: 90px;
-            height: 90px;
-            border-radius: 8px;
-            object-fit: cover;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-submit {
-            background-color: var(--accent-orange);
-            color: #fff;
-            font-weight: 700;
-            padding: 14px 28px;
-            border-radius: 8px;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        .btn-submit:hover {
-            background-color: var(--accent-orange-hover);
-            transform: translateY(-1px);
-        }
-
-        .btn-api-search {
-            background-color: rgba(255, 87, 34, 0.15);
-            border: 1px solid rgba(255, 87, 34, 0.4);
-            color: var(--accent-orange);
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn-api-search:hover {
-            background-color: var(--accent-orange);
-            color: #fff;
-        }
-
-        .fuel-level-btn {
-            background-color: #1e293b;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
-        }
-
-        .fuel-level-btn:hover {
-            background-color: #334155;
-            color: #ffffff;
-            border-color: #475569;
-        }
-
-        .fuel-level-btn.active {
-            background-color: #ef4444 !important;
-            color: #ffffff !important;
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nueva Recepción - AlinSoft</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+:root {
+    --bg-body: #090d16;
+    --bg-card: #131c2e;
+    --bg-input: #1a263d;
+    --border-color: #24344d;
+    --accent-orange: #ff5722;
+    --accent-orange-hover: #f44336;
+}
+body {
+    background-color: var(--bg-body);
+    color: #e2e8f0;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background-color: #0b111e;
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    top: 0; left: 0; z-index: 1000;
+}
+.main-content {
+    margin-left: 240px;
+    padding: 30px;
+}
+@media (max-width: 768px) {
+    .sidebar { margin-left: -240px; transition: 0.3s; }
+    .sidebar.show { margin-left: 0; }
+    .main-content { margin-left: 0; padding: 15px; }
+}
+.nav-link {
+    color: #94a3b8;
+    padding: 12px 18px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    margin: 4px 12px;
+    transition: all 0.2s;
+}
+.nav-link:hover, .nav-link.active {
+    color: #fff;
+    background-color: #1a263d;
+}
+.nav-link.active {
+    border-left: 4px solid var(--accent-orange);
+}
+.card-panel {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+.panel-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-orange);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 6px;
+}
+.form-control, .form-select {
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+}
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-input);
+    border-color: var(--accent-orange);
+    box-shadow: 0 0 0 2px rgba(255, 87, 34, 0.2);
+    color: #fff;
+}
+.dropzone-box {
+    border: 2px dashed var(--border-color);
+    background-color: rgba(26, 38, 61, 0.4);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.dropzone-box:hover {
+    border-color: var(--accent-orange);
+    background-color: rgba(255, 87, 34, 0.05);
+}
+.preview-img-container {
+    width: 90px;
+    height: 90px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+}
+.btn-submit {
+    background-color: var(--accent-orange);
+    color: #fff;
+    font-weight: 700;
+    padding: 14px 28px;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.2s;
+}
+.btn-submit:hover {
+    background-color: var(--accent-orange-hover);
+    transform: translateY(-1px);
+}
+.btn-api-search {
+    background-color: rgba(255, 87, 34, 0.15);
+    border: 1px solid rgba(255, 87, 34, 0.4);
+    color: var(--accent-orange);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-api-search:hover {
+    background-color: var(--accent-orange);
+    color: #fff;
+}
+.fuel-level-btn {
+    background-color: #1e293b;
+    color: #94a3b8;
+    border: 1px solid #334155;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+}
+.fuel-level-btn:hover {
+    background-color: #334155;
+    color: #ffffff;
+    border-color: #475569;
+}
+.fuel-level-btn.active {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+</style>
 </head>
 <body>
+ <!-- Header Móvil -->
+ <div class="d-md-none p-3 bg-dark border-bottom border-secondary d-flex justify-content-between align-items-center">
+ <span class="fw-bold fs-5 text-white">Alin<span class="text-danger">Soft</span></span>
+ <button class="btn btn-outline-light btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+ </div>
+ <div class="sidebar d-flex flex-column justify-content-between p-2" id="sidebar">
+ <div>
+ <div class="d-flex align-items-center px-3 py-3 mb-2">
+ <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
+ <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
+ </div>
+ <ul class="nav nav-pills flex-column">
+ <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
+ <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
+ <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
+ <li class="nav-item"><a href="crear_ot.html" class="nav-link active"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
+ <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de datos</a></li>
+ </ul>
+ </div>
+ <div class="px-3 py-2 border-top border-secondary">
+ <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
+ </div>
+ </div>  
 
-    <!-- Header Móvil -->
-    <div class="d-md-none p-3 bg-dark border-bottom border-secondary d-flex justify-content-between align-items-center">
-        <span class="fw-bold fs-5 text-white">Alin<span class="text-danger">Soft</span></span>
-        <button class="btn btn-outline-light btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
-    </div>
+ <!-- Contenido Principal -->
+ <div class="main-content">
+ <div class="d-flex justify-content-between align-items-center mb-4">
+ <div>
+ <h3 class="fw-bold m-0">Nueva Recepción de Vehículo</h3>
+ <p class="text-secondary small m-0">Ingreso de unidad a taller y generación de OT con verificación en Supabase</p>
+ </div>
+ </div>
+ <form id="formNuevaOT">
+ <div class="row g-4">
+ 
+ <!-- SECCIÓN 1: DATOS CLIENTE -->
+ <div class="col-12 col-lg-6">
+ <div class="card-panel h-100">
+ <div class="panel-title"><i class="bi bi-person-badge"></i> Datos del Cliente</div>
+ <div class="row g-3">
+ <div class="col-12 col-md-7">
+ <label class="form-label">Nombre Completo *</label>
+ <input type="text" id="cliente" class="form-control" required placeholder="Ej: Juan Pérez">
+ </div>
+ <div class="col-12 col-md-5">
+ <label class="form-label">RUT / DNI *</label>
+ <input type="text" id="rut" class="form-control" placeholder="12.345.678-9" maxlength="12">
+ </div>
+ <div class="col-12 col-md-6">
+ <label class="form-label">Teléfono (WhatsApp)</label>
+ <input type="text" id="telefono" class="form-control" value="+56 9 " placeholder="+56 9 1234 5678">
+ </div>
+ </div>
+ </div>
+ </div>
 
-    <div class="sidebar d-flex flex-column justify-content-between p-2" id="sidebar">
-        <div>
-            <div class="d-flex align-items-center px-3 py-3 mb-2">
-                <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
-                <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
-            </div>
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
-                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
-                <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
-                <li class="nav-item"><a href="crear_ot.html" class="nav-link active"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> Mantenedor de datos</a></li>
-            </ul>
-        </div>
-        <div class="px-3 py-2 border-top border-secondary">
-            <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
-        </div>
-    </div>
-    
-    <!-- Contenido Principal -->
-    <div class="main-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h3 class="fw-bold m-0">Nueva Recepción de Vehículo</h3>
-                <p class="text-secondary small m-0">Ingreso de unidad a taller y generación de OT con verificación en Supabase</p>
-            </div>
-        </div>
+ <!-- SECCIÓN 2: DATOS VEHÍCULO -->
+ <div class="col-12 col-lg-6">
+ <div class="card-panel h-100">
+ <div class="panel-title"><i class="bi bi-car-front"></i> Datos del Vehículo</div>
+ <div class="row g-3">
+ <div class="col-12">
+ <label class="form-label text-warning">Patente / Placa (Verificación en Supabase & API) *</label>
+ <div class="input-group">
+ <input type="text" id="patente" class="form-control text-uppercase fw-bold" required placeholder="EJ: JTYY13" maxlength="10" style="letter-spacing: 1.5px;">
+ <button type="button" class="btn btn-api-search px-3" id="btnConsultarPatente" onclick="verificarPatenteSupabaseOAPI()">
+ <i class="bi bi-magic me-1"></i> Consultar Patente
+ </button>
+ </div>
+ <span class="text-muted" style="font-size: 0.72rem;">Ingresa la patente y presiona Enter o sale del campo para verificar automáticamente.</span>
+ </div>
+ <div class="col-12 col-md-6">
+ <label class="form-label">Marca *</label>
+ <input type="text" id="marca" class="form-control" required placeholder="Ej: KIA">
+ </div>
+ <div class="col-12 col-md-6">
+ <label class="form-label">Modelo *</label>
+ <input type="text" id="modelo" class="form-control" required placeholder="Ej: SPORTAGE QL">
+ </div>
+ <div class="col-12 col-md-4">
+ <label class="form-label">Año</label>
+ <input type="text" id="ano" class="form-control" placeholder="2021">
+ </div>
+ <div class="col-12 col-md-8">
+ <label class="form-label">VIN / N° Chasis</label>
+ <input type="text" id="vin" class="form-control text-uppercase font-monospace" placeholder="WAUZZZ...">
+ </div>
+ <div class="col-12 col-md-6">
+ <label class="form-label">Color</label>
+ <input type="text" id="color" class="form-control" placeholder="Ej: Blanco Perla">
+ </div>
+ <div class="col-12 col-md-6">
+ <label class="form-label">N° de Motor</label>
+ <input type="text" id="n_motor" class="form-control text-uppercase font-monospace" placeholder="Ej: G4KJ...">
+ </div>
+ </div>
+ </div>
+ </div>
 
-        <form id="formNuevaOT">
-            <div class="row g-4">
-                
-                <!-- SECCIÓN 1: DATOS CLIENTE -->
-                <div class="col-12 col-lg-6">
-                    <div class="card-panel h-100">
-                        <div class="panel-title"><i class="bi bi-person-badge"></i> Datos del Cliente</div>
-                        <div class="row g-3">
-                            <div class="col-12 col-md-7">
-                                <label class="form-label">Nombre Completo *</label>
-                                <input type="text" id="cliente" class="form-control" required placeholder="Ej: Juan Pérez">
-                            </div>
-                            <div class="col-12 col-md-5">
-                                <label class="form-label">RUT / DNI *</label>
-                                <input type="text" id="rut" class="form-control" placeholder="12.345.678-9" maxlength="12">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">Teléfono (WhatsApp)</label>
-                                <input type="text" id="telefono" class="form-control" value="+56 9 " placeholder="+56 9 1234 5678">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+ <!-- SECCIÓN 3: INSPECCIÓN DE ENTRADA -->
+ <div class="col-12">
+ <div class="card-panel">
+ <div class="panel-title"><i class="bi bi-clipboard-check"></i> Estado de Recepción</div>
+ <div class="row g-3 mb-3">
+ <div class="col-12 col-md-4">
+ <label class="form-label">Kilometraje Actual</label>
+ <input type="text" id="kilometraje" class="form-control" placeholder="120.000 KM">
+ </div>
+ <div class="col-12 col-md-4">
+ <label class="form-label text-muted small fw-bold" style="font-size: 11px;">NIVEL DE COMBUSTIBLE</label>
+ <div class="d-flex gap-2" id="fuelGaugeGroup">
+ <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Reserva">Reserva</button>
+ <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="1/4">1/4</button>
+ <button type="button" class="btn fuel-level-btn flex-fill py-2 active" data-value="1/2">1/2</button>
+ <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="3/4">3/4</button>
+ <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Lleno">Lleno</button>
+ </div>
+ <input type="hidden" id="inputNivelCombustible" value="1/2">
+ </div>
+ <div class="col-12 col-md-4">
+ <label class="form-label">Fecha de Recepción</label>
+ <input type="date" id="fecha" class="form-control">
+ </div>
+ </div>
+ <div class="mb-3">
+ <label class="form-label">Motivo de Ingreso / Fallas Reportadas</label>
+ <textarea id="observaciones" class="form-control" rows="3" placeholder="Detalla las fallas señaladas por el cliente o trabajos solicitados..."></textarea>
+ </div>
+ </div>
+ </div>
 
-                <!-- SECCIÓN 2: DATOS VEHÍCULO -->
-                <div class="col-12 col-lg-6">
-                    <div class="card-panel h-100">
-                        <div class="panel-title"><i class="bi bi-car-front"></i> Datos del Vehículo</div>
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label text-warning">Patente / Placa (Verificación en Supabase & API) *</label>
-                                <div class="input-group">
-                                    <input type="text" id="patente" class="form-control text-uppercase fw-bold" required placeholder="EJ: JTYY13" maxlength="10" style="letter-spacing: 1.5px;">
-                                    <button type="button" class="btn btn-api-search px-3" id="btnConsultarPatente" onclick="verificarPatenteSupabaseOAPI()">
-                                        <i class="bi bi-magic me-1"></i> Consultar Patente
-                                    </button>
-                                </div>
-                                <span class="text-muted" style="font-size: 0.72rem;">Ingresa la patente y presiona Enter o sale del campo para verificar automáticamente.</span>
-                            </div>
+ <!-- SECCIÓN 4: FOTOS Y EVIDENCIA -->
+ <div class="col-12">
+ <div class="card-panel">
+ <div class="panel-title"><i class="bi bi-camera"></i> Evidencia Fotográfica (Almacenamiento Cloud)</div>
+ <div class="dropzone-box" onclick="document.getElementById('inputFotos').click()">
+ <i class="bi bi-cloud-arrow-up fs-1 text-secondary mb-2"></i>
+ <p class="m-0 fw-semibold text-white">Haz clic aquí para seleccionar fotos del vehículo</p>
+ <p class="text-secondary small m-0">Formatos permitidos: JPG, PNG. Las imágenes se subirán a Supabase Storage.</p>
+ <input type="file" id="inputFotos" class="d-none" multiple accept="image/*" onchange="mostrarPrevisualizaciones(this)">
+ </div>
+ <div id="contenedorPreviews" class="d-flex flex-wrap gap-3 mt-3"></div>
+ </div>
+ </div>
+ </div>
 
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">Marca *</label>
-                                <input type="text" id="marca" class="form-control" required placeholder="Ej: KIA">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">Modelo *</label>
-                                <input type="text" id="modelo" class="form-control" required placeholder="Ej: SPORTAGE QL">
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label class="form-label">Año</label>
-                                <input type="text" id="ano" class="form-control" placeholder="2021">
-                            </div>
-                            <div class="col-12 col-md-8">
-                                <label class="form-label">VIN / N° Chasis</label>
-                                <input type="text" id="vin" class="form-control text-uppercase font-monospace" placeholder="WAUZZZ...">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">Color</label>
-                                <input type="text" id="color" class="form-control" placeholder="Ej: Blanco Perla">
-                            </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">N° de Motor</label>
-                                <input type="text" id="n_motor" class="form-control text-uppercase font-monospace" placeholder="Ej: G4KJ...">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+ <!-- BOTÓN Y ALERTAS -->
+ <div class="mt-4 d-flex justify-content-end align-items-center gap-3">
+ <div id="alertaForm" class="alert d-none py-2 px-3 small m-0"></div>
+ <button type="submit" id="btnGuardarOT" class="btn btn-submit">
+ <span id="btnTextOT"><i class="bi bi-check2-circle me-1"></i> Generar Orden de Trabajo</span>
+ <span id="btnSpinnerOT" class="spinner-border spinner-border-sm d-none" role="status"></span>
+ </button>
+ </div>
+ </form>
+ </div>
 
-                <!-- SECCIÓN 3: INSPECCIÓN DE ENTRADA -->
-                <div class="col-12">
-                    <div class="card-panel">
-                        <div class="panel-title"><i class="bi bi-clipboard-check"></i> Estado de Recepción</div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-12 col-md-4">
-                                <label class="form-label">Kilometraje Actual</label>
-                                <input type="text" id="kilometraje" class="form-control" placeholder="120.000 KM">
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label class="form-label text-muted small fw-bold" style="font-size: 11px;">NIVEL DE COMBUSTIBLE</label>
-                                <div class="d-flex gap-2" id="fuelGaugeGroup">
-                                    <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Reserva">Reserva</button>
-                                    <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="1/4">1/4</button>
-                                    <button type="button" class="btn fuel-level-btn flex-fill py-2 active" data-value="1/2">1/2</button>
-                                    <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="3/4">3/4</button>
-                                    <button type="button" class="btn fuel-level-btn flex-fill py-2" data-value="Lleno">Lleno</button>
-                                </div>
-                                <input type="hidden" id="inputNivelCombustible" value="1/2">
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label class="form-label">Fecha de Recepción</label>
-                                <input type="date" id="fecha" class="form-control">
-                            </div>
-                        </div>
+ <!-- TOAST NOTIFICACIÓN -->
+ <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+ <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-3" role="alert">
+ <div class="d-flex">
+ <div class="toast-body d-flex align-items-center fs-6 fw-bold" id="toastMensaje"></div>
+ <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+ </div>
+ </div>
+ </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Motivo de Ingreso / Fallas Reportadas</label>
-                            <textarea id="observaciones" class="form-control" rows="3" placeholder="Detalla las fallas señaladas por el cliente o trabajos solicitados..."></textarea>
-                        </div>
-                    </div>
-                </div>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ <script src="supabase-config.js"></script>
+ <script src="app.js"></script>
 
-                <!-- SECCIÓN 4: FOTOS Y EVIDENCIA -->
-                <div class="col-12">
-                    <div class="card-panel">
-                        <div class="panel-title"><i class="bi bi-camera"></i> Evidencia Fotográfica (Almacenamiento Cloud)</div>
-                        
-                        <div class="dropzone-box" onclick="document.getElementById('inputFotos').click()">
-                            <i class="bi bi-cloud-arrow-up fs-1 text-secondary mb-2"></i>
-                            <p class="m-0 fw-semibold text-white">Haz clic aquí para seleccionar fotos del vehículo</p>
-                            <p class="text-secondary small m-0">Formatos permitidos: JPG, PNG. Las imágenes se subirán a Supabase Storage.</p>
-                            <input type="file" id="inputFotos" class="d-none" multiple accept="image/*" onchange="mostrarPrevisualizaciones(this)">
-                        </div>
+ <script>
+ // ==========================================
+ // FUNCIONES GLOBALES (Fuera de DOMContentLoaded)
+ // ==========================================
 
-                        <div id="contenedorPreviews" class="d-flex flex-wrap gap-3 mt-3"></div>
-                    </div>
-                </div>
+ function toggleSidebar() {
+     document.getElementById('sidebar').classList.toggle('show');
+ }
 
-            </div>
+ function mostrarToast(mensaje, tipo = "exito") {
+     const toastEl = document.getElementById('toastNotificacion');
+     const toastMsg = document.getElementById('toastMensaje');
+     if (!toastEl || !toastMsg) return;
+     toastMsg.textContent = mensaje;
+     if (tipo === "alerta") {
+         toastEl.className = `toast align-items-center text-dark border-0 shadow-lg bg-warning fw-bold`;
+     } else {
+         toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : (tipo === "info" ? "bg-info text-dark" : "bg-danger")}`;
+     }
+     const bsToast = new bootstrap.Toast(toastEl);
+     bsToast.show();
+ }
 
-            <!-- BOTÓN Y ALERTAS -->
-            <div class="mt-4 d-flex justify-content-end align-items-center gap-3">
-                <div id="alertaForm" class="alert d-none py-2 px-3 small m-0"></div>
-                <button type="submit" id="btnGuardarOT" class="btn btn-submit">
-                    <span id="btnTextOT"><i class="bi bi-check2-circle me-1"></i> Generar Orden de Trabajo</span>
-                    <span id="btnSpinnerOT" class="spinner-border spinner-border-sm d-none" role="status"></span>
-                </button>
-            </div>
-        </form>
-    </div>
+ function obtenerSupabaseCliente() {
+     if (typeof initSupabase === 'function') {
+         return initSupabase();
+     }
+     if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+         return supabaseClient;
+     }
+     if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
+         return window.supabase;
+     }
+     return null;
+ }
 
-    <!-- TOAST NOTIFICACIÓN -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
-        <div id="toastNotificacion" class="toast align-items-center text-white bg-dark border border-secondary shadow-lg rounded-3" role="alert">
-            <div class="d-flex">
-                <div class="toast-body d-flex align-items-center fs-6 fw-bold" id="toastMensaje"></div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-        </div>
-    </div>
+ async function obtenerSiguienteNumeroOT() {
+     const BASE_NUMERO = 20247;
+     try {
+         const db = obtenerSupabaseCliente();
+         if (db) {
+             const { data, error } = await db.from('ordenes_trabajo')
+                 .select('numero')
+                 .not('numero', 'is', null)
+                 .order('created_at', { ascending: false })
+                 .limit(1);
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script src="app.js"></script>
+             if (!error && data && data.length > 0 && data[0].numero) {
+                 const match = data[0].numero.toString().match(/\d+/);
+                 const maxBD = match ? parseInt(match[0], 10) : NaN;
+                 return isNaN(maxBD) ? BASE_NUMERO : Math.max(maxBD + 1, BASE_NUMERO);
+             }
+         }
+     } catch (e) {
+         console.error("Error calculando correlativo OT:", e);
+     }
+     return BASE_NUMERO;
+ }
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Establecer fecha actual por defecto si está vacía
-            const inputFecha = document.getElementById('fecha');
-            if (inputFecha && !inputFecha.value) {
-                const hoy = new Date().toISOString().split('T')[0];
-                inputFecha.value = hoy;
-            }
+ async function verificarPatenteSupabaseOAPI(patenteForzada = null) {
+     const inputPatente = document.getElementById('patente');
+     let patenteQuery = patenteForzada || (inputPatente ? inputPatente.value.trim().toUpperCase() : '');
+     if (!patenteQuery || patenteQuery.length < 4) {
+         mostrarToast("Ingresa una patente válida (Ej: JTYY13)", "error");
+         return;
+     }
+     patenteQuery = patenteQuery.toUpperCase();
+     try {
+         const db = obtenerSupabaseCliente();
+         if (!db) {
+             consultarPatenteAPI(patenteQuery);
+             return;
+         }
+         const { data, error } = await db
+             .from('ordenes_trabajo')
+             .select('*')
+             .ilike('patente', patenteQuery)
+             .maybeSingle();
 
-            // Selector de nivel de combustible interactivo
-            document.querySelectorAll('.fuel-level-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.fuel-level-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    document.getElementById('inputNivelCombustible').value = this.getAttribute('data-value');
-                });
-            });
+         if (!error && data) {
+             const cInfo = data.cliente_info || {};
+             const vInfo = data.vehiculo_info || {};
+             if (cInfo.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = cInfo.nombre;
+             if (cInfo.rut && document.getElementById('rut')) document.getElementById('rut').value = cInfo.rut;
+             if (cInfo.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = cInfo.telefono;
+             if (data.marca && document.getElementById('marca')) document.getElementById('marca').value = data.marca;
+             if (data.modelo && document.getElementById('modelo')) document.getElementById('modelo').value = data.modelo;
+             if (data.ano && document.getElementById('ano')) document.getElementById('ano').value = data.ano;
+             if (data.color && document.getElementById('color')) document.getElementById('color').value = data.color;
+             if (vInfo.vin && document.getElementById('vin')) document.getElementById('vin').value = vInfo.vin;
+             if (vInfo.n_motor && document.getElementById('n_motor')) document.getElementById('n_motor').value = vInfo.n_motor;
+             mostrarToast(`¡ATENCIÓN! La patente ${patenteQuery} ya cuenta con registros previos.`, "alerta");
+             return;
+         }
+     } catch (err) {
+         console.error("Error consultando la base de datos:", err);
+     }
+     consultarPatenteAPI(patenteQuery);
+ }
 
-            // Lógica para el campo Patente
-            const inputPatente = document.getElementById('patente');
-            if (inputPatente) {
-                inputPatente.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        verificarPatenteSupabaseOAPI(this.value.trim());
-                    }
-                });
+ async function verificarClienteSupabasePorRut(rutQuery) {
+     try {
+         const db = obtenerSupabaseCliente();
+         if (!db) return;
+         const { data, error } = await db
+             .from('clientes')
+             .select('*')
+             .eq('rut', rutQuery)
+             .maybeSingle();
+         if (!error && data) {
+             if (data.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = data.nombre;
+             if (data.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = data.telefono;
+             mostrarToast(`¡Cliente con RUT ${rutQuery} encontrado!`, "exito");
+         }
+     } catch (err) {
+         console.error("Error al verificar cliente por RUT:", err);
+     }
+ }
 
-                inputPatente.addEventListener('blur', function() {
-                    if (this.value.trim().length >= 4) {
-                        verificarPatenteSupabaseOAPI(this.value.trim());
-                    }
-                });
-            }
+ async function consultarPatenteAPI(patenteQuery) {
+     const btnConsultar = document.getElementById('btnConsultarPatente');
+     mostrarToast(`Consultando patente ${patenteQuery} en API externa...`, "info");
+     if (btnConsultar) {
+         btnConsultar.disabled = true;
+         btnConsultar.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Consultando...`;
+     }
+     try {
+         const db = obtenerSupabaseCliente();
+         if (!db) {
+             throw new Error("No se encontró la conexión con Supabase.");
+         }
+         const { data, error } = await db.functions.invoke('get-vehiculo', {
+             body: { patente: patenteQuery }
+         });
+         if (error) {
+             throw new Error(error.message || "Error al invocar la función de búsqueda.");
+         }
+         if (!data || data.error) {
+             throw new Error(data?.error || "La API no devolvió información para esta patente.");
+         }
+         const datosProcesados = normalizarRespuestaAPI(data);
+         autocompletarFormularioRecepcion(datosProcesados);
+         mostrarToast(`¡Vehículo ${patenteQuery} cargado desde la API exitosamente!`, "exito");
+     } catch (error) {
+         console.error("Error en la consulta:", error);
+         mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
+     } finally {
+         if (btnConsultar) {
+             btnConsultar.disabled = false;
+             btnConsultar.innerHTML = `<i class="bi bi-magic me-1"></i> Consultar Patente`;
+         }
+     }
+ }
 
-            // Validación y formateo automático de RUT (Puntos y guion)
-            const inputRut = document.getElementById('rut');
-            if (inputRut) {
-                inputRut.addEventListener('input', function(e) {
-                    let valor = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
-                    if (valor.length > 1) {
-                        let cuerpo = valor.slice(0, -1);
-                        let dv = valor.slice(-1);
-                        cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-                        this.value = `${cuerpo}-${dv}`;
-                    } else {
-                        this.value = valor;
-                    }
-                });
+ function normalizarRespuestaAPI(responseJson) {
+     const data = responseJson.data || responseJson;
+     const owner = data.owner || {};
+     return {
+         cliente: owner.name || owner.fullname || owner.nombre || data.client_name || '',
+         rut: owner.rut || owner.documentNumber || data.client_rut || '',
+         marca: data.brand || data.marca || data.make || '',
+         modelo: data.model || data.modelo || '',
+         ano: data.year || data.ano || data.anio || '',
+         vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '',
+         color: data.color || data.colour || '',
+         n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || ''
+     };
+ }
 
-                inputRut.addEventListener('blur', function() {
-                    if (this.value.trim().length >= 7) {
-                        verificarClienteSupabasePorRut(this.value.trim());
-                    }
-                });
-            }
+ function autocompletarFormularioRecepcion(datos) {
+     if (datos.cliente && document.getElementById('cliente')) document.getElementById('cliente').value = datos.cliente;
+     if (datos.rut && document.getElementById('rut')) document.getElementById('rut').value = datos.rut;
+     if (datos.marca && document.getElementById('marca')) document.getElementById('marca').value = datos.marca;
+     if (datos.modelo && document.getElementById('modelo')) document.getElementById('modelo').value = datos.modelo;
+     if (datos.ano && document.getElementById('ano')) document.getElementById('ano').value = datos.ano;
+     if (datos.vin && document.getElementById('vin')) document.getElementById('vin').value = datos.vin;
+     if (datos.color && document.getElementById('color')) document.getElementById('color').value = datos.color;
+     if (datos.n_motor && document.getElementById('n_motor')) document.getElementById('n_motor').value = datos.n_motor;
+ }
 
-            // Prefijo automático para el Teléfono / WhatsApp
-            const inputTelefono = document.getElementById('telefono');
-            if (inputTelefono) {
-                inputTelefono.addEventListener('focus', function() {
-                    if (!this.value.startsWith('+56 9')) {
-                        this.value = '+56 9 ';
-                    }
-                });
-                inputTelefono.addEventListener('input', function() {
-                    if (!this.value.startsWith('+56 9')) {
-                        this.value = '+56 9 ';
-                    }
-                });
-            }
+ function mostrarPrevisualizaciones(input) {
+     const contenedor = document.getElementById('contenedorPreviews');
+     contenedor.innerHTML = '';
+     if (input.files) {
+         Array.from(input.files).forEach(file => {
+             const reader = new FileReader();
+             reader.onload = function(e) {
+                 const img = document.createElement('img');
+                 img.src = e.target.result;
+                 img.className = 'preview-img-container';
+                 contenedor.appendChild(img);
+             }
+             reader.readAsDataURL(file);
+         });
+     }
+ }
 
-            // LÓGICA DE ENVÍO ADAPTADA A TU TABLA (CON CLIENTE_INFO Y VEHICULO_INFO EN JSONB)
-      const formOT = document.getElementById('formNuevaOT');
-        if (formOT) {
-            formOT.addEventListener('submit', async function(e) {
-                e.preventDefault();
+ // ==========================================
+ // INICIALIZACIÓN DE EVENTOS AL CARGAR EL DOM
+ // ==========================================
+ document.addEventListener("DOMContentLoaded", function() {
+     // Establecer fecha actual por defecto si está vacía
+     const inputFecha = document.getElementById('fecha');
+     if (inputFecha && !inputFecha.value) {
+         const hoy = new Date().toISOString().split('T')[0];
+         inputFecha.value = hoy;
+     }
 
-                const btnGuardar = document.getElementById('btnGuardarOT');
-                const btnText = document.getElementById('btnTextOT');
-                const btnSpinner = document.getElementById('btnSpinnerOT');
+     // Selector de nivel de combustible interactivo
+     document.querySelectorAll('.fuel-level-btn').forEach(btn => {
+         btn.addEventListener('click', function() {
+             document.querySelectorAll('.fuel-level-btn').forEach(b => b.classList.remove('active'));
+             this.classList.add('active');
+             document.getElementById('inputNivelCombustible').value = this.getAttribute('data-value');
+         });
+     });
 
-                if (btnGuardar) btnGuardar.disabled = true;
-                if (btnText) btnText.classList.add('d-none');
-                if (btnSpinner) btnSpinner.classList.remove('d-none');
+     // Lógica para el campo Patente
+     const inputPatente = document.getElementById('patente');
+     if (inputPatente) {
+         inputPatente.addEventListener('keypress', function(e) {
+             if (e.key === 'Enter') {
+                 e.preventDefault();
+                 verificarPatenteSupabaseOAPI(this.value.trim());
+             }
+         });
+         inputPatente.addEventListener('blur', function() {
+             if (this.value.trim().length >= 4) {
+                 verificarPatenteSupabaseOAPI(this.value.trim());
+             }
+         });
+     }
 
-                try {
-                    const db = obtenerSupabaseCliente();
-                    if (!db) {
-                        throw new Error("No hay conexión activa con Supabase.");
-                    }
+     // Validación y formateo automático de RUT (Puntos y guion)
+     const inputRut = document.getElementById('rut');
+     if (inputRut) {
+         inputRut.addEventListener('input', function(e) {
+             let valor = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
+             if (valor.length > 1) {
+                 let cuerpo = valor.slice(0, -1);
+                 let dv = valor.slice(-1);
+                 cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                 this.value = `${cuerpo}-${dv}`;
+             } else {
+                 this.value = valor;
+             }
+         });
+         inputRut.addEventListener('blur', function() {
+             if (this.value.trim().length >= 7) {
+                 verificarClienteSupabasePorRut(this.value.trim());
+             }
+         });
+     }
 
-                    // 1. OBTENER EL SIGUIENTE NÚMERO CORRELATIVO ANTES DE INSERTAR
-                    const siguienteNumero = await obtenerSiguienteNumeroOT();
-                    const folioFinal = `OT-${siguienteNumero}`;
+     // Prefijo automático para el Teléfono / WhatsApp
+     const inputTelefono = document.getElementById('telefono');
+     if (inputTelefono) {
+         inputTelefono.addEventListener('focus', function() {
+             if (!this.value.startsWith('+56 9')) {
+                 this.value = '+56 9 ';
+             }
+         });
+         inputTelefono.addEventListener('input', function() {
+             if (!this.value.startsWith('+56 9')) {
+                 this.value = '+56 9 ';
+             }
+         });
+     }
 
-                    // 2. INCLUIR LA PROPIEDAD `numero` DENTRO DEL OBJETO
-                    const nuevaOrden = {
-                        patente: document.getElementById('patente').value.trim().toUpperCase(),
-                        marca: document.getElementById('marca').value.trim().toUpperCase(),
-                        modelo: document.getElementById('modelo').value.trim(),
-                        ano: document.getElementById('ano').value.trim(),
-                        color: document.getElementById('color').value.trim(),
-                        kilometraje: document.getElementById('kilometraje').value.trim(),
-                        combustible: document.getElementById('inputNivelCombustible').value,
-                        fecha: document.getElementById('fecha').value,
-                        observaciones: document.getElementById('observaciones').value.trim(),
-                        estado: 'Recepción',
-                        cliente_info: {
-                            nombre: document.getElementById('cliente').value.trim(),
-                            rut: document.getElementById('rut').value.trim(),
-                            telefono: document.getElementById('telefono').value.trim()
-                        },
-                        vehiculo_info: {
-                            vin: document.getElementById('vin').value.trim().toUpperCase(),
-                            n_motor: document.getElementById('n_motor').value.trim().toUpperCase()
-                        },
-                        created_at: new Date().toISOString()
-                    };
+     // LÓGICA DE ENVÍO DE LA ORDEN DE TRABAJO
+     const formOT = document.getElementById('formNuevaOT');
+     if (formOT) {
+         formOT.addEventListener('submit', async function(e) {
+             e.preventDefault();
+             const btnGuardar = document.getElementById('btnGuardarOT');
+             const btnText = document.getElementById('btnTextOT');
+             const btnSpinner = document.getElementById('btnSpinnerOT');
+             if (btnGuardar) btnGuardar.disabled = true;
+             if (btnText) btnText.classList.add('d-none');
+             if (btnSpinner) btnSpinner.classList.remove('d-none');
+             try {
+                 const db = obtenerSupabaseCliente();
+                 if (!db) {
+                     throw new Error("No hay conexión activa con Supabase.");
+                 }
+                 
+                 // Obtener el siguiente número correlativo (comenzando desde 20247)
+                 const siguienteNumero = await obtenerSiguienteNumeroOT();
+                 const folioFinal = `OT-${siguienteNumero}`;
 
-                    const { data, error } = await db
-                        .from('ordenes_trabajo')
-                        .insert([nuevaOrden])
-                        .select();
+                 const nuevaOrden = {
+                     numero: folioFinal,
+                     patente: document.getElementById('patente').value.trim().toUpperCase(),
+                     marca: document.getElementById('marca').value.trim().toUpperCase(),
+                     modelo: document.getElementById('modelo').value.trim(),
+                     ano: document.getElementById('ano').value.trim(),
+                     color: document.getElementById('color').value.trim(),
+                     kilometraje: document.getElementById('kilometraje').value.trim(),
+                     combustible: document.getElementById('inputNivelCombustible').value,
+                     fecha: document.getElementById('fecha').value,
+                     observaciones: document.getElementById('observaciones').value.trim(),
+                     estado: 'Recepción',
+                     cliente_info: {
+                         nombre: document.getElementById('cliente').value.trim(),
+                         rut: document.getElementById('rut').value.trim(),
+                         telefono: document.getElementById('telefono').value.trim()
+                     },
+                     vehiculo_info: {
+                         vin: document.getElementById('vin').value.trim().toUpperCase(),
+                         n_motor: document.getElementById('n_motor').value.trim().toUpperCase()
+                     },
+                     created_at: new Date().toISOString()
+                 };
 
-                    if (error) {
-                        throw new Error(error.message);
-                    }
+                 const { data, error } = await db
+                     .from('ordenes_trabajo')
+                     .insert([nuevaOrden])
+                     .select();
 
-                    mostrarToast(`¡Orden ${folioFinal} creada y guardada exitosamente!`, "exito");
+                 if (error) {
+                     throw new Error(error.message);
+                 }
 
-                    setTimeout(() => {
-                        const idCreado = data && data[0] ? (data[0].id || data[0].numero) : '';
-                        if (idCreado) {
-                            window.location.href = `ver_ot.html?id=${idCreado}`;
-                        } else {
-                            window.location.href = 'ordenes.html';
-                        }
-                    }, 1200);
+                 mostrarToast(`¡Orden ${folioFinal} creada y guardada exitosamente!`, "exito");
+                 setTimeout(() => {
+                     const idCreado = data && data[0] ? (data[0].id || data[0].numero) : '';
+                     if (idCreado) {
+                         window.location.href = `ver_ot.html?id=${idCreado}`;
+                     } else {
+                         window.location.href = 'ordenes.html';
+                     }
+                 }, 1200);
 
-                } catch (err) {
-                    console.error("Error al enviar formulario a Supabase:", err);
-                    mostrarToast(err.message || "Error al guardar la orden de trabajo.", "error");
-                    if (btnGuardar) btnGuardar.disabled = false;
-                    if (btnText) btnText.classList.remove('d-none');
-                    if (btnSpinner) btnSpinner.classList.add('d-none');
-                }
-            });
-        }
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('show');
-        }
-
-        function mostrarToast(mensaje, tipo = "exito") {
-            const toastEl = document.getElementById('toastNotificacion');
-            const toastMsg = document.getElementById('toastMensaje');
-            if (!toastEl || !toastMsg) return;
-
-            toastMsg.textContent = mensaje;
-            if (tipo === "alerta") {
-                toastEl.className = `toast align-items-center text-dark border-0 shadow-lg bg-warning fw-bold`;
-            } else {
-                toastEl.className = `toast align-items-center text-white border-0 shadow-lg ${tipo === "exito" ? "bg-success" : (tipo === "info" ? "bg-info text-dark" : "bg-danger")}`;
-            }
-            const bsToast = new bootstrap.Toast(toastEl);
-            bsToast.show();
-        }
-
-        function obtenerSupabaseCliente() {
-            if (typeof initSupabase === 'function') {
-                return initSupabase();
-            }
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                return supabaseClient;
-            }
-            if (typeof window.supabase !== 'undefined' && typeof window.supabase.createClient === 'function') {
-                return window.supabase;
-            }
-            return null;
-        }
-
-        async function verificarPatenteSupabaseOAPI(patenteForzada = null) {
-            const inputPatente = document.getElementById('patente');
-            let patenteQuery = patenteForzada || (inputPatente ? inputPatente.value.trim().toUpperCase() : '');
-
-            if (!patenteQuery || patenteQuery.length < 4) {
-                mostrarToast("Ingresa una patente válida (Ej: JTYY13)", "error");
-                return;
-            }
-            patenteQuery = patenteQuery.toUpperCase();
-
-            try {
-                const db = obtenerSupabaseCliente();
-                if (!db) {
-                    consultarPatenteAPI(patenteQuery);
-                    return;
-                }
-
-                const { data, error } = await db
-                    .from('ordenes_trabajo')
-                    .select('*')
-                    .ilike('patente', patenteQuery)
-                    .maybeSingle();
-
-                if (!error && data) {
-                    const cInfo = data.cliente_info || {};
-                    const vInfo = data.vehiculo_info || {};
-
-                    if (cInfo.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = cInfo.nombre;
-                    if (cInfo.rut && document.getElementById('rut')) document.getElementById('rut').value = cInfo.rut;
-                    if (cInfo.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = cInfo.telefono;
-
-                    if (data.marca && document.getElementById('marca')) document.getElementById('marca').value = data.marca;
-                    if (data.modelo && document.getElementById('modelo')) document.getElementById('modelo').value = data.modelo;
-                    if (data.ano && document.getElementById('ano')) document.getElementById('ano').value = data.ano;
-                    if (data.color && document.getElementById('color')) document.getElementById('color').value = data.color;
-                    if (vInfo.vin && document.getElementById('vin')) document.getElementById('vin').value = vInfo.vin;
-                    if (vInfo.n_motor && document.getElementById('n_motor')) document.getElementById('n_motor').value = vInfo.n_motor;
-
-                    mostrarToast(`¡ATENCIÓN! La patente ${patenteQuery} ya cuenta con registros previos.`, "alerta");
-                    return;
-                }
-            } catch (err) {
-                console.error("Error consultando la base de datos:", err);
-            }
-
-            consultarPatenteAPI(patenteQuery);
-        }
-
-        async function verificarClienteSupabasePorRut(rutQuery) {
-            try {
-                const db = obtenerSupabaseCliente();
-                if (!db) return;
-
-                const { data, error } = await db
-                    .from('clientes')
-                    .select('*')
-                    .eq('rut', rutQuery)
-                    .maybeSingle();
-
-                if (!error && data) {
-                    if (data.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = data.nombre;
-                    if (data.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = data.telefono;
-                    mostrarToast(`¡Cliente con RUT ${rutQuery} encontrado!`, "exito");
-                }
-            } catch (err) {
-                console.error("Error al verificar cliente por RUT:", err);
-            }
-        }
-
-        async function consultarPatenteAPI(patenteQuery) {
-            const btnConsultar = document.getElementById('btnConsultarPatente');
-
-            mostrarToast(`Consultando patente ${patenteQuery} en API externa...`, "info");
-            
-            if (btnConsultar) {
-                btnConsultar.disabled = true;
-                btnConsultar.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Consultando...`;
-            }
-
-            try {
-                const db = obtenerSupabaseCliente();
-                if (!db) {
-                    throw new Error("No se encontró la conexión con Supabase.");
-                }
-
-                const { data, error } = await db.functions.invoke('get-vehiculo', {
-                    body: { patente: patenteQuery }
-                });
-
-                if (error) {
-                    throw new Error(error.message || "Error al invocar la función de búsqueda.");
-                }
-
-                if (!data || data.error) {
-                    throw new Error(data?.error || "La API no devolvió información para esta patente.");
-                }
-
-                const datosProcesados = normalizarRespuestaAPI(data);
-                autocompletarFormularioRecepcion(datosProcesados);
-                mostrarToast(`¡Vehículo ${patenteQuery} cargado desde la API exitosamente!`, "exito");
-
-            } catch (error) {
-                console.error("Error en la consulta:", error);
-                mostrarToast(error.message || "No se pudo obtener información de la patente.", "error");
-            } finally {
-                if (btnConsultar) {
-                    btnConsultar.disabled = false;
-                    btnConsultar.innerHTML = `<i class="bi bi-magic me-1"></i> Consultar Patente`;
-                }
-            }
-        }
-
-        function normalizarRespuestaAPI(responseJson) {
-            const data = responseJson.data || responseJson;
-            const owner = data.owner || {};
-
-            return {
-                cliente: owner.name || owner.fullname || owner.nombre || data.client_name || '',
-                rut: owner.rut || owner.documentNumber || data.client_rut || '',
-                marca: data.brand || data.marca || data.make || '',
-                modelo: data.model || data.modelo || '',
-                ano: data.year || data.ano || data.anio || '',
-                vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '',
-                color: data.color || data.colour || '',
-                n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || ''
-            };
-        }
-
-        function autocompletarFormularioRecepcion(datos) {
-            if (datos.cliente && document.getElementById('cliente')) document.getElementById('cliente').value = datos.cliente;
-            if (datos.rut && document.getElementById('rut')) document.getElementById('rut').value = datos.rut;
-            if (datos.marca && document.getElementById('marca')) document.getElementById('marca').value = datos.marca;
-            if (datos.modelo && document.getElementById('modelo')) document.getElementById('modelo').value = datos.modelo;
-            if (datos.ano && document.getElementById('ano')) document.getElementById('ano').value = datos.ano;
-            if (datos.vin && document.getElementById('vin')) document.getElementById('vin').value = datos.vin;
-            if (datos.color && document.getElementById('color')) document.getElementById('color').value = datos.color;
-            if (datos.n_motor && document.getElementById('n_motor')) document.getElementById('n_motor').value = datos.n_motor;
-        }
-
-        function mostrarPrevisualizaciones(input) {
-            const contenedor = document.getElementById('contenedorPreviews');
-            contenedor.innerHTML = '';
-            if (input.files) {
-                Array.from(input.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'preview-img-container';
-                        contenedor.appendChild(img);
-                    }
-                    reader.readAsDataURL(file);
-                });
-            }
-        }
-    });
-    </script>
+             } catch (err) {
+                 console.error("Error al enviar formulario a Supabase:", err);
+                 mostrarToast(err.message || "Error al guardar la orden de trabajo.", "error");
+                 if (btnGuardar) btnGuardar.disabled = false;
+                 if (btnText) btnText.classList.remove('d-none');
+                 if (btnSpinner) btnSpinner.classList.add('d-none');
+             }
+         });
+     }
+ });
+ </script>
 </body>
 </html>
