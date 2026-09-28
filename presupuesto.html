@@ -613,7 +613,6 @@ async function consultarPatenteAPI() {
         if (!errDB && ordenesDB && ordenesDB.length > 0) {
             const registro = ordenesDB[0];
             vehiculoSeleccionado = {
-                ...(registro.vehiculo_info || {}),
                 patente: registro.patente || patenteQuery,
                 marca: registro.marca || registro.vehiculo_info?.marca || '',
                 modelo: registro.modelo || registro.vehiculo_info?.modelo || '',
@@ -645,9 +644,6 @@ async function consultarPatenteAPI() {
         }
 
         const infoVehiculo = normalizarDatosVehiculo(apiData);
-        if (!infoVehiculo.marca && !infoVehiculo.modelo) {
-            throw new Error("La API respondió pero no contiene información de marca/modelo.");
-        }
         infoVehiculo.patente = patenteQuery;
         vehiculoSeleccionado = infoVehiculo;
         actualizarVistaVehiculo(vehiculoSeleccionado);
@@ -672,7 +668,8 @@ async function consultarPatenteAPI() {
 }
 
 async function verificarClienteEnBaseDeDatos(apiData) {
-    const owner = apiData.owner || apiData.data?.owner || {};
+    const root = apiData || {};
+    const owner = root.owner || root.data?.owner || root.vehicle?.owner || root.vehiculo?.owner || {};
     const rutOwner = owner.rut || owner.documentNumber || owner.document || '';
     const nombreOwner = owner.name || owner.fullname || owner.nombre || '';
     if (!rutOwner && !nombreOwner) {
@@ -690,15 +687,17 @@ async function verificarClienteEnBaseDeDatos(apiData) {
 }
 
 function normalizarDatosVehiculo(responseJson) {
-    const data = responseJson.data || responseJson.vehiculo || responseJson.result || responseJson;
+    const root = responseJson || {};
+    const d = root.data || root.vehiculo || root.vehicle || root.result || root.response || {};
+    
     return {
-        marca: data.brand || data.marca || data.make || '',
-        modelo: data.model || data.modelo || '',
-        ano: data.year || data.ano || data.anio || data.Año || '-',
-        vin: data.chassis || data.vin || data.chasis || data.numero_chasis || '-',
-        color: data.color || data.colour || '-',
-        transmision: data.transmission || data.transmision || 'Mecánica / Automática',
-        n_motor: data.engineNumber || data.engine || data.motor || data.n_motor || data.numero_motor || '-'
+        marca: d.marca || d.brand || d.make || root.marca || root.brand || root.make || '',
+        modelo: d.modelo || d.model || root.modelo || root.model || '',
+        ano: d.ano || d.anio || d.year || d.Año || d.ANO || root.ano || root.anio || root.year || '-',
+        vin: d.vin || d.chassis || d.chasis || d.numero_chasis || root.vin || root.chassis || '-',
+        color: d.color || d.colour || root.color || root.colour || '-',
+        transmision: d.transmision || d.transmission || root.transmision || root.transmission || 'Mecánica / Automática',
+        n_motor: d.n_motor || d.motor || d.engineNumber || d.engine || d.numero_motor || root.n_motor || root.motor || '-'
     };
 }
 
@@ -737,7 +736,18 @@ async function cargarOrdenParaEditar() {
         if (error) throw new Error(error.message);
         if (!data) return;
         document.getElementById('lblFolioOT').textContent = data.numero ? `ORDEN/FOLIO: ${data.numero}` : 'EDITAR PRESUPUESTO';
-        vehiculoSeleccionado = data.vehiculo_info || { patente: data.patente };
+        
+        vehiculoSeleccionado = {
+            patente: data.patente || '',
+            marca: data.marca || data.vehiculo_info?.marca || '',
+            modelo: data.modelo || data.vehiculo_info?.modelo || '',
+            ano: data.ano || data.vehiculo_info?.ano || '-',
+            transmision: data.transmision || data.vehiculo_info?.transmision || '-',
+            color: data.color || data.vehiculo_info?.color || '-',
+            n_motor: data.n_motor || data.vehiculo_info?.n_motor || '-',
+            vin: data.vin || data.vehiculo_info?.vin || '-'
+        };
+
         clienteSeleccionado = data.cliente_info || { nombre: data.cliente, rut: data.rut, telefono: data.telefono };
         listItems = data.items || [];
         if (document.getElementById('selectEstadoOT'))
@@ -752,6 +762,7 @@ async function cargarOrdenParaEditar() {
             document.getElementById('inputDescuento').value = data.descuento || 0;
         if (document.getElementById('selectMedioPago'))
             document.getElementById('selectMedioPago').value = data.medio_pago || 'Efectivo';
+        
         actualizarVistaVehiculo(vehiculoSeleccionado);
         actualizarVistaCliente(clienteSeleccionado);
         renderizarTablaItems();
@@ -869,11 +880,16 @@ async function guardarPresupuesto() {
         const totalFinal = baseImponible + montoIVA;
         const urlParams = new URLSearchParams(window.location.search);
         const idOrden = urlParams.get('id');
+        
         const datosPresupuesto = {
             patente: vehiculoSeleccionado.patente,
             marca: vehiculoSeleccionado.marca || '',
             modelo: vehiculoSeleccionado.modelo || '',
             ano: vehiculoSeleccionado.ano || vehiculoSeleccionado.anio || '-',
+            transmision: vehiculoSeleccionado.transmision || '',
+            color: vehiculoSeleccionado.color || '',
+            n_motor: vehiculoSeleccionado.n_motor || '',
+            vin: vehiculoSeleccionado.vin || '',
             vehiculo_info: vehiculoSeleccionado,
             cliente_info: clienteSeleccionado || {},
             items: listItems,
@@ -887,6 +903,7 @@ async function guardarPresupuesto() {
             iva: montoIVA,
             total: totalFinal
         };
+        
         let resultado;
         if (idOrden) {
             resultado = await db.from('ordenes_trabajo').update(datosPresupuesto).eq('id', idOrden).select();
@@ -914,7 +931,23 @@ function enviarWhatsApp() {
 }
 
 function verPDFPresupuesto() {
-    mostrarToast("Generando vista previa en PDF...", "exito");
+    mostrarToast("Generando vista previa del PDF...", "exito");
+    const elemento = document.querySelector('.main-content') || document.body;
+    const patenteText = document.getElementById('lblVehiculoPatenteBadge').textContent || 'Presupuesto';
+    const opciones = {
+        margin:       [2, 2, 2, 2],
+        filename:     `Presupuesto_${patenteText}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 0.85, useCORS: true, letterRendering: true, windowWidth: 1200 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
+    };
+    html2pdf().from(elemento).set(opciones).output('bloburl').then((pdfUrl) => {
+        window.open(pdfUrl, '_blank');
+        mostrarToast("¡PDF abierto en una nueva pestaña (1 sola página)!", "exito");
+    }).catch(err => {
+        console.error("Error al generar PDF:", err);
+        mostrarToast("Error al generar la vista previa del PDF.", "error");
+    });
 }
 
 function logout() {
