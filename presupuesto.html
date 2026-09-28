@@ -255,7 +255,7 @@ body {
 </div>
 </div>
 <!-- CONSULTA RÁPIDA POR API PATENTE -->
-<div class="hud-card mb-4 border-danger border-opacity-25">
+<div class="hud-card mb-4 border-danger border-opacity-25 noprint-pdf">
 <div class="row g-3 align-items-end">
 <div class="col-12 col-md-8">
 <label class="form-label-tech text-danger">
@@ -384,7 +384,7 @@ body {
 <span class="badge-hud">02</span>
 <h5 class="hud-title m-0">Detalle de Servicios & Repuestos</h5>
 </div>
-<form id="formAgregarItem" onsubmit="agregarItem(event)" class="row g-2 mb-4">
+<form id="formAgregarItem" onsubmit="agregarItem(event)" class="row g-2 mb-4 noprint-pdf">
 <div class="col-12 col-md-6">
 <input type="text" id="itemDescripcion" class="form-control-tech" placeholder="Descripción del trabajo o repuesto..." required>
 </div>
@@ -408,7 +408,7 @@ body {
 <th class="text-center" style="width: 15%;">CANT.</th>
 <th class="text-end" style="width: 15%;">P. UNITARIO</th>
 <th class="text-end" style="width: 15%;">SUBTOTAL</th>
-<th class="text-center" style="width: 10%;">ACCIÓN</th>
+<th class="text-center noprint-pdf" style="width: 10%;">ACCIÓN</th>
 </tr>
 </thead>
 <tbody id="bodyItemsPresupuesto">
@@ -419,7 +419,7 @@ body {
 </div>
 <!-- 3. CONFIGURACIÓN FINANCIERA -->
 <div class="row g-4">
-<div class="col-12 col-lg-6">
+<div class="col-12 col-lg-6 noprint-pdf">
 <div class="hud-card h-100">
 <div class="d-flex align-items-center gap-2 mb-4">
 <span class="badge-hud">03</span>
@@ -470,7 +470,7 @@ body {
 <span id="lblTotalFinal" class="fs-2 fw-bold text-success" style="font-family: 'Space Grotesk';">$0</span>
 </div>
 </div>
-<div class="row g-3 mt-3">
+<div class="row g-3 mt-3 noprint-pdf">
 <div class="col-6">
 <button class="btn btn-glass w-100 py-3 fw-bold" onclick="enviarWhatsApp()">
 <i class="bi bi-whatsapp me-2 text-success"></i> WhatsApp
@@ -832,7 +832,7 @@ function renderizarTablaItems() {
         <td class="text-center">${item.cantidad}</td>
         <td class="text-end">${formatterCLP.format(item.precioUnitario)}</td>
         <td class="text-end text-success fw-bold">${formatterCLP.format(subtotal)}</td>
-        <td class="text-center">
+        <td class="text-center noprint-pdf">
         <button type="button" class="btn btn-delete-row" onclick="eliminarItem(${item.id})">
         <i class="bi bi-trash"></i>
         </button>
@@ -931,20 +931,34 @@ function enviarWhatsApp() {
 }
 
 function verPDFPresupuesto() {
-    mostrarToast("Generando vista previa del PDF...", "exito");
-    const elemento = document.querySelector('.main-content') || document.body;
-    const patenteText = document.getElementById('lblVehiculoPatenteBadge').textContent || 'Presupuesto';
+    mostrarToast("Generando PDF en 1 sola página...", "exito");
+    const sidebar = document.querySelector('.sidebar');
+    const elementosOcultar = document.querySelectorAll('.noprint-pdf');
+    
+    if (sidebar) sidebar.style.display = 'none';
+    elementosOcultar.forEach(el => el.style.display = 'none');
+    
+    const elemento = document.querySelector('.main-content');
+    elemento.style.marginLeft = '0px';
+    
     const opciones = {
-        margin:       [2, 2, 2, 2],
-        filename:     `Presupuesto_${patenteText}.pdf`,
+        margin:       [4, 4, 4, 4],
+        filename:     `Presupuesto_${document.getElementById('lblVehiculoPatenteBadge').textContent || 'Doc'}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 0.85, useCORS: true, letterRendering: true, windowWidth: 1200 },
+        html2canvas:  { scale: 0.55, useCORS: true, letterRendering: true, windowWidth: 1000 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true }
     };
+    
     html2pdf().from(elemento).set(opciones).output('bloburl').then((pdfUrl) => {
+        if (sidebar) sidebar.style.display = '';
+        elementosOcultar.forEach(el => el.style.display = '');
+        elemento.style.marginLeft = '';
         window.open(pdfUrl, '_blank');
-        mostrarToast("¡PDF abierto en una nueva pestaña (1 sola página)!", "exito");
+        mostrarToast("¡PDF generado con éxito!", "exito");
     }).catch(err => {
+        if (sidebar) sidebar.style.display = '';
+        elementosOcultar.forEach(el => el.style.display = '');
+        elemento.style.marginLeft = '';
         console.error("Error al generar PDF:", err);
         mostrarToast("Error al generar la vista previa del PDF.", "error");
     });
