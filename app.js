@@ -453,4 +453,3 @@ async function buscarVehiculoPorPatente(patenteInput) {
         console.error("Error al buscar vehículo:", err);
     }
 }
-
