@@ -1,661 +1,942 @@
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mantenedor Base e Historial - AlinSoft</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-       <style>
-        :root {
-            --sidebar-bg: #0b1120;
-            --main-bg: #0f172a;
-            --card-bg: #1e293b;
-            --border-color: #334155;
-            --accent-orange: #ff5722;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mantenedor Base e Historial - AlinSoft</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+:root {
+  --sidebar-bg: #0b1120;
+  --main-bg: #0f172a;
+  --card-bg: #1e293b;
+  --border-color: #334155;
+  --accent-orange: #ff5722;
+  --text-muted: #94a3b8;
+}
 
-        body {
-            background-color: var(--main-bg);
-            color: #f8fafc;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
+body {
+  background-color: var(--main-bg);
+  color: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
 
-        /* Sidebar Sidebar */
-        .sidebar {
-            width: 220px;
-            height: 100vh;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            position: fixed;
-            top: 0;
-            left: 0;
-            overflow-y: auto;
-            z-index: 100;
-        }
+/* Sidebar Modernizado */
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
 
-        .sidebar .nav-link {
-            color: #94a3b8;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            border-radius: 6px;
-            margin: 2px 8px;
-        }
+.sidebar .nav-link {
+  color: var(--text-muted);
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  margin: 4px 12px;
+  transition: all 0.2s ease;
+}
 
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: #ffffff;
-            background-color: #1e293b;
-        }
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
 
-        .main-content {
-            margin-left: 220px;
-            padding: 20px;
-        }
+.sidebar .nav-link.active {
+  background-color: rgba(255, 87, 34, 0.1);
+  color: var(--accent-orange);
+}
 
-        /* Dashboard Cards Estilo Bujia */
-        .card-bujia {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 16px;
-            position: relative;
-        }
+.main-content {
+  margin-left: 240px;
+  padding: 30px;
+}
 
-        .card-bujia .metric-title {
-            color: #94a3b8;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
+/* Cards Modernas */
+.card-custom {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
 
-        .card-bujia .metric-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-top: 4px;
-        }
+/* Botón Principal */
+.btn-orange {
+  background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  box-shadow: 0 4px 12px rgba(255, 87, 34, 0.2);
+  transition: all 0.3s ease;
+}
 
-        .card-bujia .badge-variation {
-            font-size: 0.72rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
+.btn-orange:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 87, 34, 0.3);
+  color: #fff;
+}
 
-        .badge-down {
-            background-color: rgba(244, 63, 94, 0.15);
-            color: #fb7185;
-        }
+/* Botones de Acción (Tabla) */
+.btn-action {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
 
-        .badge-up {
-            background-color: rgba(34, 197, 94, 0.15);
-            color: #4ade80;
-        }
+.btn-action i { font-size: 1.1rem; }
+.btn-action.view:hover { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border-color: rgba(56, 189, 248, 0.2); }
+.btn-action.edit:hover { background: rgba(250, 204, 21, 0.1); color: #facc15; border-color: rgba(250, 204, 21, 0.2); }
+.btn-action.delete:hover { background: rgba(248, 113, 113, 0.1); color: #f87171; border-color: rgba(248, 113, 113, 0.2); }
 
-        .icon-box {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            background-color: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #38bdf8;
-            font-size: 0.9rem;
-        }
+/* Badges Suaves */
+.badge-soft {
+  padding: 0.35em 0.65em;
+  font-weight: 600;
+  border-radius: 6px;
+}
+.badge-soft-danger { background-color: rgba(248, 113, 113, 0.15); color: #f87171; border: 1px solid rgba(248,113,113,0.3); }
+.badge-soft-secondary { background-color: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148,163,184,0.3); }
+.badge-soft-info { background-color: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); }
+.badge-soft-warning { background-color: rgba(250, 204, 21, 0.15); color: #facc15; border: 1px solid rgba(250,204,21,0.3); }
 
-        .chart-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 16px;
-            height: 100%;
-        }
+/* Tablas Modernas */
+.table-custom {
+  margin-bottom: 0;
+}
+.table-custom > :not(caption) > * > * {
+  background-color: transparent;
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem;
+  color: #f8fafc;
+  vertical-align: middle;
+}
+.table-custom thead th {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color);
+}
+.table-custom tbody tr:hover > * {
+  background-color: rgba(255, 255, 255, 0.02);
+}
 
-        .chart-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #f8fafc;
-            margin-bottom: 15px;
-        }
-    </style>
+/* Tabs Elegantes */
+.nav-tabs-custom {
+  border-bottom: 2px solid var(--border-color);
+  gap: 1rem;
+}
+.nav-tabs-custom .nav-link {
+  border: none;
+  color: var(--text-muted);
+  padding: 10px 4px;
+  font-weight: 500;
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.3s ease;
+}
+.nav-tabs-custom .nav-link:hover { color: #f8fafc; }
+.nav-tabs-custom .nav-link.active {
+  color: var(--accent-orange);
+  background: transparent;
+  border-bottom: 2px solid var(--accent-orange);
+}
+
+/* Inputs Modernos */
+.form-control {
+  background-color: #0f172a;
+  border: 1px solid var(--border-color);
+  color: #f8fafc;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  transition: all 0.2s;
+}
+.form-control:focus {
+  background-color: #0b1120;
+  border-color: var(--accent-orange);
+  box-shadow: 0 0 0 0.2rem rgba(255, 87, 34, 0.15);
+  color: #f8fafc;
+}
+.form-control::placeholder { color: #475569; }
+
+.modal-content { background-color: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color); }
+.modal-header { border-bottom: 1px solid var(--border-color); padding: 1.5rem; }
+.modal-body { padding: 1.5rem; }
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+  .sidebar.show { transform: translateX(0); }
+  .main-content { margin-left: 0; padding: 15px; }
+}
+</style>
 </head>
 <body>
 
-    <!-- Header Móvil -->
-    <div class="d-md-none p-3 bg-dark border-bottom border-secondary d-flex justify-content-between align-items-center">
-        <span class="fw-bold fs-5 text-white">Alin<span class="text-danger">Soft</span></span>
-        <button class="btn btn-outline-light btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+<!-- Header Móvil -->
+<div class="d-md-none p-3 bg-dark border-bottom border-secondary d-flex justify-content-between align-items-center">
+  <span class="fw-bold fs-5 text-white">Alin<span style="color: var(--accent-orange)">Soft</span></span>
+  <button class="btn btn-outline-light btn-sm" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar d-flex flex-column justify-content-between py-3" id="sidebar">
+  <div>
+    <div class="d-flex align-items-center px-4 mb-4">
+      <div class="bg-dark rounded p-2 me-2 border border-secondary">
+        <i class="bi bi-gear-wide-connected fs-4" style="color: var(--accent-orange)"></i>
+      </div>
+      <span class="fs-5 fw-bold text-white">Alin<span style="color: var(--accent-orange)">Soft</span></span>
+    </div>
+    <ul class="nav flex-column">
+      <li class="nav-item"><a href="dashboard.html" class="nav-link"><i class="bi bi-house-door me-2 fs-6"></i> Inicio</a></li>
+      <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2 fs-6"></i> Órdenes</a></li>
+      <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2 fs-6"></i> Presupuestos</a></li>
+      <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2 fs-6"></i> Recepciones</a></li>
+      <li class="nav-item mt-4 mb-2 px-3"><span class="text-uppercase" style="font-size: 0.7rem; color: #475569; font-weight: 700; letter-spacing: 1px;">Configuración</span></li>
+      <li class="nav-item"><a href="mantenedor_base.html" class="nav-link active"><i class="bi bi-database-gear me-2 fs-6"></i> Base de Datos</a></li>
+    </ul>
+  </div>
+  <div class="px-3 border-top" style="border-color: var(--border-color) !important; padding-top: 15px;">
+    <a href="#" onclick="logout()" class="nav-link text-danger d-flex align-items-center"><i class="bi bi-box-arrow-left me-2 fs-5"></i> Cerrar sesión</a>
+  </div>
+</div>
+
+<!-- Contenido Principal -->
+<div class="main-content">
+  <div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+      <h3 class="fw-bold m-0"><i class="bi bi-database-gear me-2" style="color: var(--accent-orange)"></i>Gestión de Registros</h3>
+      <p class="text-muted mt-1 mb-0" style="font-size: 0.9rem;">Administra clientes, vehículos y revisa su historial de servicios.</p>
+    </div>
+  </div>
+
+  <ul class="nav nav-tabs-custom mb-4" id="tabMantenedor" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#tabClientes" type="button"><i class="bi bi-people me-2"></i>Directorio de Clientes</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="vehiculos-tab" data-bs-toggle="tab" data-bs-target="#tabVehiculos" type="button"><i class="bi bi-car-front me-2"></i>Flota de Vehículos</button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="tabMantenedorContent">
+    <!-- TABLA DE CLIENTES -->
+    <div class="tab-pane fade show active" id="tabClientes" role="tabpanel">
+      <div class="card card-custom mb-4">
+        <div class="card-body p-3">
+          <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-8 position-relative">
+              <i class="bi bi-search position-absolute text-muted" style="left: 15px; top: 50%; transform: translateY(-50%);"></i>
+              <input type="text" id="buscarCliente" class="form-control" style="padding-left: 40px;" placeholder="Buscar cliente por nombre, RUT o teléfono..." oninput="filtrarClientes()">
+            </div>
+            <div class="col-12 col-md-4 text-end">
+              <button class="btn btn-orange w-100" onclick="modalClienteNuevo()"><i class="bi bi-person-plus me-2"></i> Nuevo Cliente</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card card-custom overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-custom mb-0">
+            <thead>
+              <tr>
+                <th>Nombre Completo</th>
+                <th>Documento</th>
+                <th>Contacto</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaClientes">
+              <tr><td colspan="4" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Cargando clientes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <div class="sidebar d-flex flex-column justify-content-between p-2">
+    <!-- TABLA DE VEHÍCULOS -->
+    <div class="tab-pane fade" id="tabVehiculos" role="tabpanel">
+      <div class="card card-custom mb-4">
+        <div class="card-body p-3">
+          <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-8 position-relative">
+              <i class="bi bi-search position-absolute text-muted" style="left: 15px; top: 50%; transform: translateY(-50%);"></i>
+              <input type="text" id="buscarVehiculo" class="form-control" style="padding-left: 40px;" placeholder="Buscar vehículo por patente, marca, modelo o chasis..." oninput="filtrarVehiculos()">
+            </div>
+            <div class="col-12 col-md-4 text-end">
+              <button class="btn btn-orange w-100" onclick="modalVehiculoNuevo()"><i class="bi bi-car-front-fill me-2"></i> Nuevo Vehículo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card card-custom overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-custom mb-0">
+            <thead>
+              <tr>
+                <th>Placa / Patente</th>
+                <th>Vehículo</th>
+                <th>Año</th>
+                <th>Identificación (VIN/Motor)</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaVehiculos">
+              <tr><td colspan="5" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Cargando vehículos...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTORIAL -->
+<div class="modal fade" id="modalHistorial" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header">
         <div>
-            <div class="d-flex align-items-center px-3 py-3 mb-2">
-                <i class="bi bi-gear-wide-connected text-danger fs-3 me-2"></i>
-                <span class="fs-4 fw-bold">Alin<span class="text-danger">Soft</span></span>
-            </div>
-            <ul class="nav nav-pills flex-column">
-                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="bi bi-house-door me-2"></i> Inicio</a></li>
-                <li class="nav-item"><a href="ordenes.html" class="nav-link"><i class="bi bi-file-earmark-text me-2"></i> Órdenes</a></li>
-                <li class="nav-item"><a href="presupuesto.html" class="nav-link"><i class="bi bi-calculator me-2"></i> Presupuestos</a></li>
-                <li class="nav-item"><a href="crear_ot.html" class="nav-link"><i class="bi bi-box-arrow-in-right me-2"></i> Recepciones</a></li>
-                <li class="nav-item"><a href="mantenedor_base.html" class="nav-link"><i class="bi bi-people me-2"></i> mantenedor de datos</a></li>
-            </ul>
+          <h5 class="modal-title fw-bold text-white mb-1"><i class="bi bi-clock-history me-2" style="color: var(--accent-orange)"></i>Historial de Servicios</h5>
+          <div class="small text-muted">Registro asociado a: <span id="historialTarget" class="text-white fw-bold"></span></div>
         </div>
-        <div class="px-3 py-2 border-top border-secondary">
-            <a href="#" onclick="logout()" class="nav-link text-danger p-0"><i class="bi bi-box-arrow-left me-2"></i> Cerrar sesión</a>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="table-responsive">
+          <table class="table table-custom mb-0">
+            <thead class="bg-dark bg-opacity-50">
+              <tr>
+                <th class="ps-4">Folio / Fecha</th>
+                <th>Detalle OT</th>
+                <th>Estado</th>
+                <th class="text-end">Monto Total</th>
+                <th class="text-center pe-4">Ver</th>
+              </tr>
+            </thead>
+            <tbody id="tablaHistorial"></tbody>
+          </table>
         </div>
+      </div>
+      <div class="modal-footer border-top-0 pt-0"></div>
     </div>
+  </div>
+</div>
 
-    <!-- Contenido Principal -->
-    <div class="main-content">
-        <h4 class="fw-bold mb-4"><i class="bi bi-database-gear me-2 text-danger"></i>Mantenedor de Clientes, Vehículos e Historial</h4>
-
-        <ul class="nav nav-tabs mb-4" id="tabMantenedor" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active fw-bold" id="clientes-tab" data-bs-toggle="tab" data-bs-target="#tabClientes" type="button"><i class="bi bi-people me-2"></i>Clientes</button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold" id="vehiculos-tab" data-bs-toggle="tab" data-bs-target="#tabVehiculos" type="button"><i class="bi bi-car-front me-2"></i>Vehículos</button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="tabMantenedorContent">
-            <!-- TABLA DE CLIENTES -->
-            <div class="tab-pane fade show active" id="tabClientes" role="tabpanel">
-                <div class="card card-custom p-3 mb-3">
-                    <div class="row g-2">
-                        <div class="col-12 col-md-8">
-                            <input type="text" id="buscarCliente" class="form-control" placeholder="Buscar por Nombre, RUT o Teléfono..." oninput="filtrarClientes()">
-                        </div>
-                        <div class="col-12 col-md-4 text-end">
-                            <button class="btn btn-orange w-100" onclick="modalClienteNuevo()"><i class="bi bi-person-plus me-1"></i> Agregar Cliente</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-custom p-3">
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover align-middle mb-0">
-                            <thead>
-                                <tr class="text-secondary small">
-                                    <th>NOMBRE COMPLETO</th>
-                                    <th>RUT / DNI</th>
-                                    <th>TELÉFONO</th>
-                                    <th class="text-center">ACCIONES</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaClientes">
-                                <tr><td colspan="4" class="text-center text-secondary py-3">Cargando lista de clientes...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TABLA DE VEHÍCULOS -->
-            <div class="tab-pane fade" id="tabVehiculos" role="tabpanel">
-                <div class="card card-custom p-3 mb-3">
-                    <div class="row g-2">
-                        <div class="col-12 col-md-8">
-                            <input type="text" id="buscarVehiculo" class="form-control" placeholder="Buscar por Patente, Marca o Modelo..." oninput="filtrarVehiculos()">
-                        </div>
-                        <div class="col-12 col-md-4 text-end">
-                            <button class="btn btn-orange w-100" onclick="modalVehiculoNuevo()"><i class="bi bi-plus-circle me-1"></i> Agregar Vehículo</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card card-custom p-3">
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover align-middle mb-0">
-                            <thead>
-                                <tr class="text-secondary small">
-                                    <th>PATENTE</th>
-                                    <th>MARCA / MODELO</th>
-                                    <th class="text-center">ACCIONES</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaVehiculos">
-                                <tr><td colspan="3" class="text-center text-secondary py-3">Cargando lista de vehículos...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+<!-- MODAL CLIENTE -->
+<div class="modal fade" id="modalCliente" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-white" id="tituloModalCliente">Perfil de Cliente</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="cliId">
+        <div class="mb-3">
+          <label class="form-label small text-muted fw-bold">Nombre Completo</label>
+          <input type="text" id="cliNombre" class="form-control" placeholder="Ej: Juan Pérez">
         </div>
-    </div>
-
-    <!-- MODAL HISTORIAL -->
-    <div class="modal fade" id="modalHistorial" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content card-custom">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-white"><i class="bi bi-clock-history me-2 text-danger"></i>Historial: <span id="historialTarget" class="text-warning"></span></h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover align-middle mb-0">
-                            <thead>
-                                <tr class="text-secondary small">
-                                    <th>FOLIO / FECHA</th>
-                                    <th>VEHÍCULO / PATENTE</th>
-                                    <th>ESTADO</th>
-                                    <th class="text-end">TOTAL</th>
-                                    <th class="text-center">VER</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tablaHistorial"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label small text-muted fw-bold">RUT / Documento</label>
+            <input type="text" id="cliRut" class="form-control" placeholder="12345678-9">
+          </div>
+          <div class="col-md-6 mb-4">
+            <label class="form-label small text-muted fw-bold">Teléfono / WhatsApp</label>
+            <input type="tel" id="cliTelefono" class="form-control" placeholder="+56 9 1234 5678">
+          </div>
         </div>
+        <button type="button" class="btn btn-orange w-100 py-2" onclick="guardarCliente()">Guardar Información</button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- MODAL CLIENTE -->
-    <div class="modal fade" id="modalCliente" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content card-custom">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-white" id="tituloModalCliente">Editar Cliente</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="cliId">
-                    <div class="mb-2">
-                        <label class="small text-secondary fw-bold">Nombre Completo</label>
-                        <input type="text" id="cliNombre" class="form-control">
-                    </div>
-                    <div class="mb-2">
-                        <label class="small text-secondary fw-bold">RUT / DNI</label>
-                        <input type="text" id="cliRut" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-secondary fw-bold">Teléfono / WhatsApp</label>
-                        <input type="tel" id="cliTelefono" class="form-control">
-                    </div>
-                    <button type="button" class="btn btn-orange w-100 fw-bold" onclick="guardarCliente()"><i class="bi bi-floppy me-1"></i> Guardar Cambios</button>
-                </div>
-            </div>
+<!-- MODAL VEHÍCULO -->
+<div class="modal fade" id="modalVehiculo" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-white" id="tituloModalVehiculo">Ficha del Vehículo</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="vehId">
+        <div class="row">
+          <div class="col-md-5 mb-3">
+            <label class="form-label small text-muted fw-bold">Placa Patente</label>
+            <input type="text" id="vehPatente" class="form-control text-uppercase fw-bold text-danger" style="letter-spacing: 1px;" placeholder="ABCD12">
+          </div>
+          <div class="col-md-7 mb-3">
+            <label class="form-label small text-muted fw-bold">Año de Fabricación</label>
+            <input type="number" id="vehAnio" class="form-control" placeholder="Ej: 2020">
+          </div>
         </div>
-    </div>
-
-    <!-- MODAL VEHÍCULO -->
-    <div class="modal fade" id="modalVehiculo" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content card-custom">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-white" id="tituloModalVehiculo">Editar Vehículo</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="vehId">
-                    <div class="mb-2">
-                        <label class="small text-secondary fw-bold">Patente</label>
-                        <input type="text" id="vehPatente" class="form-control text-uppercase">
-                    </div>
-                    <div class="mb-3">
-                        <label class="small text-secondary fw-bold">Marca / Modelo</label>
-                        <input type="text" id="vehMarca" class="form-control">
-                    </div>
-                    <button type="button" class="btn btn-orange w-100 fw-bold" onclick="guardarVehiculo()"><i class="bi bi-floppy me-1"></i> Guardar Cambios</button>
-                </div>
-            </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label small text-muted fw-bold">Marca</label>
+            <input type="text" id="vehMarca" class="form-control" placeholder="Toyota">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label small text-muted fw-bold">Modelo</label>
+            <input type="text" id="vehModelo" class="form-control" placeholder="Yaris">
+          </div>
         </div>
+        <div class="mb-3">
+          <label class="form-label small text-muted fw-bold">VIN / Número de Chasis</label>
+          <input type="text" id="vehVin" class="form-control text-uppercase font-monospace" style="font-size: 0.9rem;">
+        </div>
+        <div class="mb-4">
+          <label class="form-label small text-muted fw-bold">Número de Motor</label>
+          <input type="text" id="vehMotor" class="form-control text-uppercase font-monospace" style="font-size: 0.9rem;">
+        </div>
+        <button type="button" class="btn btn-orange w-100 py-2" onclick="guardarVehiculo()">Guardar Vehículo</button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- SCRIPTS CORE -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
+<!-- SCRIPTS CORE -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
 
-    <script>
-        let db = null;
-        let clientesMemoria = [];
-        let vehiculosMemoria = [];
-        let ordenesMemoria = [];
-        let mCliente = null, mVehiculo = null, mHistorial = null;
+<script>
+let db = null;
+let clientesMemoria = [];
+let vehiculosMemoria = [];
+let ordenesMemoria = [];
+let mCliente = null, mVehiculo = null, mHistorial = null;
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            if (typeof initSupabase === 'function') db = initSupabase();
-            
-            mCliente = new bootstrap.Modal(document.getElementById('modalCliente'));
-            mVehiculo = new bootstrap.Modal(document.getElementById('modalVehiculo'));
-            mHistorial = new bootstrap.Modal(document.getElementById('modalHistorial'));
+document.addEventListener("DOMContentLoaded", async () => {
+  if (typeof initSupabase === 'function') db = initSupabase();
+  mCliente = new bootstrap.Modal(document.getElementById('modalCliente'));
+  mVehiculo = new bootstrap.Modal(document.getElementById('modalVehiculo'));
+  mHistorial = new bootstrap.Modal(document.getElementById('modalHistorial'));
 
-            await cargarOrdenesGeneral();
-            await cargarClientes();
-            await cargarVehiculos();
-        });
+  await cargarOrdenesGeneral();
+  await cargarClientes();
+  await cargarVehiculos();
+});
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) sidebar.classList.toggle('show');
-        }
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar) sidebar.classList.toggle('show');
+}
 
-        async function cargarOrdenesGeneral() {
-            if (db) {
-                const { data } = await db.from('ordenes_trabajo').select('*').order('created_at', { ascending: false });
-                if (data) ordenesMemoria = data;
-            } else {
-                ordenesMemoria = JSON.parse(localStorage.getItem('taller_ordenes')) || [];
-            }
-        }
+async function cargarOrdenesGeneral() {
+  let ordenesBd = [];
+  if (db) {
+    try {
+      const { data, error } = await db.from('ordenes_trabajo').select('*').order('created_at', { ascending: false });
+      if (!error && data) ordenesBd = data;
+    } catch (e) {
+      console.warn("No se pudo conectar a ordenes_trabajo en Supabase", e);
+    }
+  }
+  
+  const localOrdenes = JSON.parse(localStorage.getItem('taller_ordenes')) || [];
+  const localPpto = JSON.parse(localStorage.getItem('taller_presupuestos')) || [];
+  
+  // Fusionar Órdenes y Presupuestos sin duplicar por Folio
+  const mapGeneral = {};
+  [...ordenesBd, ...localOrdenes, ...localPpto].forEach(item => {
+    const key = item.folio_id || item.id || Math.random();
+    mapGeneral[key] = item;
+  });
 
-        // CARGAR CLIENTES CON SOPORTE COMPLETO
-        async function cargarClientes() {
-            try {
-                let dataClientes = null;
-                if (db) {
-                    const res = await db.from('clientes').select('*');
-                    if (res.error) console.error("Error SELECT clientes:", res.error.message);
-                    dataClientes = res.data;
-                }
-                
-                if (dataClientes && dataClientes.length > 0) {
-                    clientesMemoria = dataClientes;
-                } else if (clientesMemoria.length === 0) {
-                    // Si la tabla 'clientes' está vacía o sin permisos, extrae de las órdenes
-                    const clientesMap = {};
-                    ordenesMemoria.forEach(item => {
-                        if (item.cliente) {
-                            const key = item.cliente.trim().toLowerCase();
-                            if (!clientesMap[key]) {
-                                clientesMap[key] = {
-                                    id: item.rut || item.cliente,
-                                    nombre: item.cliente,
-                                    rut: item.rut || 'S/R',
-                                    telefono: item.telefono || 'Sin Contacto'
-                                };
-                            }
-                        }
-                    });
-                    clientesMemoria = Object.values(clientesMap);
-                }
-            } catch (err) {
-                console.error("Excepción cargando clientes:", err);
-            }
-            renderClientes(clientesMemoria);
-        }
+  ordenesMemoria = Object.values(mapGeneral);
+}
 
-        // CARGAR VEHÍCULOS CON SOPORTE COMPLETO
-        async function cargarVehiculos() {
-            try {
-                let dataVeh = null;
-                if (db) {
-                    const res = await db.from('vehiculos').select('*');
-                    if (res.error) console.error("Error SELECT vehiculos:", res.error.message);
-                    dataVeh = res.data;
-                }
-                
-                if (dataVeh && dataVeh.length > 0) {
-                    vehiculosMemoria = dataVeh;
-                } else if (vehiculosMemoria.length === 0) {
-                    // Si la tabla 'vehiculos' está vacía o sin permisos, extrae de las órdenes
-                    const vehiculosMap = {};
-                    ordenesMemoria.forEach(item => {
-                        if (item.patente) {
-                            const key = item.patente.trim().toUpperCase();
-                            if (!vehiculosMap[key]) {
-                                vehiculosMap[key] = {
-                                    id: item.patente,
-                                    patente: key,
-                                    marca: item.vehiculo || 'Sin Detalle'
-                                };
-                            }
-                        }
-                    });
-                    vehiculosMemoria = Object.values(vehiculosMap);
-                }
-            } catch (err) {
-                console.error("Excepción cargando vehículos:", err);
-            }
-            renderVehiculos(vehiculosMemoria);
-        }
+async function cargarClientes() {
+  let dbClientes = [];
+  try {
+    if (db) {
+      const res = await db.from('clientes').select('*');
+      if (!res.error && res.data) {
+        dbClientes = res.data;
+      }
+    }
+  } catch (err) {
+    console.error("Error cargando clientes de Supabase:", err);
+  }
 
-        // RENDERIZADO DE TABLAS
-        function renderClientes(lista) {
-            const tbody = document.getElementById('tablaClientes');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (lista.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary py-3">No hay clientes registrados.</td></tr>`;
-                return;
-            }
-            lista.forEach(c => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="fw-bold text-white">${c.nombre || ''}</td>
-                        <td><span class="badge bg-secondary">${c.rut || 'S/R'}</span></td>
-                        <td>${c.telefono || 'Sin Contacto'}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-info me-1" title="Ver Historial" onclick="verHistorialCliente('${c.nombre}')"><i class="bi bi-clock-history"></i></button>
-                            <button class="btn btn-sm btn-outline-warning me-1" title="Editar" onclick="editarCliente('${c.id}')"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="eliminarCliente('${c.id}')"><i class="bi bi-trash"></i></button>
-                        </td>
-                    </tr>`;
-            });
-        }
+  const localCustom = JSON.parse(localStorage.getItem('taller_clientes_custom')) || [];
+  const clientesMap = {};
 
-        function renderVehiculos(lista) {
-            const tbody = document.getElementById('tablaVehiculos');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (lista.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="text-center text-secondary py-3">No hay vehículos registrados.</td></tr>`;
-                return;
-            }
-            lista.forEach(v => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><span class="badge bg-danger fs-6 text-uppercase">${v.patente || ''}</span></td>
-                        <td class="text-white">${v.marca || 'Sin Detalle'}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-info me-1" title="Ver Historial" onclick="verHistorialVehiculo('${v.patente}')"><i class="bi bi-clock-history"></i></button>
-                            <button class="btn btn-sm btn-outline-warning me-1" title="Editar" onclick="editarVehiculo('${v.id}')"><i class="bi bi-pencil"></i></button>
-                            <button class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="eliminarVehiculo('${v.id}')"><i class="bi bi-trash"></i></button>
-                        </td>
-                    </tr>`;
-            });
-        }
+  // 1. Cargar desde BD Supabase
+  dbClientes.forEach(c => {
+    const key = (c.rut || c.nombre || '').trim().toLowerCase();
+    if (key) clientesMap[key] = c;
+  });
 
-        // HISTORIAL EN MODAL
-        function verHistorialCliente(nombreCliente) {
-            document.getElementById('historialTarget').innerText = nombreCliente;
-            const ordenesCliente = ordenesMemoria.filter(o => o.cliente && o.cliente.toLowerCase() === nombreCliente.toLowerCase());
-            renderTablaHistorial(ordenesCliente);
-            mHistorial.show();
-        }
+  // 2. Fusionar con LocalStorage
+  localCustom.forEach(c => {
+    const key = (c.rut || c.nombre || '').trim().toLowerCase();
+    if (key) clientesMap[key] = { ...clientesMap[key], ...c };
+  });
 
-        function verHistorialVehiculo(patente) {
-            document.getElementById('historialTarget').innerText = `Patente ${patente}`;
-            const ordenesVehiculo = ordenesMemoria.filter(o => o.patente && o.patente.toUpperCase() === patente.toUpperCase());
-            renderTablaHistorial(ordenesVehiculo);
-            mHistorial.show();
-        }
+  // 3. Extraer Clientes desde las Órdenes/Presupuestos cargados
+  ordenesMemoria.forEach(item => {
+    const nombreCli = item.cliente || (item.cliente_info && item.cliente_info.nombre);
+    if (nombreCli) {
+      const key = nombreCli.trim().toLowerCase();
+      if (!clientesMap[key]) {
+        clientesMap[key] = {
+          id: item.cliente_id || item.rut || key,
+          nombre: nombreCli,
+          rut: item.rut || (item.cliente_info && item.cliente_info.rut) || 'S/R',
+          telefono: item.telefono || (item.cliente_info && item.cliente_info.telefono) || 'Sin Contacto'
+        };
+      }
+    }
+  });
 
-        function renderTablaHistorial(lista) {
-            const tbody = document.getElementById('tablaHistorial');
-            tbody.innerHTML = '';
-            if (lista.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center text-secondary py-4">No existen registros u órdenes asociadas.</td></tr>`;
-                return;
-            }
-            lista.forEach(o => {
-                const total = o.total ? '$' + parseFloat(o.total).toLocaleString('es-CL') : '$0';
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong class="text-white">${o.numero || 'OT-' + o.id}</strong><br><span class="small text-secondary">${o.fecha || ''}</span></td>
-                        <td><span class="text-white">${o.vehiculo || ''}</span><br><span class="badge bg-secondary text-uppercase">${o.patente || 'S/P'}</span></td>
-                        <td><span class="badge bg-info text-dark">${o.estado || 'Recepción'}</span></td>
-                        <td class="text-end fw-bold text-danger">${total}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-outline-light" onclick="abrirOrdenPublica('${o.id}')"><i class="bi bi-eye"></i></button>
-                        </td>
-                    </tr>`;
-            });
-        }
+  clientesMemoria = Object.values(clientesMap);
+  renderClientes(clientesMemoria);
+}
 
-        function abrirOrdenPublica(id) {
-            const baseUrl = window.location.origin + window.location.pathname.replace('mantenedor_base.html', '');
-            window.open(`${baseUrl}ver_ot.html?id=${id}`, '_blank');
-        }
+async function cargarVehiculos() {
+  let dbVehiculos = [];
+  try {
+    if (db) {
+      const res = await db.from('vehiculos').select('*');
+      if (!res.error && res.data) {
+        dbVehiculos = res.data;
+      }
+    }
+  } catch (err) {
+    console.error("Error cargando vehículos de Supabase:", err);
+  }
 
-        // BÚSQUEDAS
-        function filtrarClientes() {
-            const txt = document.getElementById('buscarCliente').value.toLowerCase();
-            renderClientes(clientesMemoria.filter(c => (c.nombre && c.nombre.toLowerCase().includes(txt)) || (c.rut && c.rut.toLowerCase().includes(txt))));
-        }
+  const localCustom = JSON.parse(localStorage.getItem('taller_vehiculos_custom')) || [];
+  const vehiculosMap = {};
 
-        function filtrarVehiculos() {
-            const txt = document.getElementById('buscarVehiculo').value.toLowerCase();
-            renderVehiculos(vehiculosMemoria.filter(v => (v.patente && v.patente.toLowerCase().includes(txt)) || (v.marca && v.marca.toLowerCase().includes(txt))));
-        }
+  // 1. Cargar desde Supabase
+  dbVehiculos.forEach(v => {
+    const key = (v.patente || '').trim().toUpperCase();
+    if (key) vehiculosMap[key] = v;
+  });
 
-        // MODALES Y OPERACIONES CLIENTES
-        function modalClienteNuevo() {
-            document.getElementById('cliId').value = '';
-            document.getElementById('cliNombre').value = '';
-            document.getElementById('cliRut').value = '';
-            document.getElementById('cliTelefono').value = '';
-            document.getElementById('tituloModalCliente').innerText = 'Nuevo Cliente';
-            mCliente.show();
-        }
+  // 2. Fusionar con LocalStorage
+  localCustom.forEach(v => {
+    const key = (v.patente || '').trim().toUpperCase();
+    if (key) vehiculosMap[key] = { ...vehiculosMap[key], ...v };
+  });
 
-        function editarCliente(id) {
-            const c = clientesMemoria.find(x => x.id == id);
-            if (!c) return;
-            document.getElementById('cliId').value = c.id;
-            document.getElementById('cliNombre').value = c.nombre;
-            document.getElementById('cliRut').value = c.rut || '';
-            document.getElementById('cliTelefono').value = c.telefono || '';
-            document.getElementById('tituloModalCliente').innerText = 'Editar Cliente';
-            mCliente.show();
-        }
+  // 3. Extraer Vehículos desde Órdenes y Presupuestos
+  ordenesMemoria.forEach(item => {
+    const patenteVeh = item.patente || (item.vehiculo_info && item.vehiculo_info.patente);
+    if (patenteVeh) {
+      const key = patenteVeh.trim().toUpperCase();
+      const info = item.vehiculo_info || {};
+      if (!vehiculosMap[key]) {
+        vehiculosMap[key] = {
+          id: key,
+          patente: key,
+          marca: info.marca || item.vehiculo || 'Sin Detalle',
+          modelo: info.modelo || '',
+          anio: info.anio || info.ano || '',
+          vin: info.vin || '',
+          motor: info.motor || '',
+          vehiculo_info: info
+        };
+      } else {
+        // Enriquecer campos faltantes si existen en la orden
+        if (!vehiculosMap[key].marca && info.marca) vehiculosMap[key].marca = info.marca;
+        if (!vehiculosMap[key].modelo && info.modelo) vehiculosMap[key].modelo = info.modelo;
+        if (!vehiculosMap[key].anio && (info.anio || info.ano)) vehiculosMap[key].anio = info.anio || info.ano;
+        if (!vehiculosMap[key].vin && info.vin) vehiculosMap[key].vin = info.vin;
+        if (!vehiculosMap[key].motor && info.motor) vehiculosMap[key].motor = info.motor;
+      }
+    }
+  });
 
-        async function guardarCliente() {
-            const id = document.getElementById('cliId').value;
-            const payload = { 
-                nombre: document.getElementById('cliNombre').value, 
-                rut: document.getElementById('cliRut').value, 
-                telefono: document.getElementById('cliTelefono').value 
-            };
-            
-            if (!payload.nombre) return alert('Ingresa el nombre.');
+  vehiculosMemoria = Object.values(vehiculosMap);
+  renderVehiculos(vehiculosMemoria);
+}
 
-            if (db) {
-                let res;
-                if (id) res = await db.from('clientes').update(payload).eq('id', id).select();
-                else res = await db.from('clientes').insert([payload]).select();
+function renderClientes(lista) {
+  const tbody = document.getElementById('tablaClientes');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (!lista || lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-5"><i class="bi bi-inbox fs-2 d-block mb-2"></i>No hay clientes registrados.</td></tr>';
+    return;
+  }
+  lista.forEach(c => {
+    const safeId = c.id || c.rut || '';
+    const safeNombre = c.nombre || 'Sin Nombre';
+    const safeRut = c.rut || 'S/R';
+    const safeTel = c.telefono || 'Sin Contacto';
+    tbody.innerHTML += `
+    <tr>
+      <td class="fw-bold text-white">${safeNombre}</td>
+      <td><span class="badge badge-soft badge-soft-secondary">${safeRut}</span></td>
+      <td><i class="bi bi-telephone text-muted me-2"></i>${safeTel}</td>
+      <td class="text-center">
+        <button class="btn-action view me-1" title="Ver Historial" onclick="verHistorialCliente('${safeNombre.replace(/'/g, "\\'")}')"><i class="bi bi-clock-history"></i></button>
+        <button class="btn-action edit me-1" title="Editar" onclick="editarCliente('${safeId}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn-action delete" title="Eliminar" onclick="eliminarCliente('${safeId}')"><i class="bi bi-trash3"></i></button>
+      </td>
+    </tr>`;
+  });
+}
 
-                if (res.error) console.error("Error BD:", res.error.message);
-                if (res.data && res.data.length > 0) {
-                    const deVuelta = res.data[0];
-                    const idx = clientesMemoria.findIndex(x => x.id == deVuelta.id);
-                    if (idx >= 0) clientesMemoria[idx] = deVuelta;
-                    else clientesMemoria.push(deVuelta);
-                } else {
-                    if (id) {
-                        const idx = clientesMemoria.findIndex(x => x.id == id);
-                        if (idx >= 0) clientesMemoria[idx] = { id, ...payload };
-                    } else {
-                        clientesMemoria.push({ id: Date.now(), ...payload });
-                    }
-                }
-            } else {
-                if (id) {
-                    const idx = clientesMemoria.findIndex(x => x.id == id);
-                    if (idx >= 0) clientesMemoria[idx] = { id, ...payload };
-                } else {
-                    clientesMemoria.push({ id: Date.now(), ...payload });
-                }
-            }
+function renderVehiculos(lista) {
+  const tbody = document.getElementById('tablaVehiculos');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (!lista || lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-5"><i class="bi bi-car-front fs-2 d-block mb-2"></i>No hay vehículos registrados.</td></tr>';
+    return;
+  }
+  lista.forEach(v => {
+    const safeId = v.id || v.patente || '';
+    const patente = v.patente || '';
+    const info = v.vehiculo_info || v;
+    const marca = info.marca || v.marca || 'Sin Marca';
+    const modelo = info.modelo || v.modelo || '';
+    const marcaModelo = `${marca} ${modelo}`.trim();
+    const anioDisplay = info.anio || info.ano || v.anio || v.ano || '<span class="text-muted">-</span>';
+    const vinDisplay = info.vin || v.vin || '<span class="text-muted">-</span>';
+    const motorDisplay = info.motor || v.motor || '<span class="text-muted">-</span>';
 
-            mCliente.hide();
-            renderClientes(clientesMemoria);
-        }
+    tbody.innerHTML += `
+    <tr>
+      <td><span class="badge badge-soft badge-soft-danger fs-6 text-uppercase" style="letter-spacing: 1px;">${patente}</span></td>
+      <td class="fw-bold text-white">${marcaModelo}</td>
+      <td>${anioDisplay}</td>
+      <td>
+        <div class="small">VIN: ${vinDisplay}</div>
+        <div class="small">Mot: ${motorDisplay}</div>
+      </td>
+      <td class="text-center">
+        <button class="btn-action view me-1" title="Ver Historial" onclick="verHistorialVehiculo('${patente.replace(/'/g, "\\'")}')"><i class="bi bi-clock-history"></i></button>
+        <button class="btn-action edit me-1" title="Editar" onclick="editarVehiculo('${safeId}')"><i class="bi bi-pencil"></i></button>
+        <button class="btn-action delete" title="Eliminar" onclick="eliminarVehiculo('${safeId}')"><i class="bi bi-trash3"></i></button>
+      </td>
+    </tr>`;
+  });
+}
 
-        async function eliminarCliente(id) {
-            if (confirm('¿Eliminar cliente?')) {
-                if (db) await db.from('clientes').delete().eq('id', id);
-                clientesMemoria = clientesMemoria.filter(c => c.id != id);
-                renderClientes(clientesMemoria);
-            }
-        }
+function filtrarClientes() {
+  const q = document.getElementById('buscarCliente').value.toLowerCase();
+  const f = clientesMemoria.filter(c =>
+    (c.nombre && c.nombre.toLowerCase().includes(q)) ||
+    (c.rut && c.rut.toLowerCase().includes(q)) ||
+    (c.telefono && c.telefono.toLowerCase().includes(q))
+  );
+  renderClientes(f);
+}
 
-        // MODALES Y OPERACIONES VEHÍCULOS
-        function modalVehiculoNuevo() {
-            document.getElementById('vehId').value = '';
-            document.getElementById('vehPatente').value = '';
-            document.getElementById('vehMarca').value = '';
-            document.getElementById('tituloModalVehiculo').innerText = 'Nuevo Vehículo';
-            mVehiculo.show();
-        }
+function filtrarVehiculos() {
+  const q = document.getElementById('buscarVehiculo').value.toLowerCase();
+  const f = vehiculosMemoria.filter(v => {
+    const info = v.vehiculo_info || v;
+    return (v.patente && v.patente.toLowerCase().includes(q)) ||
+           (info.marca && info.marca.toLowerCase().includes(q)) ||
+           (info.modelo && info.modelo.toLowerCase().includes(q)) ||
+           (info.vin && info.vin.toLowerCase().includes(q));
+  });
+  renderVehiculos(f);
+}
 
-        function editarVehiculo(id) {
-            const v = vehiculosMemoria.find(x => x.id == id);
-            if (!v) return;
-            document.getElementById('vehId').value = v.id;
-            document.getElementById('vehPatente').value = v.patente;
-            document.getElementById('vehMarca').value = v.marca || '';
-            document.getElementById('tituloModalVehiculo').innerText = 'Editar Vehículo';
-            mVehiculo.show();
-        }
+/* Modales y Guardado CLIENTES */
+function modalClienteNuevo() {
+  document.getElementById('cliId').value = '';
+  document.getElementById('cliNombre').value = '';
+  document.getElementById('cliRut').value = '';
+  document.getElementById('cliTelefono').value = '';
+  document.getElementById('tituloModalCliente').innerHTML = '<i class="bi bi-person-plus me-2" style="color: var(--accent-orange)"></i>Nuevo Cliente';
+  mCliente.show();
+}
 
-        async function guardarVehiculo() {
-            const id = document.getElementById('vehId').value;
-            const payload = { 
-                patente: document.getElementById('vehPatente').value.toUpperCase(), 
-                marca: document.getElementById('vehMarca').value 
-            };
-            
-            if (!payload.patente) return alert('Ingresa la patente.');
+function editarCliente(id) {
+  const c = clientesMemoria.find(x => x.id == id || x.rut == id);
+  if (c) {
+    document.getElementById('cliId').value = c.id || c.rut || '';
+    document.getElementById('cliNombre').value = c.nombre || '';
+    document.getElementById('cliRut').value = c.rut || '';
+    document.getElementById('cliTelefono').value = c.telefono || '';
+    document.getElementById('tituloModalCliente').innerHTML = '<i class="bi bi-person-gear me-2" style="color: var(--accent-orange)"></i>Editar Cliente';
+    mCliente.show();
+  }
+}
 
-            if (db) {
-                let res;
-                if (id) res = await db.from('vehiculos').update(payload).eq('id', id).select();
-                else res = await db.from('vehiculos').insert([payload]).select();
+async function guardarCliente() {
+  const id = document.getElementById('cliId').value;
+  const datos = {
+    nombre: document.getElementById('cliNombre').value.trim(),
+    rut: document.getElementById('cliRut').value.trim(),
+    telefono: document.getElementById('cliTelefono').value.trim()
+  };
 
-                if (res.error) console.error("Error BD:", res.error.message);
-                if (res.data && res.data.length > 0) {
-                    const deVuelta = res.data[0];
-                    const idx = vehiculosMemoria.findIndex(x => x.id == deVuelta.id);
-                    if (idx >= 0) vehiculosMemoria[idx] = deVuelta;
-                    else vehiculosMemoria.push(deVuelta);
-                } else {
-                    if (id) {
-                        const idx = vehiculosMemoria.findIndex(x => x.id == id);
-                        if (idx >= 0) vehiculosMemoria[idx] = { id, ...payload };
-                    } else {
-                        vehiculosMemoria.push({ id: Date.now(), ...payload });
-                    }
-                }
-            } else {
-                if (id) {
-                    const idx = vehiculosMemoria.findIndex(x => x.id == id);
-                    if (idx >= 0) vehiculosMemoria[idx] = { id, ...payload };
-                } else {
-                    vehiculosMemoria.push({ id: Date.now(), ...payload });
-                }
-            }
+  if (!datos.nombre) { 
+    alert('El nombre es obligatorio'); 
+    return; 
+  }
 
-            mVehiculo.hide();
-            renderVehiculos(vehiculosMemoria);
-        }
+  const confirmacion = confirm(`¿Está seguro de guardar los cambios para el cliente "${datos.nombre}"?`);
+  if (!confirmacion) return;
 
-        async function eliminarVehiculo(id) {
-            if (confirm('¿Eliminar vehículo?')) {
-                if (db) await db.from('vehiculos').delete().eq('id', id);
-                vehiculosMemoria = vehiculosMemoria.filter(v => v.id != id);
-                renderVehiculos(vehiculosMemoria);
-            }
-        }
+  if (db) {
+    try {
+      let res;
+      if (id && !isNaN(id)) {
+        res = await db.from('clientes').update(datos).eq('id', parseInt(id));
+      } else if (id) {
+        res = await db.from('clientes').update(datos).eq('rut', id);
+      } else {
+        res = await db.from('clientes').insert([datos]);
+      }
 
-        function logout() {
-            if (typeof supabase !== 'undefined' && db) db.auth.signOut();
-            window.location.href = 'index.html';
-        }
-    </script>
+      if (res && res.error) {
+        console.warn("Aviso Supabase (Cliente):", res.error.message);
+      }
+    } catch (err) {
+      console.error("Error guardando cliente en Supabase:", err);
+    }
+  }
+
+  // Actualización local
+  const idx = clientesMemoria.findIndex(x => x.id == id || x.rut == id);
+  if (idx !== -1) {
+    clientesMemoria[idx] = { ...clientesMemoria[idx], ...datos };
+  } else {
+    datos.id = id || datos.rut || 'cli_' + Date.now();
+    clientesMemoria.push(datos);
+  }
+
+  localStorage.setItem('taller_clientes_custom', JSON.stringify(clientesMemoria));
+  mCliente.hide();
+  renderClientes(clientesMemoria);
+  alert("Cliente guardado correctamente.");
+}
+
+async function eliminarCliente(id) {
+  const c = clientesMemoria.find(x => x.id == id || x.rut == id);
+  const nombre = c ? c.nombre : id;
+
+  if (confirm(`¿Está seguro de que desea eliminar al cliente "${nombre}"?`)) {
+    if (db) {
+      try {
+        if (!isNaN(id)) await db.from('clientes').delete().eq('id', parseInt(id));
+        else await db.from('clientes').delete().eq('rut', id);
+      } catch (e) {
+        console.error("Error eliminando cliente:", e);
+      }
+    }
+    clientesMemoria = clientesMemoria.filter(item => item.id != id && item.rut != id);
+    localStorage.setItem('taller_clientes_custom', JSON.stringify(clientesMemoria));
+    renderClientes(clientesMemoria);
+  }
+}
+
+/* Modales y Guardado VEHÍCULOS */
+function modalVehiculoNuevo() {
+  document.getElementById('vehId').value = '';
+  document.getElementById('vehPatente').value = '';
+  document.getElementById('vehMarca').value = '';
+  document.getElementById('vehModelo').value = '';
+  document.getElementById('vehAnio').value = '';
+  document.getElementById('vehVin').value = '';
+  document.getElementById('vehMotor').value = '';
+  document.getElementById('tituloModalVehiculo').innerHTML = '<i class="bi bi-car-front-fill me-2" style="color: var(--accent-orange)"></i>Registrar Vehículo';
+  mVehiculo.show();
+}
+
+function editarVehiculo(id) {
+  const v = vehiculosMemoria.find(x => x.id == id || x.patente == id);
+  if (v) {
+    const info = v.vehiculo_info || v;
+    document.getElementById('vehId').value = v.id || v.patente || '';
+    document.getElementById('vehPatente').value = v.patente || info.patente || '';
+    document.getElementById('vehMarca').value = info.marca || v.marca || '';
+    document.getElementById('vehModelo').value = info.modelo || v.modelo || '';
+    document.getElementById('vehAnio').value = info.anio || info.ano || v.anio || v.ano || '';
+    document.getElementById('vehVin').value = info.vin || v.vin || '';
+    document.getElementById('vehMotor').value = info.motor || v.motor || '';
+    document.getElementById('tituloModalVehiculo').innerHTML = '<i class="bi bi-ev-front-fill me-2" style="color: var(--accent-orange)"></i>Editar Vehículo';
+    mVehiculo.show();
+  }
+}
+
+async function guardarVehiculo() {
+  const id = document.getElementById('vehId').value;
+  const patenteInput = document.getElementById('vehPatente').value.trim().toUpperCase();
+  const marcaInput = document.getElementById('vehMarca').value.trim();
+  const modeloInput = document.getElementById('vehModelo').value.trim();
+  const anioInput = parseInt(document.getElementById('vehAnio').value) || null;
+  const vinInput = document.getElementById('vehVin').value.trim();
+  const motorInput = document.getElementById('vehMotor').value.trim();
+
+  if (!patenteInput) { 
+    alert('La patente es obligatoria'); 
+    return; 
+  }
+
+  const confirmacion = confirm(`¿Está seguro de guardar los cambios para el vehículo "${patenteInput}"?`);
+  if (!confirmacion) return;
+
+  // CORRECCIÓN CLAVE: Enviamos la propiedad 'anio' (en lugar de 'ano') para que coincida con la columna en Supabase
+  const datosPayload = {
+    patente: patenteInput,
+    marca: marcaInput,
+    modelo: modeloInput,
+    anio: anioInput,
+    vin: vinInput,
+    motor: motorInput
+  };
+
+  if (db) {
+    try {
+      let res;
+      if (id && !isNaN(id)) {
+        res = await db.from('vehiculos').update(datosPayload).eq('id', parseInt(id));
+      } else if (id) {
+        res = await db.from('vehiculos').update(datosPayload).eq('patente', id);
+      } else {
+        res = await db.from('vehiculos').insert([datosPayload]);
+      }
+
+      if (res && res.error) {
+        console.error("Error en Supabase guardando vehículo:", res.error);
+        alert("Atención BD: " + res.error.message);
+      }
+    } catch (err) {
+      console.error("Excepción al guardar vehículo:", err);
+    }
+  }
+
+  // Actualización de estado local
+  const vehInfoObj = { marca: marcaInput, modelo: modeloInput, anio: anioInput, vin: vinInput, motor: motorInput };
+  const registroFormateado = {
+    id: id || patenteInput,
+    patente: patenteInput,
+    marca: marcaInput,
+    modelo: modeloInput,
+    anio: anioInput,
+    vin: vinInput,
+    motor: motorInput,
+    vehiculo_info: vehInfoObj
+  };
+
+  const idx = vehiculosMemoria.findIndex(x => x.id == id || x.patente == id);
+  if (idx !== -1) {
+    vehiculosMemoria[idx] = registroFormateado;
+  } else {
+    vehiculosMemoria.push(registroFormateado);
+  }
+
+  localStorage.setItem('taller_vehiculos_custom', JSON.stringify(vehiculosMemoria));
+  mVehiculo.hide();
+  renderVehiculos(vehiculosMemoria);
+  alert("Vehículo guardado correctamente.");
+}
+
+async function eliminarVehiculo(id) {
+  const v = vehiculosMemoria.find(x => x.id == id || x.patente == id);
+  const patente = v ? v.patente : id;
+
+  if (confirm(`¿Está seguro de eliminar el vehículo "${patente}"?`)) {
+    if (db) {
+      try {
+        if (!isNaN(id)) await db.from('vehiculos').delete().eq('id', parseInt(id));
+        else await db.from('vehiculos').delete().eq('patente', id);
+      } catch (e) {
+        console.error("Error eliminando vehículo:", e);
+      }
+    }
+    vehiculosMemoria = vehiculosMemoria.filter(v => v.id != id && v.patente != id);
+    localStorage.setItem('taller_vehiculos_custom', JSON.stringify(vehiculosMemoria));
+    renderVehiculos(vehiculosMemoria);
+  }
+}
+
+/* Historial */
+function verHistorialCliente(nombreCliente) {
+  document.getElementById('historialTarget').innerText = nombreCliente;
+  const hist = ordenesMemoria.filter(o => {
+    const nom = o.cliente || (o.cliente_info && o.cliente_info.nombre);
+    return nom && nom.trim().toLowerCase() === nombreCliente.trim().toLowerCase();
+  });
+  renderTablaHistorial(hist);
+  mHistorial.show();
+}
+
+function verHistorialVehiculo(patente) {
+  document.getElementById('historialTarget').innerText = `Vehículo ${patente}`;
+  const hist = ordenesMemoria.filter(o => {
+    const pat = o.patente || (o.vehiculo_info && o.vehiculo_info.patente);
+    return pat && pat.trim().toUpperCase() === patente.trim().toUpperCase();
+  });
+  renderTablaHistorial(hist);
+  mHistorial.show();
+}
+
+function renderTablaHistorial(lista) {
+  const tbody = document.getElementById('tablaHistorial');
+  tbody.innerHTML = '';
+  if (!lista || lista.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted"><i class="bi bi-clock-history fs-3 d-block mb-2"></i>No existen órdenes previas.</td></tr>';
+    return;
+  }
+  lista.sort((a,b) => new Date(b.created_at || b.fecha) - new Date(a.created_at || a.fecha));
+  lista.forEach(o => {
+    const idOt = o.folio_id || o.id;
+    const fecha = (o.created_at || o.fecha || "").split('T')[0];
+    let colorEstado = 'secondary';
+    let txtEstado = o.estado || 'Recibido';
+    if (txtEstado === 'En Proceso') colorEstado = 'warning';
+    if (txtEstado === 'Terminado') colorEstado = 'success';
+    if (txtEstado === 'Entregado') colorEstado = 'info';
+    const total = o.total ? parseInt(o.total).toLocaleString('es-CL') : '0';
+    tbody.innerHTML += `
+    <tr>
+      <td class="ps-4">
+        <span class="fw-bold d-block text-white">#${idOt}</span>
+        <small class="text-muted">${fecha}</small>
+      </td>
+      <td>
+        <span class="d-block">${o.vehiculo || ''}</span>
+        <small class="text-muted">Patente: ${o.patente || ''}</small>
+      </td>
+      <td><span class="badge badge-soft badge-soft-${colorEstado}">${txtEstado}</span></td>
+      <td class="text-end fw-bold text-success">$${total}</td>
+      <td class="text-center pe-4">
+        <a href="ordenes.html?id=${idOt}" class="btn-action view" title="Ver Orden"><i class="bi bi-box-arrow-up-right"></i></a>
+      </td>
+    </tr>`;
+  });
+}
+
+function logout() {
+  localStorage.removeItem('taller_session');
+  window.location.href = 'index.html';
+}
+</script>
 </body>
 </html>
