@@ -15,6 +15,7 @@
             --accent-orange: #ff5722;
             --accent-red: #ef4444;
             --whatsapp-green: #10b981;
+            --google-yellow: #f59e0b;
         }
 
         body {
@@ -205,6 +206,30 @@
             transform: translateY(-1px);
         }
 
+        /* Botón de Calificación Google */
+        .btn-google {
+            background-color: #ffffff;
+            color: #1f2937;
+            font-weight: 700;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 20px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn-google:hover {
+            background-color: #f3f4f6;
+            color: #111827;
+            transform: translateY(-1px);
+        }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -291,6 +316,15 @@
             </div>
         </div>
 
+        <!-- TARJETA 4: CALIFICACIÓN GOOGLE (OCULTA HASTA QUE ESTÉ FINALIZADO) -->
+        <div class="card-panel text-center" id="seccionGoogle" style="display: none; background: linear-gradient(135deg, #131c2e 0%, #1e293b 100%); border-color: rgba(245, 158, 11, 0.3);">
+            <h5 class="fw-bold text-white mb-2"><i class="bi bi-star-fill text-warning me-1"></i> ¿Cómo estuvo nuestro servicio?</h5>
+            <p class="text-secondary small mb-3">Tu opinión nos ayuda a seguir mejorando cada día en Alineaciones Bustamante.</p>
+            <a href="AQUÍ_PEGA_TU_LINK_DIRECTO_DE_GOOGLE_REVIEWS" target="_blank" class="btn-google">
+                <i class="bi bi-google text-danger fs-5"></i> Déjanos tu reseña en Google
+            </a>
+        </div>
+
         <!-- BOTÓN DE CONTACTO WHATSAPP -->
         <div class="mt-4">
             <a href="https://wa.me/56900000000?text=Hola,%20quisiera%20consultar%20por%20el%20estado%20de%20mi%20orden" target="_blank" class="btn-whatsapp" id="btnWhatsapp">
@@ -309,7 +343,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
             const urlParams = new URLSearchParams(window.location.search);
-            const orderId = urlParams.get('id') || urlParams.get('ot') || '247'; // Por defecto 247 para pruebas visuales
+            const orderId = urlParams.get('id') || urlParams.get('ot') || '247'; 
 
             document.getElementById('txtOrdenTitulo').textContent = `Orden #${orderId}`;
 
@@ -320,7 +354,6 @@
                     return;
                 }
 
-                // Consultamos en la tabla de órdenes de trabajo
                 const { data, error } = await db
                     .from('ordenes_trabajo')
                     .select('*')
@@ -332,7 +365,6 @@
                     return;
                 }
 
-                // Rellenar datos reales de la BD
                 const patente = data.patente || 'HBYP79';
                 document.getElementById('txtPatenteHeader').textContent = patente;
                 document.getElementById('txtPatenteDetalle').textContent = patente;
@@ -352,8 +384,6 @@
                     document.getElementById('txtComentarios').style.color = '#e2e8f0';
                 }
 
-                // Manejo de estados y pasos (1 a 4)
-                // Estados comunes: 'ingreso', 'presupuesto', 'en_proceso', 'finalizado'
                 actualizarTimelinePasos(data.estado || 'finalizado', data.fecha_fin || data.updated_at);
 
             } catch (err) {
@@ -363,12 +393,12 @@
 
         function actualizarTimelinePasos(estadoStr, fechaFinStr) {
             const estado = estadoStr.toLowerCase();
-            let pasoActivo = 4; // Por defecto finalizado como en la captura
+            let pasoActivo = 4; 
 
             if (estado.includes('ingreso')) pasoActivo = 1;
             else if (estado.includes('presupuesto')) pasoActivo = 2;
             else if (estado.includes('proceso')) pasoActivo = 3;
-            else if (estado.includes('finalizado') || estado.includes('terminado')) pasoActivo = 4;
+            else if (estado.includes('finalizado') || estado.includes('terminado') || estado.includes('listo')) pasoActivo = 4;
 
             for (let i = 1; i <= 4; i++) {
                 const el = document.getElementById(`step-${i}`);
@@ -382,18 +412,25 @@
             }
 
             const badge = document.getElementById('badgeEstadoGeneral');
+            const seccionGoogle = document.getElementById('seccionGoogle');
+
             if (pasoActivo === 4) {
                 badge.className = "badge-status finalizado";
-                badge.textContent = "Finalizado";
-            } else if (pasoActivo === 3) {
-                badge.className = "badge-status en-proceso";
-                badge.textContent = "En proceso";
-            } else if (pasoActivo === 2) {
-                badge.className = "badge-status en-proceso";
-                badge.textContent = "Presupuesto";
+                badge.textContent = "Finalizado / Listo";
+                // Muestra la tarjeta de Google solo si el vehículo está finalizado
+                seccionGoogle.style.display = "block";
             } else {
-                badge.className = "badge-status en-proceso";
-                badge.textContent = "Ingreso";
+                seccionGoogle.style.display = "none";
+                if (pasoActivo === 3) {
+                    badge.className = "badge-status en-proceso";
+                    badge.textContent = "En proceso";
+                } else if (pasoActivo === 2) {
+                    badge.className = "badge-status en-proceso";
+                    badge.textContent = "Presupuesto";
+                } else {
+                    badge.className = "badge-status en-proceso";
+                    badge.textContent = "Ingreso";
+                }
             }
 
             if (fechaFinStr) {

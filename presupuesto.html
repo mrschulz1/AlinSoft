@@ -265,9 +265,15 @@
                         <h3 class="fw-bold m-0" id="lblFolioOT">NUEVO PRESUPUESTO</h3>
                         <span class="badge-hud" id="lblBadgePatenteHeader">SIN PATENTE</span>
                     </div>
-                    <p class="text-muted small m-0 mt-1">Configura ítems, repuestos y especificaciones del vehículo</p>
+                    <p class="text-muted small m-0 mt-1">Emision de presupuesto y cotización</p>
                 </div>
             </div>
+            <div class="form-check form-switch d-flex align-items-center gap-3 p-0">
+                    <input class="form-check-input m-0" type="checkbox" id="switchNotificarWsp" checked style="width: 3em; height: 1.5em; cursor: pointer;">
+                    <label class="form-check-label fw-bold" for="switchNotificarWsp" style="cursor: pointer;">
+                        <i class="bi bi-whatsapp text-success me-1"></i> Notificar automáticamente al cliente por WhatsApp
+                    </label>
+                </div>
             
             <div class="d-flex align-items-center gap-4">
                 <div class="text-end">
@@ -933,9 +939,6 @@ async function guardarPresupuesto() {
         const urlParams = new URLSearchParams(window.location.search);
         const idOrden = urlParams.get('id');
         
-        // SOLUCIÓN APLICADA: SE COMENTA 'n_motor' (y campos inseguros a nivel de columna)
-        // para que no genere error de columna inexistente en Supabase.
-        // Toda la info queda respaldada dentro del json 'vehiculo_info'.
         const datosPresupuesto = {
             patente: vehiculoSeleccionado.patente,
             marca: vehiculoSeleccionado.marca || "",
@@ -943,9 +946,7 @@ async function guardarPresupuesto() {
             ano: vehiculoSeleccionado.ano || vehiculoSeleccionado.anio || '-',
             transmision: vehiculoSeleccionado.transmision || "",
             color: vehiculoSeleccionado.color || "",
-            // n_motor: vehiculoSeleccionado.n_motor || '', // CAMPO ELIMINADO DE LA RAÍZ
-            //vin: vehiculoSeleccionado.vin || "",
-            vehiculo_info: vehiculoSeleccionado, // Aquí seguirá existiendo n_motor
+            vehiculo_info: vehiculoSeleccionado,
             cliente_info: clienteSeleccionado || {},
             items: listItems,
             estado: estadoOT,
@@ -961,6 +962,7 @@ async function guardarPresupuesto() {
         
         let resultado;
         if (idOrden) {
+            // Si es actualización, mantenemos el ID existente
             resultado = await db.from('ordenes_trabajo').update(datosPresupuesto).eq('id', idOrden).select();
         } else {
             datosPresupuesto.numero = 'OT-' + Math.floor(1000 + Math.random() * 9000);
@@ -968,6 +970,27 @@ async function guardarPresupuesto() {
         }
         
         if (resultado.error) throw new Error(resultado.error.message);
+
+        // ==========================================
+        // NUEVA LÓGICA DE NOTIFICACIÓN WHATSAPP
+        // ==========================================
+        const registroGuardado = resultado.data && resultado.data[0] ? resultado.data[0] : null;
+        const idFinalOrden = idOrden || (registroGuardado ? registroGuardado.id : null);
+        
+        const quiereNotificar = document.getElementById('switchNotificarWsp')?.checked;
+        // Intenta sacar el teléfono del objeto clienteSeleccionado o de un input si lo tienes directo
+        const telefonoCliente = clienteSeleccionado?.telefono || clienteSeleccionado?.celular || document.getElementById('inputTelefonoCliente')?.value;
+
+        if (quiereNotificar && telefonoCliente && idFinalOrden) {
+            // Cambia 'tudominio.cl' por tu dominio o URL real de despliegue donde esté alojado ver_ot.html
+            const linkSeguimiento = `${window.location.origin}/ver_ot.html?id=${idFinalOrden}`;
+            const mensaje = `¡Hola! En *Alineaciones Bustamante* hemos actualizado tu presupuesto/orden (${datosPresupuesto.patente}). Puedes revisarlo y seguir su estado en tiempo real aquí: ${linkSeguimiento}`;
+            
+            const urlWhatsApp = `https://wa.me/${telefonoCliente}?text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWhatsApp, '_blank');
+        }
+        // ==========================================
+
         mostrarToast("¡Orden de trabajo guardada con éxito!", "exito");
         setTimeout(() => {
             window.location.href = 'ordenes.html';

@@ -145,6 +145,7 @@ body {
 </style>
 </head>
 <body>
+
 <!-- Header Móvil -->
 <div class="d-md-none p-3 bg-dark border-bottom border-secondary d-flex justify-content-between align-items-center">
     <span class="fw-bold fs-5 text-white">Alin<span class="text-danger">Soft</span></span>
@@ -196,6 +197,15 @@ body {
                         <div class="col-12 col-md-6">
                             <label class="form-label">Teléfono (WhatsApp)</label>
                             <input type="text" id="telefono" class="form-control" value="+56 9" placeholder="+56 9 12345678">
+                        </div>
+                        <!-- Switch para activar notificación por WhatsApp -->
+                        <div class="col-12 mt-3">
+                            <div class="form-check form-switch d-flex align-items-center gap-3 p-0">
+                                <input class="form-check-input m-0" type="checkbox" id="switchNotificarWsp" checked style="width: 3em; height: 1.5em; cursor: pointer;">
+                                <label class="form-check-label fw-bold" for="switchNotificarWsp" style="cursor: pointer;">
+                                    <i class="bi bi-whatsapp text-success me-1"></i> Notificar automáticamente al cliente por WhatsApp
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -293,10 +303,10 @@ body {
 
         <!-- BOTONES DE ENVÍO -->
         <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
-            <button type="submit" name="accionDestino" value="orden" class="btn btn-glass px-4 py-3 fw-bold text-white">
+            <button type="submit" name="accionDestino" value="orden" class="btn btn-secondary px-4 py-3 fw-bold text-white">
                 <i class="bi bi-check2-circle me-2 text-success fs-5"></i> Solo Crear Orden
             </button>
-            <button type="submit" name="accionDestino" value="presupuesto" id="btnGuardarOT" class="btn btn-glow-danger px-4 py-3 fw-bold">
+            <button type="submit" name="accionDestino" value="presupuesto" id="btnGuardarOT" class="btn btn-danger px-4 py-3 fw-bold">
                 <span id="btnTextOT">
                     <i class="bi bi-calculator-fill me-2 fs-5"></i> Guardar y Continuar a Presupuesto
                 </span>
@@ -321,7 +331,6 @@ body {
 <script src="supabase-config.js"></script>
 <script src="app.js"></script>
 <script>
-// FUNCIONES GLOBALES
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('show');
 }
@@ -377,7 +386,7 @@ async function obtenerSiguienteNumeroOT() {
 
 async function verificarPatenteSupabaseOAPI(patenteForzada = null) {
     const inputPatente = document.getElementById('patente');
-    let patenteQuery = patenteForzada || (inputPatente ? inputPatente.value.trim().toUpperCase() : '');
+    let patenteQuery = patenteForzada || (inputPatente ? inputPatente.value.trim().toUpperCase() : "");
     if (!patenteQuery || patenteQuery.length < 4) {
         mostrarToast("Ingresa una patente válida (Ej: JTYY13)", "error");
         return;
@@ -394,29 +403,18 @@ async function verificarPatenteSupabaseOAPI(patenteForzada = null) {
             .select('*')
             .ilike('patente', patenteQuery)
             .maybeSingle();
-
         if (!error && data) {
             const cinfo = data.cliente_info || {};
             const vinfo = data.vehiculo_info || {};
-            if (cinfo.nombre && document.getElementById('cliente'))
-                document.getElementById('cliente').value = cinfo.nombre;
-            if (cinfo.rut && document.getElementById('rut'))
-                document.getElementById('rut').value = cinfo.rut;
-            if (cinfo.telefono && document.getElementById('telefono'))
-                document.getElementById('telefono').value = cinfo.telefono;
-            if (data.marca && document.getElementById('marca'))
-                document.getElementById('marca').value = data.marca;
-            if (data.modelo && document.getElementById('modelo'))
-                document.getElementById('modelo').value = data.modelo;
-            if (data.ano && document.getElementById('ano'))
-                document.getElementById('ano').value = data.ano;
-            if (data.color && document.getElementById('color'))
-                document.getElementById('color').value = data.color;
-            if (vinfo.vin && document.getElementById('vin'))
-                document.getElementById('vin').value = vinfo.vin;
-            if (vinfo.n_motor && document.getElementById('n_motor'))
-                document.getElementById('n_motor').value = vinfo.n_motor;
-            
+            if (cinfo.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = cinfo.nombre;
+            if (cinfo.rut && document.getElementById('rut')) document.getElementById('rut').value = cinfo.rut;
+            if (cinfo.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = cinfo.telefono;
+            if (data.marca && document.getElementById('marca')) document.getElementById('marca').value = data.marca;
+            if (data.modelo && document.getElementById('modelo')) document.getElementById('modelo').value = data.modelo;
+            if (data.ano && document.getElementById('ano')) document.getElementById('ano').value = data.ano;
+            if (data.color && document.getElementById('color')) document.getElementById('color').value = data.color;
+            if (vinfo.vin && document.getElementById('vin')) document.getElementById('vin').value = vinfo.vin;
+            if (vinfo.n_motor && document.getElementById('n_motor')) document.getElementById('n_motor').value = vinfo.n_motor;
             mostrarToast(`¡ATENCIÓN! La patente ${patenteQuery} ya cuenta con registros previos.`, "alerta");
             return;
         }
@@ -436,10 +434,8 @@ async function verificarClienteSupabasePorRut(rutQuery) {
             .eq('rut', rutQuery)
             .maybeSingle();
         if (!error && data) {
-            if (data.nombre && document.getElementById('cliente'))
-                document.getElementById('cliente').value = data.nombre;
-            if (data.telefono && document.getElementById('telefono'))
-                document.getElementById('telefono').value = data.telefono;
+            if (data.nombre && document.getElementById('cliente')) document.getElementById('cliente').value = data.nombre;
+            if (data.telefono && document.getElementById('telefono')) document.getElementById('telefono').value = data.telefono;
             mostrarToast(`¡Cliente con RUT ${rutQuery} encontrado!`, "exito");
         }
     } catch (err) {
@@ -452,13 +448,12 @@ async function consultarPatenteAPI(patenteQuery) {
     mostrarToast(`Consultando patente ${patenteQuery} en API externa...`, "info");
     if (btnConsultar) {
         btnConsultar.disabled = true;
-        btnConsultar.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Consultando...`;
+        btnConsultar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Consultando...';
     }
     try {
         const db = obtenerSupabaseCliente();
-        if (!db) {
-            throw new Error("No se encontró la conexión con Supabase.");
-        }
+        if (!db) throw new Error("No se encontró la conexión con Supabase.");
+        
         const { data, error } = await db.functions.invoke('get-vehiculo', {
             body: { patente: patenteQuery }
         });
@@ -477,7 +472,7 @@ async function consultarPatenteAPI(patenteQuery) {
     } finally {
         if (btnConsultar) {
             btnConsultar.disabled = false;
-            btnConsultar.innerHTML = `<i class="bi bi-magic me-1"></i> Consultar Patente`;
+            btnConsultar.innerHTML = '<i class="bi bi-magic me-1"></i> Consultar Patente';
         }
     }
 }
@@ -498,22 +493,14 @@ function normalizarRespuestaAPI(responseJson) {
 }
 
 function autocompletarFormularioRecepcion(datos) {
-    if (datos.cliente && document.getElementById('cliente'))
-        document.getElementById('cliente').value = datos.cliente;
-    if (datos.rut && document.getElementById('rut'))
-        document.getElementById('rut').value = datos.rut;
-    if (datos.marca && document.getElementById('marca'))
-        document.getElementById('marca').value = datos.marca;
-    if (datos.modelo && document.getElementById('modelo'))
-        document.getElementById('modelo').value = datos.modelo;
-    if (datos.ano && document.getElementById('ano'))
-        document.getElementById('ano').value = datos.ano;
-    if (datos.vin && document.getElementById('vin'))
-        document.getElementById('vin').value = datos.vin;
-    if (datos.color && document.getElementById('color'))
-        document.getElementById('color').value = datos.color;
-    if (datos.n_motor && document.getElementById('n_motor'))
-        document.getElementById('n_motor').value = datos.n_motor;
+    if (datos.cliente && document.getElementById('cliente')) document.getElementById('cliente').value = datos.cliente;
+    if (datos.rut && document.getElementById('rut')) document.getElementById('rut').value = datos.rut;
+    if (datos.marca && document.getElementById('marca')) document.getElementById('marca').value = datos.marca;
+    if (datos.modelo && document.getElementById('modelo')) document.getElementById('modelo').value = datos.modelo;
+    if (datos.ano && document.getElementById('ano')) document.getElementById('ano').value = datos.ano;
+    if (datos.vin && document.getElementById('vin')) document.getElementById('vin').value = datos.vin;
+    if (datos.color && document.getElementById('color')) document.getElementById('color').value = datos.color;
+    if (datos.n_motor && document.getElementById('n_motor')) document.getElementById('n_motor').value = datos.n_motor;
 }
 
 function mostrarPrevisualizaciones(input) {
@@ -533,16 +520,13 @@ function mostrarPrevisualizaciones(input) {
     }
 }
 
-// INICIALIZACIÓN DE EVENTOS AL CARGAR EL DOM
 document.addEventListener("DOMContentLoaded", function() {
-    // Establecer fecha actual por defecto si está vacía
     const inputFecha = document.getElementById('fecha');
     if (inputFecha && !inputFecha.value) {
         const hoy = new Date().toISOString().split('T')[0];
         inputFecha.value = hoy;
     }
 
-    // Selector de nivel de combustible interactivo
     document.querySelectorAll('.fuel-level-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.fuel-level-btn').forEach(b => b.classList.remove('active'));
@@ -554,7 +538,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // Lógica para el campo Patente
     const inputPatente = document.getElementById('patente');
     if (inputPatente) {
         inputPatente.addEventListener('keypress', function(e) {
@@ -570,11 +553,10 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Validación y formateo automático de RUT (Puntos y guion)
     const inputRut = document.getElementById('rut');
     if (inputRut) {
         inputRut.addEventListener('input', function(e) {
-            let valor = this.value.replace(/[^0-9kK]/g, '').toUpperCase();
+            let valor = this.value.replace(/[^0-9kK]/g, "").toUpperCase();
             if (valor.length > 1) {
                 let cuerpo = valor.slice(0, -1);
                 let dv = valor.slice(-1);
@@ -591,7 +573,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // Prefijo automático para el Teléfono / WhatsApp
     const inputTelefono = document.getElementById('telefono');
     if (inputTelefono) {
         inputTelefono.addEventListener('focus', function() {
@@ -606,12 +587,11 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
-    // LÓGICA DE ENVÍO DE LA ORDEN DE TRABAJO (Con soporte para ambos botones)
     let destinoAccion = 'orden';
     const botonesSubmit = document.querySelectorAll('#formNuevaOT button[type="submit"]');
     botonesSubmit.forEach(boton => {
         boton.addEventListener('click', function() {
-            destinoAccion = this.value; // 'orden' o 'presupuesto'
+            destinoAccion = this.value;
         });
     });
 
@@ -619,8 +599,6 @@ document.addEventListener("DOMContentLoaded", function() {
     if (formOT) {
         formOT.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            // Validación nativa del navegador (valida RUT, teléfono y campos requeridos)
             if (!formOT.checkValidity()) {
                 formOT.reportValidity();
                 return;
@@ -629,7 +607,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const btnGuardar = document.getElementById('btnGuardarOT');
             const btnText = document.getElementById('btnTextOT');
             const btnSpinner = document.getElementById('btnSpinnerOT');
-            
+
             if (btnGuardar) btnGuardar.disabled = true;
             if (btnText) btnText.classList.add('d-none');
             if (btnSpinner) btnSpinner.classList.remove('d-none');
@@ -639,8 +617,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (!db) {
                     throw new Error("No hay conexión activa con Supabase.");
                 }
-                
-                // Obtener el siguiente número correlativo
+
                 const siguienteNumero = await obtenerSiguienteNumeroOT();
                 const folioFinal = `OT-${siguienteNumero}`;
 
@@ -679,9 +656,27 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 mostrarToast(`¡Orden ${folioFinal} creada y guardada exitosamente!`, "exito");
                 
+                // =========================================================================
+                // LÓGICA SEGURA DE WHATSAPP CONECTADA A cliente_info
+                // =========================================================================
+                const idCreado = data && data[0] ? data[0].id : '';
+                const quiereNotificar = document.getElementById('switchNotificarWsp')?.checked;
+                
+                const telefonoCliente = nuevaOrden?.cliente_info?.telefono 
+                    || document.getElementById('telefono')?.value 
+                    || '';
+
+                if (quiereNotificar && telefonoCliente && idCreado) {
+                    const linkSeguimiento = `${window.location.origin}/ver_ot.html?id=${idCreado}`;
+                    const mensaje = `¡Hola! En *Alineaciones Bustamante* hemos recepcionado tu vehículo. Puedes revisar el estado de tu orden en tiempo real aquí: ${linkSeguimiento}`;
+                    
+                    const telefonoLimpiado = telefonoCliente.replace(/\D/g, '');
+                    const urlWhatsApp = `https://wa.me/${telefonoLimpiado}?text=${encodeURIComponent(mensaje)}`;
+                    window.open(urlWhatsApp, '_blank');
+                }
+                // =========================================================================
+
                 setTimeout(() => {
-                    const idCreado = data && data[0] ? data[0].id : '';
-                    // Redirección inteligente según el botón que se presionó
                     if (destinoAccion === 'presupuesto' && idCreado) {
                         window.location.href = `presupuesto.html?id=${idCreado}`;
                     } else {
